@@ -1,7 +1,11 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { useCreateBlockNote } from '@blocknote/react'
+import { BlockNoteView } from '@blocknote/mantine'
+import '@blocknote/mantine/style.css'
+import '@blocknote/core/fonts/inter.css'
 import { updateCharacter } from '@/lib/charactersApi'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { Character } from '@/lib/types'
@@ -9,18 +13,35 @@ import type { Character } from '@/lib/types'
 /**
  * Notion-style dedicated page for editing one character (issue #7): large,
  * comfortable fields rather than the compact inline form on the story home
- * view. Saving or cancelling both return to the story home
- * (`/story/[id]`), where the character list itself still owns the
- * excerpt/delete UI.
+ * view. The description field is a BlockNote block editor (Notion-style
+ * rich text) rather than a plain textarea, so markdown-like formatting
+ * (issue #7's "should support markdown formatting") comes for free through
+ * BlockNote's own markdown import/export rather than a bespoke renderer.
+ * `description` is still persisted as a single markdown string
+ * (`blocksToMarkdownLossy`/`tryParseMarkdownToBlocks`), so the stored shape
+ * and the rest of the app (character system-prompt injection, etc.) are
+ * unaffected.
+ *
+ * Saving or cancelling both return to the story home (`/story/[id]`), where
+ * the character list itself still owns the excerpt/delete UI.
  */
 export function CharacterEditPage({ storyId, character }: { storyId: string; character: Character }) {
   const { t } = useLocale()
   const router = useRouter()
+  const editor = useCreateBlockNote()
 
   const [name, setName] = useState(character.name)
-  const [description, setDescription] = useState(character.description)
   const [error, setError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const hasLoadedInitialContent = useRef(false)
+
+  useEffect(() => {
+    if (hasLoadedInitialContent.current) return
+    hasLoadedInitialContent.current = true
+
+    const blocks = editor.tryParseMarkdownToBlocks(character.description)
+    editor.replaceBlocks(editor.document, blocks)
+  }, [editor, character.description])
 
   function goBackToStory() {
     router.push(`/story/${storyId}`)
@@ -29,8 +50,8 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     const trimmedName = name.trim()
-    const trimmedDescription = description.trim()
-    if (!trimmedName || !trimmedDescription) {
+    const description = editor.blocksToMarkdownLossy(editor.document).trim()
+    if (!trimmedName || !description) {
       setError(t('characters.requiredError'))
       return
     }
@@ -38,10 +59,7 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
     setIsSaving(true)
     setError(null)
     try {
-      await updateCharacter(storyId, character.id, {
-        name: trimmedName,
-        description: trimmedDescription,
-      })
+      await updateCharacter(storyId, character.id, { name: trimmedName, description })
       goBackToStory()
     } catch (err) {
       console.error('Failed to save character', err)
@@ -82,14 +100,12 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
             <label className="mb-1 block text-sm font-semibold text-gray-500 dark:text-gray-400">
               {t('characters.descriptionPlaceholder')}
             </label>
-            <textarea
+            <div
               data-testid="character-page-description-input"
-              className="w-full resize-y rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
-              rows={12}
-              placeholder={t('characters.descriptionPlaceholder')}
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-            />
+              className="rounded-lg border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900"
+            >
+              <BlockNoteView editor={editor} />
+            </div>
           </div>
 
           {error && (
