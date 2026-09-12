@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, type CSSProperties } from 'react'
+import { useEffect, useRef } from 'react'
 import { useCreateBlockNote } from '@blocknote/react'
 import { BlockNoteView } from '@blocknote/mantine'
 import '@blocknote/mantine/style.css'
@@ -12,6 +12,13 @@ import '@blocknote/core/fonts/inter.css'
  * `window` on creation and therefore cannot render during Next.js's
  * server-side render — `CharacterEditPage` loads this component via
  * `next/dynamic` with `ssr: false`.
+ *
+ * Its background/gutter overrides (blending into the page, aligning with
+ * the title above it) live in `app/globals.css` under
+ * `.character-description-editor`, not here — see that file's comment for
+ * why (`.bn-root`, where BlockNote itself declares its color variables, is
+ * a separate portal-rendered element this component has no direct handle
+ * on).
  */
 export function CharacterDescriptionEditor({
   initialMarkdown,
@@ -32,13 +39,6 @@ export function CharacterDescriptionEditor({
   }, [editor, initialMarkdown])
 
   return (
-    <BlockNoteView
-      editor={editor}
-      onChange={() => onChangeMarkdown(editor.blocksToMarkdownLossy(editor.document))}
-      // Overridden as an inline style, not a CSS rule, because BlockNoteView's
-      // own root element (.bn-root) redeclares this variable itself — a rule
-      // on an ancestor would otherwise be shadowed by that declaration.
-      style={{ '--bn-colors-editor-background': 'transparent' } as CSSProperties}
-    />
+    <BlockNoteView editor={editor} onChange={() => onChangeMarkdown(editor.blocksToMarkdownLossy(editor.document))} />
   )
 }
