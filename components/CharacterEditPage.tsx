@@ -1,26 +1,28 @@
 'use client'
 
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { useCreateBlockNote } from '@blocknote/react'
-import { BlockNoteView } from '@blocknote/mantine'
-import '@blocknote/mantine/style.css'
-import '@blocknote/core/fonts/inter.css'
+import dynamic from 'next/dynamic'
 import { updateCharacter } from '@/lib/charactersApi'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { Character } from '@/lib/types'
+
+const CharacterDescriptionEditor = dynamic(
+  () => import('./CharacterDescriptionEditor').then((mod) => mod.CharacterDescriptionEditor),
+  { ssr: false },
+)
 
 /**
  * Notion-style dedicated page for editing one character (issue #7): large,
  * comfortable fields rather than the compact inline form on the story home
  * view. The description field is a BlockNote block editor (Notion-style
- * rich text) rather than a plain textarea, so markdown-like formatting
- * (issue #7's "should support markdown formatting") comes for free through
- * BlockNote's own markdown import/export rather than a bespoke renderer.
- * `description` is still persisted as a single markdown string
- * (`blocksToMarkdownLossy`/`tryParseMarkdownToBlocks`), so the stored shape
- * and the rest of the app (character system-prompt injection, etc.) are
- * unaffected.
+ * rich text, `CharacterDescriptionEditor`) rather than a plain textarea, so
+ * markdown-like formatting (issue #7's "should support markdown
+ * formatting") comes for free through BlockNote's own markdown
+ * import/export rather than a bespoke renderer. `description` is still
+ * persisted as a single markdown string, kept in sync here via the
+ * editor's `onChangeMarkdown` callback — so the stored shape and the rest
+ * of the app (character system-prompt injection, etc.) are unaffected.
  *
  * Saving or cancelling both return to the story home (`/story/[id]`), where
  * the character list itself still owns the excerpt/delete UI.
@@ -28,20 +30,11 @@ import type { Character } from '@/lib/types'
 export function CharacterEditPage({ storyId, character }: { storyId: string; character: Character }) {
   const { t } = useLocale()
   const router = useRouter()
-  const editor = useCreateBlockNote()
 
   const [name, setName] = useState(character.name)
+  const [description, setDescription] = useState(character.description)
   const [error, setError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
-  const hasLoadedInitialContent = useRef(false)
-
-  useEffect(() => {
-    if (hasLoadedInitialContent.current) return
-    hasLoadedInitialContent.current = true
-
-    const blocks = editor.tryParseMarkdownToBlocks(character.description)
-    editor.replaceBlocks(editor.document, blocks)
-  }, [editor, character.description])
 
   function goBackToStory() {
     router.push(`/story/${storyId}`)
@@ -50,8 +43,8 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     const trimmedName = name.trim()
-    const description = editor.blocksToMarkdownLossy(editor.document).trim()
-    if (!trimmedName || !description) {
+    const trimmedDescription = description.trim()
+    if (!trimmedName || !trimmedDescription) {
       setError(t('characters.requiredError'))
       return
     }
@@ -59,7 +52,7 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
     setIsSaving(true)
     setError(null)
     try {
-      await updateCharacter(storyId, character.id, { name: trimmedName, description })
+      await updateCharacter(storyId, character.id, { name: trimmedName, description: trimmedDescription })
       goBackToStory()
     } catch (err) {
       console.error('Failed to save character', err)
@@ -104,7 +97,7 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
               data-testid="character-page-description-input"
               className="rounded-lg border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900"
             >
-              <BlockNoteView editor={editor} />
+              <CharacterDescriptionEditor initialMarkdown={character.description} onChangeMarkdown={setDescription} />
             </div>
           </div>
 

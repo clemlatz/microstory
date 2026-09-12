@@ -17,30 +17,24 @@ import { updateCharacter } from '@/lib/charactersApi'
 
 const mockedUpdateCharacter = vi.mocked(updateCharacter)
 
-// BlockNote/ProseMirror doesn't render in jsdom, and its own behavior is
-// out of scope here (it's a third-party editor) — this test suite only
-// verifies how CharacterEditPage wires markdown in and out of it. The mock
-// editor tracks its "document" as a single markdown string, mirroring the
-// real one's blocksToMarkdownLossy/tryParseMarkdownToBlocks round-trip.
-let mockEditorContent = ''
-const mockReplaceBlocks = vi.fn()
-const mockTryParseMarkdownToBlocks = vi.fn((markdown: string) => {
-  mockEditorContent = markdown
-  return [markdown]
-})
-const mockBlocksToMarkdownLossy = vi.fn(() => mockEditorContent)
-
-vi.mock('@blocknote/react', () => ({
-  useCreateBlockNote: () => ({
-    document: [],
-    replaceBlocks: mockReplaceBlocks,
-    tryParseMarkdownToBlocks: mockTryParseMarkdownToBlocks,
-    blocksToMarkdownLossy: mockBlocksToMarkdownLossy,
-  }),
-}))
-
-vi.mock('@blocknote/mantine', () => ({
-  BlockNoteView: () => <div data-testid="blocknote-editor-stub" />,
+// The real BlockNote editor is covered by CharacterDescriptionEditor's own
+// tests; here it's stubbed as a plain textarea driven by the same
+// initialMarkdown/onChangeMarkdown contract, so this suite only exercises
+// CharacterEditPage's own save/cancel/validation logic.
+vi.mock('./CharacterDescriptionEditor', () => ({
+  CharacterDescriptionEditor: ({
+    initialMarkdown,
+    onChangeMarkdown,
+  }: {
+    initialMarkdown: string
+    onChangeMarkdown: (markdown: string) => void
+  }) => (
+    <textarea
+      data-testid="character-description-editor-stub"
+      defaultValue={initialMarkdown}
+      onChange={(event) => onChangeMarkdown(event.target.value)}
+    />
+  ),
 }))
 
 const alice: Character = {
@@ -55,25 +49,13 @@ describe('CharacterEditPage', () => {
   beforeEach(() => {
     mockRouterPush.mockReset()
     mockedUpdateCharacter.mockReset()
-    mockReplaceBlocks.mockClear()
-    mockTryParseMarkdownToBlocks.mockClear()
-    mockBlocksToMarkdownLossy.mockClear()
-    mockEditorContent = ''
   })
 
-  it('loads the character description into the editor as markdown', async () => {
-    render(<CharacterEditPage storyId="story-1" character={alice} />)
-
-    await waitFor(() => {
-      expect(mockTryParseMarkdownToBlocks).toHaveBeenCalledWith('Une héroïne curieuse')
-    })
-    expect(mockReplaceBlocks).toHaveBeenCalled()
-  })
-
-  it('shows the character name in the name field', () => {
+  it('shows the character name and description', async () => {
     render(<CharacterEditPage storyId="story-1" character={alice} />)
 
     expect(screen.getByTestId('character-page-name-input')).toHaveValue('Alice')
+    expect(await screen.findByTestId('character-description-editor-stub')).toHaveValue('Une héroïne curieuse')
   })
 
   it('saves the changes and navigates back to the story home', async () => {
@@ -81,7 +63,6 @@ describe('CharacterEditPage', () => {
     const user = userEvent.setup()
 
     render(<CharacterEditPage storyId="story-1" character={alice} />)
-    await waitFor(() => expect(mockTryParseMarkdownToBlocks).toHaveBeenCalled())
 
     await user.clear(screen.getByTestId('character-page-name-input'))
     await user.type(screen.getByTestId('character-page-name-input'), 'Alice Doe')
@@ -94,6 +75,24 @@ describe('CharacterEditPage', () => {
       })
     })
     expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+  })
+
+  it('saves an edited description', async () => {
+    mockedUpdateCharacter.mockResolvedValue(alice)
+    const user = userEvent.setup()
+
+    render(<CharacterEditPage storyId="story-1" character={alice} />)
+
+    await user.clear(await screen.findByTestId('character-description-editor-stub'))
+    await user.type(screen.getByTestId('character-description-editor-stub'), 'Une héroïne intrépide')
+    await user.click(screen.getByTestId('character-page-save-button'))
+
+    await waitFor(() => {
+      expect(mockedUpdateCharacter).toHaveBeenCalledWith('story-1', '1', {
+        name: 'Alice',
+        description: 'Une héroïne intrépide',
+      })
+    })
   })
 
   it('navigates back without saving when cancelled', async () => {
@@ -109,7 +108,6 @@ describe('CharacterEditPage', () => {
   it('shows a validation error when the name is cleared', async () => {
     const user = userEvent.setup()
     render(<CharacterEditPage storyId="story-1" character={alice} />)
-    await waitFor(() => expect(mockTryParseMarkdownToBlocks).toHaveBeenCalled())
 
     await user.clear(screen.getByTestId('character-page-name-input'))
     await user.click(screen.getByTestId('character-page-save-button'))
@@ -121,9 +119,8 @@ describe('CharacterEditPage', () => {
   it('shows a validation error when the description is emptied', async () => {
     const user = userEvent.setup()
     render(<CharacterEditPage storyId="story-1" character={alice} />)
-    await waitFor(() => expect(mockTryParseMarkdownToBlocks).toHaveBeenCalled())
-    mockEditorContent = ''
 
+    await user.clear(await screen.findByTestId('character-description-editor-stub'))
     await user.click(screen.getByTestId('character-page-save-button'))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Name and description are required.')
@@ -135,7 +132,6 @@ describe('CharacterEditPage', () => {
     const user = userEvent.setup()
 
     render(<CharacterEditPage storyId="story-1" character={alice} />)
-    await waitFor(() => expect(mockTryParseMarkdownToBlocks).toHaveBeenCalled())
 
     await user.click(screen.getByTestId('character-page-save-button'))
 
