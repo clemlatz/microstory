@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The app can now be added to the home screen as an installable, app-like experience (a web manifest with `display: standalone`, plus the iOS meta tags), so it opens without the browser's own address bar and toolbar.
 - Editing a character now opens a dedicated, Notion-style page (`/story/[id]/character/[characterId]`) with large fields, instead of an inline form on the story home view. The character list still shows an excerpt and the delete action stays there.
 - The character description field on that page is now a BlockNote rich-text block editor (Notion-style formatting) instead of a plain textarea. The description is still stored as a single markdown string.
 - The character edit page now uses the name field itself as the page title (no separate heading or field labels), with the save button aligned next to it, and the description editor filling the rest of the viewport. The cancel button was removed — the back link above serves the same purpose.
@@ -13,3 +14,4 @@
 - The character/note creation form is now a single inline row (input + button), with the "Add a character"/"Add a note" heading removed.
 - Editing a character or note now backs up its previous name/description or title/content into a `character_versions`/`note_versions` table before overwriting it, so past versions are preserved in the database. Not yet exposed through any UI or API — a pure backup layer for now (#4).
 - That backup is now grouped by editing session rather than created on every autosave tick: edits to the same character/note within a 5-minute window of the last backed-up version are folded into it instead of creating a near-duplicate version each time.
+- Free-form notes are now readable and writable via MCP (`get_notes`, `create_note`, `update_note`), matching the existing character tools — no deletion, same defensive reasoning (#5).

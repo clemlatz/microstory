@@ -2,15 +2,16 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { getAllStories } from './storiesRepository'
 import { getAllCharacters, createCharacter, updateCharacter } from './charactersRepository'
+import { getAllNotes, createNote, updateNote } from './notesRepository'
 
 /**
- * Registers the character tools shared by every MCP transport (stdio for
- * local clients, Streamable HTTP for remote ones — see
+ * Registers the character and note tools shared by every MCP transport
+ * (stdio for local clients, Streamable HTTP for remote ones — see
  * mcp/character-server.mts and app/api/mcp/route.ts) so the tool behavior
  * stays identical regardless of how a client connects.
  *
- * Deliberately no delete tool: create/update only, so a misread instruction
- * can't make a character disappear.
+ * Deliberately no delete tool for either: create/update only, so a misread
+ * instruction can't make a character or note disappear.
  */
 export function registerCharacterTools(server: McpServer): void {
   server.registerTool(
@@ -109,6 +110,89 @@ export function registerCharacterTools(server: McpServer): void {
         return { content: [{ type: 'text', text: `No character with id ${id} in this story.` }], isError: true }
       }
       return { content: [{ type: 'text', text: `Character updated: ${character.name} (id: ${character.id})` }] }
+    },
+  )
+
+  server.registerTool(
+    'get_notes',
+    {
+      title: 'Get story notes',
+      description:
+        'Returns the list of free-form notes (title + content) for a microstory story. If storyId is omitted, uses the most recently modified story.',
+      inputSchema: {
+        storyId: z
+          .string()
+          .optional()
+          .describe('story id (see list_stories); omitted = most recent story'),
+      },
+    },
+    async ({ storyId }) => {
+      const targetStoryId = storyId ?? getAllStories()[0]?.id
+      if (!targetStoryId) {
+        return { content: [{ type: 'text', text: 'No story found.' }] }
+      }
+
+      const notes = getAllNotes(targetStoryId)
+      const text = notes.length
+        ? notes.map((n) => `- ${n.title} (id: ${n.id}): ${n.content}`).join('\n')
+        : 'No note for this story.'
+      return { content: [{ type: 'text', text }] }
+    },
+  )
+
+  server.registerTool(
+    'create_note',
+    {
+      title: 'Create a note',
+      description:
+        'Creates a new free-form note (title + content) in a microstory story. If storyId is omitted, uses the most recently modified story.',
+      inputSchema: {
+        title: z.string().min(1).describe('note title'),
+        content: z.string().min(1).describe('note content'),
+        storyId: z
+          .string()
+          .optional()
+          .describe('story id (see list_stories); omitted = most recent story'),
+      },
+    },
+    async ({ title, content, storyId }) => {
+      const targetStoryId = storyId ?? getAllStories()[0]?.id
+      if (!targetStoryId) {
+        return { content: [{ type: 'text', text: 'No story found.' }], isError: true }
+      }
+
+      const note = createNote({ title, content }, targetStoryId)
+      return { content: [{ type: 'text', text: `Note created: ${note.title} (id: ${note.id})` }] }
+    },
+  )
+
+  server.registerTool(
+    'update_note',
+    {
+      title: 'Update a note',
+      description:
+        "Updates the title and/or content of an existing note (see get_notes for its id). If storyId is omitted, uses the most recently modified story.",
+      inputSchema: {
+        id: z.string().describe('id of the note to update (see get_notes)'),
+        title: z.string().min(1).describe('new note title'),
+        content: z.string().min(1).describe('new note content'),
+        storyId: z
+          .string()
+          .optional()
+          .describe('story id (see list_stories); omitted = most recent story'),
+      },
+    },
+    async ({ id, title, content, storyId }) => {
+      const targetStoryId = storyId ?? getAllStories()[0]?.id
+      if (!targetStoryId) {
+        return { content: [{ type: 'text', text: 'No story found.' }], isError: true }
+      }
+
+      const note = updateNote(id, targetStoryId, { title, content })
+      if (!note) {
+        return { content: [{ type: 'text', text: `No note with id ${id} in this story.` }], isError: true }
+      }
+      return { content: [{ type: 'text', text: `Note updated: ${note.title} (id: ${note.id})` }] }
     },
   )
 }
