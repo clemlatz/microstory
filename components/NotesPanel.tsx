@@ -119,29 +119,28 @@ export function NotesPanel({ storyId }: { storyId: string }) {
       </div>
 
       <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">{t('notes.addTitle')}</h3>
-        <input
-          data-testid="note-title-input"
-          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
-          placeholder={t('notes.titlePlaceholder')}
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-        />
-        {error && (
-          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-            {error}
-          </p>
-        )}
         <div className="flex gap-2">
+          <input
+            data-testid="note-title-input"
+            className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+            placeholder={t('notes.titlePlaceholder')}
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
           <button
             type="submit"
             data-testid="note-save-button"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
+            className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
             disabled={isCreating}
           >
             {t('common.add')}
           </button>
         </div>
+        {error && (
+          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+            {error}
+          </p>
+        )}
       </form>
     </div>
   )

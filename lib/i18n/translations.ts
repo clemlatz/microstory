@@ -91,13 +91,11 @@ const en = {
 
   'characters.title': 'Characters',
   'characters.empty': 'No characters yet.',
-  'characters.addTitle': 'Add a character',
   'characters.namePlaceholder': 'Name',
   'characters.requiredError': 'Name is required.',
 
   'notes.title': 'Notes',
   'notes.empty': 'No notes yet.',
-  'notes.addTitle': 'Add a note',
   'notes.titlePlaceholder': 'Title',
   'notes.requiredError': 'Title is required.',
 
@@ -225,13 +223,11 @@ const fr: Record<TranslationKey, string> = {
 
   'characters.title': 'Personnages',
   'characters.empty': 'Aucun personnage pour l’instant.',
-  'characters.addTitle': 'Ajouter un personnage',
   'characters.namePlaceholder': 'Nom',
   'characters.requiredError': 'Le nom est obligatoire.',
 
   'notes.title': 'Notes',
   'notes.empty': 'Aucune note pour l’instant.',
-  'notes.addTitle': 'Ajouter une note',
   'notes.titlePlaceholder': 'Titre',
   'notes.requiredError': 'Le titre est obligatoire.',
 
