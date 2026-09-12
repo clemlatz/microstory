@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { getDb } from './db'
+import { VERSION_GROUPING_WINDOW_MS } from './versionGroupingWindow'
 import type { Note } from './types'
 
 type NoteRow = {
@@ -72,17 +73,24 @@ export function updateNote(id: string, storyId: string, input: NoteInput): Note 
 
   const updatedAt = Date.now()
 
-  db.prepare(
-    `INSERT INTO note_versions (id, note_id, story_id, title, content, created_at)
-     VALUES (@id, @noteId, @storyId, @title, @content, @createdAt)`,
-  ).run({
-    id: randomUUID(),
-    noteId: id,
-    storyId,
-    title: existing.title,
-    content: existing.content,
-    createdAt: updatedAt,
-  })
+  const lastVersion = db
+    .prepare('SELECT created_at FROM note_versions WHERE note_id = ? ORDER BY created_at DESC LIMIT 1')
+    .get(id) as { created_at: number } | undefined
+  const isSameEditingSession =
+    lastVersion !== undefined && updatedAt - lastVersion.created_at < VERSION_GROUPING_WINDOW_MS
+  if (!isSameEditingSession) {
+    db.prepare(
+      `INSERT INTO note_versions (id, note_id, story_id, title, content, created_at)
+       VALUES (@id, @noteId, @storyId, @title, @content, @createdAt)`,
+    ).run({
+      id: randomUUID(),
+      noteId: id,
+      storyId,
+      title: existing.title,
+      content: existing.content,
+      createdAt: updatedAt,
+    })
+  }
 
   db.prepare(
     'UPDATE notes SET title = @title, content = @content, updated_at = @updatedAt WHERE id = @id AND story_id = @storyId',

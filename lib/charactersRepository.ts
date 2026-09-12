@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { getDb } from './db'
+import { VERSION_GROUPING_WINDOW_MS } from './versionGroupingWindow'
 import type { Character } from './types'
 
 type CharacterRow = {
@@ -72,17 +73,26 @@ export function updateCharacter(id: string, storyId: string, input: CharacterInp
 
   const updatedAt = Date.now()
 
-  db.prepare(
-    `INSERT INTO character_versions (id, character_id, story_id, name, description, created_at)
-     VALUES (@id, @characterId, @storyId, @name, @description, @createdAt)`,
-  ).run({
-    id: randomUUID(),
-    characterId: id,
-    storyId,
-    name: existing.name,
-    description: existing.description,
-    createdAt: updatedAt,
-  })
+  const lastVersion = db
+    .prepare(
+      'SELECT created_at FROM character_versions WHERE character_id = ? ORDER BY created_at DESC LIMIT 1',
+    )
+    .get(id) as { created_at: number } | undefined
+  const isSameEditingSession =
+    lastVersion !== undefined && updatedAt - lastVersion.created_at < VERSION_GROUPING_WINDOW_MS
+  if (!isSameEditingSession) {
+    db.prepare(
+      `INSERT INTO character_versions (id, character_id, story_id, name, description, created_at)
+       VALUES (@id, @characterId, @storyId, @name, @description, @createdAt)`,
+    ).run({
+      id: randomUUID(),
+      characterId: id,
+      storyId,
+      name: existing.name,
+      description: existing.description,
+      createdAt: updatedAt,
+    })
+  }
 
   db.prepare(
     'UPDATE characters SET name = @name, description = @description, updated_at = @updatedAt WHERE id = @id AND story_id = @storyId',

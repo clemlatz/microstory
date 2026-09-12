@@ -72,26 +72,67 @@ describe('charactersRepository', () => {
   it('updateCharacter backs up the previous name/description into character_versions', async () => {
     const { createCharacter, updateCharacter } = await import('./charactersRepository')
     const { getDb } = await import('./db')
-    const character = createCharacter({ name: 'Alice', description: 'Une héroïne' }, storyId)
+    const { VERSION_GROUPING_WINDOW_MS } = await import('./versionGroupingWindow')
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(0)
+      const character = createCharacter({ name: 'Alice', description: 'Une héroïne' }, storyId)
 
-    updateCharacter(character.id, storyId, { name: 'Alice Doe', description: 'Une héroïne intrépide' })
-    updateCharacter(character.id, storyId, { name: 'Alice Doe Two', description: 'Encore autre chose' })
-
-    const versions = getDb()
-      .prepare(
-        'SELECT character_id, story_id, name, description FROM character_versions WHERE character_id = ? ORDER BY created_at ASC',
-      )
-      .all(character.id)
-
-    expect(versions).toEqual([
-      { character_id: character.id, story_id: storyId, name: 'Alice', description: 'Une héroïne' },
-      {
-        character_id: character.id,
-        story_id: storyId,
+      vi.setSystemTime(VERSION_GROUPING_WINDOW_MS + 1)
+      updateCharacter(character.id, storyId, {
         name: 'Alice Doe',
         description: 'Une héroïne intrépide',
-      },
-    ])
+      })
+
+      vi.setSystemTime(2 * (VERSION_GROUPING_WINDOW_MS + 1))
+      updateCharacter(character.id, storyId, {
+        name: 'Alice Doe Two',
+        description: 'Encore autre chose',
+      })
+
+      const versions = getDb()
+        .prepare(
+          'SELECT character_id, story_id, name, description FROM character_versions WHERE character_id = ? ORDER BY created_at ASC',
+        )
+        .all(character.id)
+
+      expect(versions).toEqual([
+        { character_id: character.id, story_id: storyId, name: 'Alice', description: 'Une héroïne' },
+        {
+          character_id: character.id,
+          story_id: storyId,
+          name: 'Alice Doe',
+          description: 'Une héroïne intrépide',
+        },
+      ])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('updateCharacter does not create a new version when edits happen within the grouping window', async () => {
+    const { createCharacter, updateCharacter } = await import('./charactersRepository')
+    const { getDb } = await import('./db')
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(0)
+      const character = createCharacter({ name: 'Alice', description: 'Une héroïne' }, storyId)
+
+      vi.setSystemTime(1000)
+      updateCharacter(character.id, storyId, { name: 'Alice D', description: 'Une héroïne i' })
+      vi.setSystemTime(2000)
+      updateCharacter(character.id, storyId, { name: 'Alice Do', description: 'Une héroïne in' })
+      vi.setSystemTime(3000)
+      updateCharacter(character.id, storyId, { name: 'Alice Doe', description: 'Une héroïne intrépide' })
+
+      const versions = getDb()
+        .prepare('SELECT name FROM character_versions WHERE character_id = ? ORDER BY created_at ASC')
+        .all(character.id)
+
+      expect(versions).toEqual([{ name: 'Alice' }])
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('deleteCharacter removes the character', async () => {

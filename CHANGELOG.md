@@ -12,3 +12,4 @@
 - Creating a character or note now only asks for a name/title: the story home form was reduced to that single field, creates the character/note with an empty description/content, and redirects immediately to its edit page to fill in the rest (autosaved as you type, same as editing).
 - The character/note creation form is now a single inline row (input + button), with the "Add a character"/"Add a note" heading removed.
 - Editing a character or note now backs up its previous name/description or title/content into a `character_versions`/`note_versions` table before overwriting it, so past versions are preserved in the database. Not yet exposed through any UI or API — a pure backup layer for now (#4).
+- That backup is now grouped by editing session rather than created on every autosave tick: edits to the same character/note within a 5-minute window of the last backed-up version are folded into it instead of creating a near-duplicate version each time.

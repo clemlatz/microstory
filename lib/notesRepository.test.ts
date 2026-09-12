@@ -70,26 +70,61 @@ describe('notesRepository', () => {
   it('updateNote backs up the previous title/content into note_versions', async () => {
     const { createNote, updateNote } = await import('./notesRepository')
     const { getDb } = await import('./db')
-    const note = createNote({ title: 'Idée', content: 'Une idée' }, storyId)
+    const { VERSION_GROUPING_WINDOW_MS } = await import('./versionGroupingWindow')
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(0)
+      const note = createNote({ title: 'Idée', content: 'Une idée' }, storyId)
 
-    updateNote(note.id, storyId, { title: 'Idée révisée', content: 'Une idée plus précise' })
-    updateNote(note.id, storyId, { title: 'Idée finale', content: 'Encore autre chose' })
+      vi.setSystemTime(VERSION_GROUPING_WINDOW_MS + 1)
+      updateNote(note.id, storyId, { title: 'Idée révisée', content: 'Une idée plus précise' })
 
-    const versions = getDb()
-      .prepare(
-        'SELECT note_id, story_id, title, content FROM note_versions WHERE note_id = ? ORDER BY created_at ASC',
-      )
-      .all(note.id)
+      vi.setSystemTime(2 * (VERSION_GROUPING_WINDOW_MS + 1))
+      updateNote(note.id, storyId, { title: 'Idée finale', content: 'Encore autre chose' })
 
-    expect(versions).toEqual([
-      { note_id: note.id, story_id: storyId, title: 'Idée', content: 'Une idée' },
-      {
-        note_id: note.id,
-        story_id: storyId,
-        title: 'Idée révisée',
-        content: 'Une idée plus précise',
-      },
-    ])
+      const versions = getDb()
+        .prepare(
+          'SELECT note_id, story_id, title, content FROM note_versions WHERE note_id = ? ORDER BY created_at ASC',
+        )
+        .all(note.id)
+
+      expect(versions).toEqual([
+        { note_id: note.id, story_id: storyId, title: 'Idée', content: 'Une idée' },
+        {
+          note_id: note.id,
+          story_id: storyId,
+          title: 'Idée révisée',
+          content: 'Une idée plus précise',
+        },
+      ])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('updateNote does not create a new version when edits happen within the grouping window', async () => {
+    const { createNote, updateNote } = await import('./notesRepository')
+    const { getDb } = await import('./db')
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(0)
+      const note = createNote({ title: 'Idée', content: 'Une idée' }, storyId)
+
+      vi.setSystemTime(1000)
+      updateNote(note.id, storyId, { title: 'Idée r', content: 'Une idée p' })
+      vi.setSystemTime(2000)
+      updateNote(note.id, storyId, { title: 'Idée ré', content: 'Une idée pl' })
+      vi.setSystemTime(3000)
+      updateNote(note.id, storyId, { title: 'Idée révisée', content: 'Une idée plus précise' })
+
+      const versions = getDb()
+        .prepare('SELECT title FROM note_versions WHERE note_id = ? ORDER BY created_at ASC')
+        .all(note.id)
+
+      expect(versions).toEqual([{ title: 'Idée' }])
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('deleteNote removes the note', async () => {
