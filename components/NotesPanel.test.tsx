@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event'
 import { NotesPanel } from './NotesPanel'
 import type { Note } from '@/lib/types'
 
+const mockRouterPush = vi.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockRouterPush }),
+}))
+
 vi.mock('@/lib/notesApi', () => ({
   fetchNotes: vi.fn(),
   createNote: vi.fn(),
@@ -11,11 +16,10 @@ vi.mock('@/lib/notesApi', () => ({
   deleteNote: vi.fn(),
 }))
 
-import { fetchNotes, createNote, updateNote, deleteNote } from '@/lib/notesApi'
+import { fetchNotes, createNote, deleteNote } from '@/lib/notesApi'
 
 const mockedFetchNotes = vi.mocked(fetchNotes)
 const mockedCreateNote = vi.mocked(createNote)
-const mockedUpdateNote = vi.mocked(updateNote)
 const mockedDeleteNote = vi.mocked(deleteNote)
 
 const idea: Note = {
@@ -28,9 +32,9 @@ const idea: Note = {
 
 describe('NotesPanel', () => {
   beforeEach(() => {
+    mockRouterPush.mockReset()
     mockedFetchNotes.mockReset()
     mockedCreateNote.mockReset()
-    mockedUpdateNote.mockReset()
     mockedDeleteNote.mockReset()
     mockedFetchNotes.mockResolvedValue([])
   })
@@ -79,38 +83,11 @@ describe('NotesPanel', () => {
 
     await user.click(screen.getByTestId('note-save-button'))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Title and content are required.',
-    )
+    expect(await screen.findByRole('alert')).toHaveTextContent('Title and content are required.')
     expect(mockedCreateNote).not.toHaveBeenCalled()
   })
 
-  it('edits an existing note', async () => {
-    mockedFetchNotes.mockResolvedValue([idea])
-    const updated: Note = { ...idea, title: 'Règle révisée', updatedAt: 3000 }
-    mockedUpdateNote.mockResolvedValue(updated)
-    const user = userEvent.setup()
-
-    render(<NotesPanel storyId="test-story" />)
-    await waitFor(() => expect(screen.getByText('Règle du monde')).toBeInTheDocument())
-
-    await user.click(screen.getByTestId('note-edit-button'))
-    expect(screen.getByTestId('note-title-input')).toHaveValue('Règle du monde')
-
-    await user.clear(screen.getByTestId('note-title-input'))
-    await user.type(screen.getByTestId('note-title-input'), 'Règle révisée')
-    await user.click(screen.getByTestId('note-save-button'))
-
-    await waitFor(() => {
-      expect(screen.getByText('Règle révisée')).toBeInTheDocument()
-    })
-    expect(mockedUpdateNote).toHaveBeenCalledWith('test-story', '1', {
-      title: 'Règle révisée',
-      content: 'La magie coûte cher',
-    })
-  })
-
-  it('cancels an in-progress edit', async () => {
+  it('navigates to the note edit page when clicking edit', async () => {
     mockedFetchNotes.mockResolvedValue([idea])
     const user = userEvent.setup()
 
@@ -118,10 +95,8 @@ describe('NotesPanel', () => {
     await waitFor(() => expect(screen.getByText('Règle du monde')).toBeInTheDocument())
 
     await user.click(screen.getByTestId('note-edit-button'))
-    await user.click(screen.getByTestId('note-cancel-button'))
 
-    expect(screen.getByTestId('note-title-input')).toHaveValue('')
-    expect(screen.getByTestId('note-save-button')).toHaveTextContent('Add')
+    expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/note/1')
   })
 
   it('deletes a note', async () => {

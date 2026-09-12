@@ -1,19 +1,21 @@
 'use client'
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { fetchNotes, createNote, updateNote, deleteNote } from '@/lib/notesApi'
+import { useRouter } from 'next/navigation'
+import { fetchNotes, createNote, deleteNote } from '@/lib/notesApi'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { Note } from '@/lib/types'
 
 /**
- * Free-form notes for a story (issue #78): a title + free-text content, no
- * structure beyond that (unlike Character, which has a "description"
- * field). Reference-only — never sent to the LLM as context. Mirrors
- * `CharactersPanel`'s load/add/edit/delete pattern, embedded in
- * `StoryHomeView` the same way.
+ * Content of the "Notes" section of the story home view: list + create
+ * form. Editing a note (issue #7, mirroring the same change for
+ * characters) navigates away to its own dedicated, Notion-style page
+ * (`/story/[id]/note/[noteId]`) instead of expanding an inline form here —
+ * this panel only ever creates new notes and deletes existing ones.
  */
 export function NotesPanel({ storyId }: { storyId: string }) {
   const { t } = useLocale()
+  const router = useRouter()
 
   const errorMessage = useCallback(
     (error: unknown): string => (error instanceof Error && error.message ? error.message : t('common.genericError')),
@@ -23,7 +25,6 @@ export function NotesPanel({ storyId }: { storyId: string }) {
   const [notes, setNotes] = useState<Note[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [editingId, setEditingId] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -38,20 +39,6 @@ export function NotesPanel({ storyId }: { storyId: string }) {
       .finally(() => setIsLoading(false))
   }, [storyId, errorMessage])
 
-  function resetForm() {
-    setEditingId(null)
-    setTitle('')
-    setContent('')
-    setError(null)
-  }
-
-  function startEdit(note: Note) {
-    setEditingId(note.id)
-    setTitle(note.title)
-    setContent(note.content)
-    setError(null)
-  }
-
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     const trimmedTitle = title.trim()
@@ -64,17 +51,10 @@ export function NotesPanel({ storyId }: { storyId: string }) {
     setIsSaving(true)
     setError(null)
     try {
-      if (editingId) {
-        const updated = await updateNote(storyId, editingId, {
-          title: trimmedTitle,
-          content: trimmedContent,
-        })
-        setNotes((prev) => prev.map((note) => (note.id === updated.id ? updated : note)))
-      } else {
-        const created = await createNote(storyId, { title: trimmedTitle, content: trimmedContent })
-        setNotes((prev) => [...prev, created])
-      }
-      resetForm()
+      const created = await createNote(storyId, { title: trimmedTitle, content: trimmedContent })
+      setNotes((prev) => [...prev, created])
+      setTitle('')
+      setContent('')
     } catch (err) {
       console.error('Failed to save note', err)
       setError(errorMessage(err))
@@ -87,7 +67,6 @@ export function NotesPanel({ storyId }: { storyId: string }) {
     try {
       await deleteNote(storyId, id)
       setNotes((prev) => prev.filter((note) => note.id !== id))
-      if (editingId === id) resetForm()
     } catch (err) {
       console.error('Failed to delete note', err)
       setError(errorMessage(err))
@@ -113,7 +92,7 @@ export function NotesPanel({ storyId }: { storyId: string }) {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-medium">{note.title}</p>
-                    <p className="text-sm break-words whitespace-pre-wrap text-gray-500 dark:text-gray-400">
+                    <p className="line-clamp-3 text-sm break-words whitespace-pre-wrap text-gray-500 dark:text-gray-400">
                       {note.content}
                     </p>
                   </div>
@@ -122,7 +101,7 @@ export function NotesPanel({ storyId }: { storyId: string }) {
                       type="button"
                       data-testid="note-edit-button"
                       className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                      onClick={() => startEdit(note)}
+                      onClick={() => router.push(`/story/${storyId}/note/${note.id}`)}
                     >
                       {t('common.edit')}
                     </button>
@@ -143,9 +122,7 @@ export function NotesPanel({ storyId }: { storyId: string }) {
       </div>
 
       <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-          {editingId ? t('notes.editTitle') : t('notes.addTitle')}
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">{t('notes.addTitle')}</h3>
         <input
           data-testid="note-title-input"
           className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
@@ -173,18 +150,8 @@ export function NotesPanel({ storyId }: { storyId: string }) {
             className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
             disabled={isSaving}
           >
-            {editingId ? t('common.save') : t('common.add')}
+            {t('common.add')}
           </button>
-          {editingId && (
-            <button
-              type="button"
-              data-testid="note-cancel-button"
-              className="rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-700"
-              onClick={resetForm}
-            >
-              {t('common.cancel')}
-            </button>
-          )}
         </div>
       </form>
     </div>

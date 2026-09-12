@@ -27,19 +27,20 @@ body {
 }
 
 /*
- * The character description editor (BlockNote) sets its own left/right
- * gutter (--bn-editor's `padding-inline: 54px`) so its content doesn't
- * align with the page title above it — this removes that gutter so text
- * starts flush with the title's left edge, Notion-style.
+ * The character description and note content editors (BlockNote) set their
+ * own left/right gutter (--bn-editor's `padding-inline: 54px`) so their
+ * content doesn't align with the page title above it — this removes that
+ * gutter so text starts flush with the title's left edge, Notion-style.
  *
- * Its background is also overridden here rather than via the
+ * Their background is also overridden here rather than via the
  * --bn-colors-editor-background CSS variable: that variable is declared on
  * BlockNote's `.bn-root` element, which is a separate, portal-rendered node
  * we have no direct handle on (not the element BlockNoteView's own props
  * land on) — so overriding it from outside never reaches it. Setting the
  * resulting background-color directly on `.bn-editor` sidesteps that.
  */
-.character-description-editor .bn-editor {
+.character-description-editor .bn-editor,
+.note-content-editor .bn-editor {
   padding-inline: 0;
   background-color: transparent;
 }
