@@ -20,7 +20,13 @@ const mockedUpdateCharacter = vi.mocked(updateCharacter)
 // The real BlockNote editor is covered by CharacterDescriptionEditor's own
 // tests; here it's stubbed as a plain textarea driven by the same
 // initialMarkdown/onChangeMarkdown contract, so this suite only exercises
-// CharacterEditPage's own save/back/validation logic.
+// CharacterEditPage's own autosave/back/validation logic.
+//
+// Real timers throughout (not vi.useFakeTimers()): per this project's
+// testing notes, React's own scheduler relies on setTimeout internally, so
+// globally faked timers deadlock userEvent interactions that trigger a
+// render. The debounce delay is short enough that waiting it out for real
+// is cheap.
 vi.mock('./CharacterDescriptionEditor', () => ({
   CharacterDescriptionEditor: ({
     initialMarkdown,
@@ -45,57 +51,70 @@ const alice: Character = {
   updatedAt: 1000,
 }
 
+const WAIT_FOR_AUTOSAVE = { timeout: 2000 }
+
 describe('CharacterEditPage', () => {
   beforeEach(() => {
     mockRouterPush.mockReset()
     mockedUpdateCharacter.mockReset()
+    mockedUpdateCharacter.mockResolvedValue(alice)
   })
 
-  it('shows the character name and description', async () => {
+  it('shows the character name and description, with no save button', async () => {
     render(<CharacterEditPage storyId="story-1" character={alice} />)
 
     expect(screen.getByTestId('character-page-name-input')).toHaveValue('Alice')
     expect(await screen.findByTestId('character-description-editor-stub')).toHaveValue('Une héroïne curieuse')
+    expect(screen.queryByTestId('character-page-save-button')).not.toBeInTheDocument()
   })
 
-  it('saves the changes and navigates back to the story home', async () => {
-    mockedUpdateCharacter.mockResolvedValue({ ...alice, name: 'Alice Doe', updatedAt: 2000 })
+  it('autosaves a name change after the debounce delay', async () => {
     const user = userEvent.setup()
-
     render(<CharacterEditPage storyId="story-1" character={alice} />)
 
     await user.clear(screen.getByTestId('character-page-name-input'))
     await user.type(screen.getByTestId('character-page-name-input'), 'Alice Doe')
-    await user.click(screen.getByTestId('character-page-save-button'))
+    expect(mockedUpdateCharacter).not.toHaveBeenCalled()
 
     await waitFor(() => {
       expect(mockedUpdateCharacter).toHaveBeenCalledWith('story-1', '1', {
         name: 'Alice Doe',
         description: 'Une héroïne curieuse',
       })
-    })
-    expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+    }, WAIT_FOR_AUTOSAVE)
+    expect(mockedUpdateCharacter).toHaveBeenCalledTimes(1)
   })
 
-  it('saves an edited description', async () => {
-    mockedUpdateCharacter.mockResolvedValue(alice)
+  it('autosaves a description change after the debounce delay', async () => {
     const user = userEvent.setup()
-
     render(<CharacterEditPage storyId="story-1" character={alice} />)
 
     await user.clear(await screen.findByTestId('character-description-editor-stub'))
     await user.type(screen.getByTestId('character-description-editor-stub'), 'Une héroïne intrépide')
-    await user.click(screen.getByTestId('character-page-save-button'))
 
     await waitFor(() => {
       expect(mockedUpdateCharacter).toHaveBeenCalledWith('story-1', '1', {
         name: 'Alice',
         description: 'Une héroïne intrépide',
       })
-    })
+    }, WAIT_FOR_AUTOSAVE)
   })
 
-  it('navigates back to the story home without saving via the back button', async () => {
+  it('flushes a pending save immediately when navigating back', async () => {
+    const user = userEvent.setup()
+    render(<CharacterEditPage storyId="story-1" character={alice} />)
+
+    await user.type(screen.getByTestId('character-page-name-input'), ' Doe')
+    await user.click(screen.getByTestId('character-back-button'))
+
+    expect(mockedUpdateCharacter).toHaveBeenCalledWith('story-1', '1', {
+      name: 'Alice Doe',
+      description: 'Une héroïne curieuse',
+    })
+    expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+  })
+
+  it('navigates back without saving when nothing changed', async () => {
     const user = userEvent.setup()
     render(<CharacterEditPage storyId="story-1" character={alice} />)
 
@@ -105,37 +124,35 @@ describe('CharacterEditPage', () => {
     expect(mockedUpdateCharacter).not.toHaveBeenCalled()
   })
 
-  it('shows a validation error when the name is cleared', async () => {
+  it('does not autosave while the name is empty', async () => {
     const user = userEvent.setup()
     render(<CharacterEditPage storyId="story-1" character={alice} />)
 
     await user.clear(screen.getByTestId('character-page-name-input'))
-    await user.click(screen.getByTestId('character-page-save-button'))
+    // No positive assertion can prove a debounced call never fires without
+    // waiting past its delay — wait it out, then assert nothing happened.
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Name and description are required.')
     expect(mockedUpdateCharacter).not.toHaveBeenCalled()
   })
 
-  it('shows a validation error when the description is emptied', async () => {
+  it('does not autosave while the description is empty', async () => {
     const user = userEvent.setup()
     render(<CharacterEditPage storyId="story-1" character={alice} />)
 
     await user.clear(await screen.findByTestId('character-description-editor-stub'))
-    await user.click(screen.getByTestId('character-page-save-button'))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Name and description are required.')
     expect(mockedUpdateCharacter).not.toHaveBeenCalled()
   })
 
-  it('shows an error message when saving fails', async () => {
+  it('shows an error message when autosaving fails', async () => {
     mockedUpdateCharacter.mockRejectedValue(new Error('boom'))
     const user = userEvent.setup()
-
     render(<CharacterEditPage storyId="story-1" character={alice} />)
 
-    await user.click(screen.getByTestId('character-page-save-button'))
+    await user.type(screen.getByTestId('character-page-name-input'), ' Doe')
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('boom')
-    expect(mockRouterPush).not.toHaveBeenCalled()
+    expect(await screen.findByRole('alert', {}, WAIT_FOR_AUTOSAVE)).toHaveTextContent('boom')
   })
 })

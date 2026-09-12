@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { updateCharacter } from '@/lib/charactersApi'
@@ -12,24 +12,26 @@ const CharacterDescriptionEditor = dynamic(
   { ssr: false },
 )
 
+const AUTOSAVE_DELAY_MS = 800
+
 /**
  * Notion-style dedicated page for editing one character (issue #7): large,
  * comfortable fields rather than the compact inline form on the story home
  * view. The name field doubles as the page's title (no separate heading,
- * no field labels — Notion-style) with the save button on the same row;
- * the description field below it is a BlockNote block editor (Notion-style
- * rich text, `CharacterDescriptionEditor`) filling the rest of the
- * viewport, rather than a plain textarea, so markdown-like formatting
- * (issue #7's "should support markdown formatting") comes for free through
- * BlockNote's own markdown import/export rather than a bespoke renderer.
- * `description` is still persisted as a single markdown string, kept in
- * sync here via the editor's `onChangeMarkdown` callback — so the stored
- * shape and the rest of the app (character system-prompt injection, etc.)
- * are unaffected.
+ * no field labels — Notion-style); the description field below it is a
+ * BlockNote block editor (Notion-style rich text,
+ * `CharacterDescriptionEditor`) filling the rest of the viewport, rather
+ * than a plain textarea, so markdown-like formatting (issue #7's "should
+ * support markdown formatting") comes for free through BlockNote's own
+ * markdown import/export rather than a bespoke renderer.
  *
- * Saving returns to the story home (`/story/[id]`), where the character
- * list itself still owns the excerpt/delete UI. There is no cancel button —
- * the back button above the title serves that purpose without saving.
+ * There is no save button: edits autosave, debounced by
+ * `AUTOSAVE_DELAY_MS` after the last change to `name`/`description`, so a
+ * character isn't written to the database on every keystroke. A pending
+ * save is flushed immediately when navigating back, so the very last edit
+ * isn't lost to an in-flight debounce timer. Nothing autosaves while the
+ * name or description is empty (mirroring the old submit validation) —
+ * saving simply waits for both to be filled in again.
  */
 export function CharacterEditPage({ storyId, character }: { storyId: string; character: Character }) {
   const { t } = useLocale()
@@ -40,29 +42,50 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
   const [error, setError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
-  function goBackToStory() {
-    router.push(`/story/${storyId}`)
-  }
+  const isFirstRender = useRef(true)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    const trimmedName = name.trim()
-    const trimmedDescription = description.trim()
-    if (!trimmedName || !trimmedDescription) {
-      setError(t('characters.requiredError'))
-      return
-    }
+  async function persist(nextName: string, nextDescription: string) {
+    const trimmedName = nextName.trim()
+    const trimmedDescription = nextDescription.trim()
+    if (!trimmedName || !trimmedDescription) return
 
     setIsSaving(true)
-    setError(null)
     try {
       await updateCharacter(storyId, character.id, { name: trimmedName, description: trimmedDescription })
-      goBackToStory()
+      setError(null)
     } catch (err) {
       console.error('Failed to save character', err)
       setError(err instanceof Error && err.message ? err.message : t('common.genericError'))
+    } finally {
       setIsSaving(false)
     }
+  }
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+
+    debounceRef.current = setTimeout(() => {
+      debounceRef.current = null
+      persist(name, description)
+    }, AUTOSAVE_DELAY_MS)
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, description])
+
+  function goBackToStory() {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+      debounceRef.current = null
+      persist(name, description)
+    }
+    router.push(`/story/${storyId}`)
   }
 
   return (
@@ -77,7 +100,7 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
           {t('storyHome.back')}
         </button>
 
-        <form className="flex flex-1 flex-col overflow-hidden" onSubmit={handleSubmit}>
+        <div className="flex flex-1 flex-col overflow-hidden">
           <div className="mb-4 flex items-center justify-between gap-4">
             <input
               data-testid="character-page-name-input"
@@ -86,14 +109,12 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
               value={name}
               onChange={(event) => setName(event.target.value)}
             />
-            <button
-              type="submit"
-              data-testid="character-page-save-button"
-              className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
-              disabled={isSaving}
+            <span
+              data-testid="character-page-save-status"
+              className="shrink-0 font-sans text-sm text-stone-400 dark:text-stone-500"
             >
-              {t('common.save')}
-            </button>
+              {isSaving ? t('common.saving') : t('common.saved')}
+            </span>
           </div>
 
           {error && (
@@ -108,7 +129,7 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
           >
             <CharacterDescriptionEditor initialMarkdown={character.description} onChangeMarkdown={setDescription} />
           </div>
-        </form>
+        </div>
       </div>
     </div>
   )
