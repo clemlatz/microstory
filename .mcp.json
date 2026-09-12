@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "microstory-characters": {
+      "command": "npx",
+      "args": ["tsx", "mcp/character-server.mts"]
+    }
+  }
+}
