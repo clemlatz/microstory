@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event'
 import { CharactersPanel } from './CharactersPanel'
 import type { Character } from '@/lib/types'
 
+const mockRouterPush = vi.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockRouterPush }),
+}))
+
 vi.mock('@/lib/charactersApi', () => ({
   fetchCharacters: vi.fn(),
   createCharacter: vi.fn(),
@@ -33,6 +38,7 @@ const alice: Character = {
 
 describe('CharactersPanel', () => {
   beforeEach(() => {
+    mockRouterPush.mockReset()
     mockedFetchCharacters.mockReset()
     mockedCreateCharacter.mockReset()
     mockedUpdateCharacter.mockReset()
@@ -90,32 +96,7 @@ describe('CharactersPanel', () => {
     expect(mockedCreateCharacter).not.toHaveBeenCalled()
   })
 
-  it('edits an existing character', async () => {
-    mockedFetchCharacters.mockResolvedValue([alice])
-    const updated: Character = { ...alice, name: 'Alice Doe', updatedAt: 3000 }
-    mockedUpdateCharacter.mockResolvedValue(updated)
-    const user = userEvent.setup()
-
-    render(<CharactersPanel storyId="test-story" />)
-    await waitFor(() => expect(screen.getByText('Alice')).toBeInTheDocument())
-
-    await user.click(screen.getByTestId('character-edit-button'))
-    expect(screen.getByTestId('character-name-input')).toHaveValue('Alice')
-
-    await user.clear(screen.getByTestId('character-name-input'))
-    await user.type(screen.getByTestId('character-name-input'), 'Alice Doe')
-    await user.click(screen.getByTestId('character-save-button'))
-
-    await waitFor(() => {
-      expect(screen.getByText('Alice Doe')).toBeInTheDocument()
-    })
-    expect(mockedUpdateCharacter).toHaveBeenCalledWith('test-story', '1', {
-      name: 'Alice Doe',
-      description: 'Une héroïne curieuse',
-    })
-  })
-
-  it('cancels an in-progress edit', async () => {
+  it('navigates to the character edit page when clicking edit', async () => {
     mockedFetchCharacters.mockResolvedValue([alice])
     const user = userEvent.setup()
 
@@ -123,10 +104,8 @@ describe('CharactersPanel', () => {
     await waitFor(() => expect(screen.getByText('Alice')).toBeInTheDocument())
 
     await user.click(screen.getByTestId('character-edit-button'))
-    await user.click(screen.getByTestId('character-cancel-button'))
 
-    expect(screen.getByTestId('character-name-input')).toHaveValue('')
-    expect(screen.getByTestId('character-save-button')).toHaveTextContent('Add')
+    expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/character/1')
   })
 
   it('deletes a character', async () => {

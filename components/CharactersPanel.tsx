@@ -1,18 +1,21 @@
 'use client'
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import {
-  fetchCharacters,
-  createCharacter,
-  updateCharacter,
-  deleteCharacter,
-} from '@/lib/charactersApi'
+import { useRouter } from 'next/navigation'
+import { fetchCharacters, createCharacter, deleteCharacter } from '@/lib/charactersApi'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { Character } from '@/lib/types'
 
-/** Content of the "Personnages" section of the config panel: list + create/edit form. */
+/**
+ * Content of the "Personnages" section of the story home view: list +
+ * create form. Editing a character (issue #7) navigates away to its own
+ * dedicated, Notion-style page (`/story/[id]/character/[characterId]`)
+ * instead of expanding an inline form here — this panel only ever creates
+ * new characters and deletes existing ones.
+ */
 export function CharactersPanel({ storyId }: { storyId: string }) {
   const { t } = useLocale()
+  const router = useRouter()
 
   const errorMessage = useCallback(
     (error: unknown): string => (error instanceof Error && error.message ? error.message : t('common.genericError')),
@@ -22,7 +25,6 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
   const [characters, setCharacters] = useState<Character[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [editingId, setEditingId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -37,20 +39,6 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
       .finally(() => setIsLoading(false))
   }, [storyId, errorMessage])
 
-  function resetForm() {
-    setEditingId(null)
-    setName('')
-    setDescription('')
-    setError(null)
-  }
-
-  function startEdit(character: Character) {
-    setEditingId(character.id)
-    setName(character.name)
-    setDescription(character.description)
-    setError(null)
-  }
-
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     const trimmedName = name.trim()
@@ -63,19 +51,10 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
     setIsSaving(true)
     setError(null)
     try {
-      if (editingId) {
-        const updated = await updateCharacter(storyId, editingId, {
-          name: trimmedName,
-          description: trimmedDescription,
-        })
-        setCharacters((prev) =>
-          prev.map((character) => (character.id === updated.id ? updated : character)),
-        )
-      } else {
-        const created = await createCharacter(storyId, { name: trimmedName, description: trimmedDescription })
-        setCharacters((prev) => [...prev, created])
-      }
-      resetForm()
+      const created = await createCharacter(storyId, { name: trimmedName, description: trimmedDescription })
+      setCharacters((prev) => [...prev, created])
+      setName('')
+      setDescription('')
     } catch (err) {
       console.error('Failed to save character', err)
       setError(errorMessage(err))
@@ -88,7 +67,6 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
     try {
       await deleteCharacter(storyId, id)
       setCharacters((prev) => prev.filter((character) => character.id !== id))
-      if (editingId === id) resetForm()
     } catch (err) {
       console.error('Failed to delete character', err)
       setError(errorMessage(err))
@@ -114,7 +92,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-medium">{character.name}</p>
-                    <p className="text-sm break-words text-gray-500 dark:text-gray-400">
+                    <p className="line-clamp-3 text-sm break-words text-gray-500 dark:text-gray-400">
                       {character.description}
                     </p>
                   </div>
@@ -123,7 +101,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
                       type="button"
                       data-testid="character-edit-button"
                       className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                      onClick={() => startEdit(character)}
+                      onClick={() => router.push(`/story/${storyId}/character/${character.id}`)}
                     >
                       {t('common.edit')}
                     </button>
@@ -144,9 +122,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
       </div>
 
       <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-          {editingId ? t('characters.editTitle') : t('characters.addTitle')}
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">{t('characters.addTitle')}</h3>
         <input
           data-testid="character-name-input"
           className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
@@ -174,18 +150,8 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
             className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
             disabled={isSaving}
           >
-            {editingId ? t('common.save') : t('common.add')}
+            {t('common.add')}
           </button>
-          {editingId && (
-            <button
-              type="button"
-              data-testid="character-cancel-button"
-              className="rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-700"
-              onClick={resetForm}
-            >
-              {t('common.cancel')}
-            </button>
-          )}
         </div>
       </form>
     </div>
