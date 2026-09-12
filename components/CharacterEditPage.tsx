@@ -15,17 +15,21 @@ const CharacterDescriptionEditor = dynamic(
 /**
  * Notion-style dedicated page for editing one character (issue #7): large,
  * comfortable fields rather than the compact inline form on the story home
- * view. The description field is a BlockNote block editor (Notion-style
- * rich text, `CharacterDescriptionEditor`) rather than a plain textarea, so
- * markdown-like formatting (issue #7's "should support markdown
- * formatting") comes for free through BlockNote's own markdown
- * import/export rather than a bespoke renderer. `description` is still
- * persisted as a single markdown string, kept in sync here via the
- * editor's `onChangeMarkdown` callback — so the stored shape and the rest
- * of the app (character system-prompt injection, etc.) are unaffected.
+ * view. The name field doubles as the page's title (no separate heading,
+ * no field labels — Notion-style) with the save button on the same row;
+ * the description field below it is a BlockNote block editor (Notion-style
+ * rich text, `CharacterDescriptionEditor`) filling the rest of the
+ * viewport, rather than a plain textarea, so markdown-like formatting
+ * (issue #7's "should support markdown formatting") comes for free through
+ * BlockNote's own markdown import/export rather than a bespoke renderer.
+ * `description` is still persisted as a single markdown string, kept in
+ * sync here via the editor's `onChangeMarkdown` callback — so the stored
+ * shape and the rest of the app (character system-prompt injection, etc.)
+ * are unaffected.
  *
- * Saving or cancelling both return to the story home (`/story/[id]`), where
- * the character list itself still owns the excerpt/delete UI.
+ * Saving returns to the story home (`/story/[id]`), where the character
+ * list itself still owns the excerpt/delete UI. There is no cancel button —
+ * the back button above the title serves that purpose without saving.
  */
 export function CharacterEditPage({ storyId, character }: { storyId: string; character: Character }) {
   const { t } = useLocale()
@@ -62,68 +66,47 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
   }
 
   return (
-    <div className="h-full flex-1 overflow-y-auto bg-[#fdfbf6] px-6 py-10 text-stone-900 sm:px-10 dark:bg-stone-950 dark:text-stone-100">
-      <div className="mx-auto w-full max-w-2xl">
+    <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
         <button
           data-testid="character-back-button"
           type="button"
           onClick={goBackToStory}
-          className="mb-6 font-sans text-sm text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
+          className="mb-4 self-start font-sans text-sm text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
         >
           {t('storyHome.back')}
         </button>
 
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-          <h1 className="font-serif text-2xl text-stone-900 dark:text-stone-100">{t('characters.editTitle')}</h1>
-
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-500 dark:text-gray-400">
-              {t('characters.namePlaceholder')}
-            </label>
+        <form className="flex flex-1 flex-col overflow-hidden" onSubmit={handleSubmit}>
+          <div className="mb-4 flex items-center justify-between gap-4">
             <input
               data-testid="character-page-name-input"
-              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-lg text-gray-900 placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+              className="min-w-0 flex-1 border-none bg-transparent font-serif text-3xl text-stone-900 outline-none placeholder:text-stone-300 dark:text-stone-100 dark:placeholder:text-stone-600"
               placeholder={t('characters.namePlaceholder')}
               value={name}
               onChange={(event) => setName(event.target.value)}
             />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-500 dark:text-gray-400">
-              {t('characters.descriptionPlaceholder')}
-            </label>
-            <div
-              data-testid="character-page-description-input"
-              className="rounded-lg border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900"
-            >
-              <CharacterDescriptionEditor initialMarkdown={character.description} onChangeMarkdown={setDescription} />
-            </div>
-          </div>
-
-          {error && (
-            <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-              {error}
-            </p>
-          )}
-
-          <div className="flex gap-2">
             <button
               type="submit"
               data-testid="character-page-save-button"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
+              className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
               disabled={isSaving}
             >
               {t('common.save')}
             </button>
-            <button
-              type="button"
-              data-testid="character-page-cancel-button"
-              className="rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-700"
-              onClick={goBackToStory}
-            >
-              {t('common.cancel')}
-            </button>
+          </div>
+
+          {error && (
+            <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
+
+          <div
+            data-testid="character-page-description-input"
+            className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+          >
+            <CharacterDescriptionEditor initialMarkdown={character.description} onChangeMarkdown={setDescription} />
           </div>
         </form>
       </div>

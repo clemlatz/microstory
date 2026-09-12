@@ -20,7 +20,7 @@ const mockedUpdateCharacter = vi.mocked(updateCharacter)
 // The real BlockNote editor is covered by CharacterDescriptionEditor's own
 // tests; here it's stubbed as a plain textarea driven by the same
 // initialMarkdown/onChangeMarkdown contract, so this suite only exercises
-// CharacterEditPage's own save/cancel/validation logic.
+// CharacterEditPage's own save/back/validation logic.
 vi.mock('./CharacterDescriptionEditor', () => ({
   CharacterDescriptionEditor: ({
     initialMarkdown,
@@ -95,11 +95,11 @@ describe('CharacterEditPage', () => {
     })
   })
 
-  it('navigates back without saving when cancelled', async () => {
+  it('navigates back to the story home without saving via the back button', async () => {
     const user = userEvent.setup()
     render(<CharacterEditPage storyId="story-1" character={alice} />)
 
-    await user.click(screen.getByTestId('character-page-cancel-button'))
+    await user.click(screen.getByTestId('character-back-button'))
 
     expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
     expect(mockedUpdateCharacter).not.toHaveBeenCalled()
