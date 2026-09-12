@@ -6,6 +6,7 @@ import type { Story } from './types'
 type StoryRow = {
   id: string
   title: string
+  presentation: string
   created_at: number
   updated_at: number
 }
@@ -33,6 +34,7 @@ function toStory(row: StoryRow): Story {
   return {
     id: row.id,
     title: row.title,
+    presentation: row.presentation,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     lastPassagePreview: lastPassagePreview(row.id),
@@ -42,7 +44,7 @@ function toStory(row: StoryRow): Story {
 export function getAllStories(): Story[] {
   const db = getDb()
   const rows = db
-    .prepare('SELECT id, title, created_at, updated_at FROM stories ORDER BY updated_at DESC')
+    .prepare('SELECT id, title, presentation, created_at, updated_at FROM stories ORDER BY updated_at DESC')
     .all() as StoryRow[]
   return rows.map(toStory)
 }
@@ -50,7 +52,7 @@ export function getAllStories(): Story[] {
 export function getStoryById(id: string): Story | null {
   const db = getDb()
   const row = db
-    .prepare('SELECT id, title, created_at, updated_at FROM stories WHERE id = ?')
+    .prepare('SELECT id, title, presentation, created_at, updated_at FROM stories WHERE id = ?')
     .get(id) as StoryRow | undefined
   return row ? toStory(row) : null
 }
@@ -64,7 +66,7 @@ export function createStory(title: string): Story {
     'INSERT INTO stories (id, title, created_at, updated_at) VALUES (@id, @title, @createdAt, @updatedAt)',
   ).run({ id, title, createdAt: now, updatedAt: now })
 
-  return { id, title, createdAt: now, updatedAt: now, lastPassagePreview: null }
+  return { id, title, presentation: '', createdAt: now, updatedAt: now, lastPassagePreview: null }
 }
 
 export function renameStory(id: string, title: string): Story | null {
@@ -75,6 +77,16 @@ export function renameStory(id: string, title: string): Story | null {
   db.prepare('UPDATE stories SET title = @title WHERE id = @id').run({ id, title })
 
   return { ...existing, title }
+}
+
+export function updateStoryPresentation(id: string, presentation: string): Story | null {
+  const existing = getStoryById(id)
+  if (!existing) return null
+
+  const db = getDb()
+  db.prepare('UPDATE stories SET presentation = @presentation WHERE id = @id').run({ id, presentation })
+
+  return { ...existing, presentation }
 }
 
 export function deleteStory(id: string): void {

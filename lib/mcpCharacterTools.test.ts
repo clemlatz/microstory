@@ -8,6 +8,85 @@ async function callTool(server: McpServer, name: string, args: Record<string, un
   return tool.handler(args) as Promise<{ content: { type: 'text'; text: string }[]; isError?: boolean }>
 }
 
+describe('mcpCharacterTools - story presentation', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.stubEnv('DATABASE_PATH', ':memory:')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('get_story_presentation reports no story found when there is no story', async () => {
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    const result = await callTool(server, 'get_story_presentation')
+
+    expect(result.content[0].text).toBe('No story found.')
+  })
+
+  it('get_story_presentation reports no presentation for a story with none', async () => {
+    const { createStory } = await import('./storiesRepository')
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    const story = createStory('My story')
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    const result = await callTool(server, 'get_story_presentation', { storyId: story.id })
+
+    expect(result.content[0].text).toBe('No presentation for this story.')
+  })
+
+  it('update_story_presentation updates it and get_story_presentation reflects it', async () => {
+    const { createStory } = await import('./storiesRepository')
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    const story = createStory('My story')
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    const updated = await callTool(server, 'update_story_presentation', {
+      presentation: 'A polar station cut off from the world.',
+      storyId: story.id,
+    })
+    expect(updated.content[0].text).toBe('Presentation updated for story: My story')
+
+    const fetched = await callTool(server, 'get_story_presentation', { storyId: story.id })
+    expect(fetched.content[0].text).toBe('A polar station cut off from the world.')
+  })
+
+  it('update_story_presentation defaults to the most recently modified story when storyId is omitted', async () => {
+    const { createStory, getAllStories } = await import('./storiesRepository')
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    createStory('Older story')
+    createStory('Recent story')
+    const defaultStoryId = getAllStories()[0].id
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    await callTool(server, 'update_story_presentation', { presentation: 'A pitch.' })
+
+    const { getStoryById } = await import('./storiesRepository')
+    expect(getStoryById(defaultStoryId)?.presentation).toBe('A pitch.')
+  })
+
+  it('update_story_presentation reports an error for an unknown story id', async () => {
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    const result = await callTool(server, 'update_story_presentation', {
+      presentation: 'A pitch.',
+      storyId: 'missing-id',
+    })
+
+    expect(result.isError).toBe(true)
+    expect(result.content[0].text).toBe('No story with id missing-id.')
+  })
+})
+
 describe('mcpCharacterTools - notes', () => {
   beforeEach(() => {
     vi.resetModules()

@@ -39,6 +39,17 @@ export async function renameStory(id: string, title: string): Promise<Story> {
   return data.story as Story
 }
 
+export async function updateStoryPresentation(id: string, presentation: string): Promise<Story> {
+  const response = await fetch(`/api/stories/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ presentation }),
+  })
+  if (!response.ok) throw new Error(await extractErrorMessage(response))
+  const data = await response.json()
+  return data.story as Story
+}
+
 export async function deleteStory(id: string): Promise<void> {
   const response = await fetch(`/api/stories/${id}`, { method: 'DELETE' })
   if (!response.ok) throw new Error(await extractErrorMessage(response))

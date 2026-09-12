@@ -49,6 +49,7 @@ vi.mock('@/lib/historyApi', () => ({
 const story: Story = {
   id: 'story-1',
   title: 'Le Voyage de Nour',
+  presentation: '',
   createdAt: 1000,
   updatedAt: 2000,
   lastPassagePreview: null,

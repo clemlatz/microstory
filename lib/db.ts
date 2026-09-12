@@ -61,6 +61,7 @@ export function getDb(): Database.Database {
     CREATE TABLE IF NOT EXISTS stories (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
+      presentation TEXT NOT NULL DEFAULT '',
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     )
@@ -114,6 +115,7 @@ export function getDb(): Database.Database {
   addColumnIfMissing(db, 'messages', 'story_id', 'TEXT')
   addColumnIfMissing(db, 'characters', 'story_id', 'TEXT')
   addColumnIfMissing(db, 'conversation_summaries', 'story_id', 'TEXT')
+  addColumnIfMissing(db, 'stories', 'presentation', "TEXT NOT NULL DEFAULT ''")
 
   db.exec('CREATE INDEX IF NOT EXISTS idx_messages_story_id ON messages(story_id)')
   db.exec('CREATE INDEX IF NOT EXISTS idx_characters_story_id ON characters(story_id)')

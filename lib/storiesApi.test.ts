@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 const mockedFetch = vi.fn()
 vi.stubGlobal('fetch', mockedFetch)
-import { fetchStories, createStory, renameStory, deleteStory } from './storiesApi'
+import { fetchStories, createStory, renameStory, updateStoryPresentation, deleteStory } from './storiesApi'
 
 describe('storiesApi', () => {
   beforeEach(() => {
@@ -46,6 +46,20 @@ describe('storiesApi', () => {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: 'C' }),
+    })
+  })
+
+  it('updateStoryPresentation PUTs the new presentation', async () => {
+    vi.mocked(mockedFetch).mockResolvedValue({
+      ok: true,
+      json: async () => ({ story: { id: '2', presentation: 'Un pitch.' } }),
+    } as Response)
+
+    await updateStoryPresentation('2', 'Un pitch.')
+    expect(mockedFetch).toHaveBeenCalledWith('/api/stories/2', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ presentation: 'Un pitch.' }),
     })
   })
 

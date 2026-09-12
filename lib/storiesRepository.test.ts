@@ -13,6 +13,7 @@ describe('storiesRepository', () => {
     const { createStory, getStoryById } = await import('./storiesRepository')
     const created = createStory('Le dernier hiver')
     expect(created.title).toBe('Le dernier hiver')
+    expect(created.presentation).toBe('')
     expect(created.lastPassagePreview).toBeNull()
 
     const fetched = getStoryById(created.id)
@@ -39,6 +40,26 @@ describe('storiesRepository', () => {
   it('renameStory returns null for an unknown id', async () => {
     const { renameStory } = await import('./storiesRepository')
     expect(renameStory('missing', 'x')).toBeNull()
+  })
+
+  it('updates a story presentation', async () => {
+    const { createStory, updateStoryPresentation } = await import('./storiesRepository')
+    const story = createStory('Le dernier hiver')
+    const updated = updateStoryPresentation(story.id, 'Un hiver sans fin sur une station polaire.')
+    expect(updated?.presentation).toBe('Un hiver sans fin sur une station polaire.')
+  })
+
+  it('updateStoryPresentation allows clearing the presentation back to empty', async () => {
+    const { createStory, updateStoryPresentation } = await import('./storiesRepository')
+    const story = createStory('Le dernier hiver')
+    updateStoryPresentation(story.id, 'Un pitch.')
+    const cleared = updateStoryPresentation(story.id, '')
+    expect(cleared?.presentation).toBe('')
+  })
+
+  it('updateStoryPresentation returns null for an unknown id', async () => {
+    const { updateStoryPresentation } = await import('./storiesRepository')
+    expect(updateStoryPresentation('missing', 'x')).toBeNull()
   })
 
   it('deleteStory removes the story and its messages/characters/summaries', async () => {

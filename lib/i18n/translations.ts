@@ -143,6 +143,11 @@ const en = {
   'storyHome.back': '← My stories',
   'storyHome.openManuscript': 'Manuscript',
 
+  'presentation.title': 'Presentation',
+  'presentation.empty': 'No presentation yet.',
+  'presentation.edit': 'Edit',
+  'presentation.placeholder': 'Describe this story’s world, pitch, or context…',
+
   'language.label': 'Language',
 
   'contextGauge.tooltip': '{pending} / {threshold} words before automatic summary',
@@ -274,6 +279,11 @@ const fr: Record<TranslationKey, string> = {
 
   'storyHome.back': '← Mes histoires',
   'storyHome.openManuscript': 'Manuscrit',
+
+  'presentation.title': 'Présentation',
+  'presentation.empty': 'Aucune présentation pour l’instant.',
+  'presentation.edit': 'Modifier',
+  'presentation.placeholder': 'Décris l’univers, le pitch ou le contexte de cette histoire…',
 
   'language.label': 'Langue',
 

@@ -40,7 +40,8 @@ body {
  * resulting background-color directly on `.bn-editor` sidesteps that.
  */
 .character-description-editor .bn-editor,
-.note-content-editor .bn-editor {
+.note-content-editor .bn-editor,
+.story-presentation-editor .bn-editor {
   padding-inline: 0;
   background-color: transparent;
 }

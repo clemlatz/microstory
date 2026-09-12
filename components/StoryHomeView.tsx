@@ -22,6 +22,12 @@ import type { Story } from '@/lib/types'
  * writing is disabled via `LLM_WRITING_ENABLED=false`, see
  * `lib/llmWritingFlag.ts`) hides the "Manuscrit" button entirely, since
  * there would be nowhere left for it to lead.
+ *
+ * Also shows the story's presentation text (issue #1, a free-form
+ * synopsis/pitch), right below the title — a read-only preview here, since
+ * (like characters and notes) editing it happens on its own dedicated
+ * Notion-style page (`/story/[id]/presentation`, `StoryPresentationEditPage`)
+ * rather than inline in this view.
  */
 export function StoryHomeView({
   story,
@@ -59,6 +65,26 @@ export function StoryHomeView({
               {t('storyHome.openManuscript')}
             </button>
           )}
+        </div>
+
+        <div className="mb-8">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">{t('presentation.title')}</h3>
+            <button
+              type="button"
+              data-testid="story-presentation-edit-button"
+              className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+              onClick={() => router.push(`/story/${story.id}/presentation`)}
+            >
+              {t('presentation.edit')}
+            </button>
+          </div>
+          <p
+            data-testid="story-presentation-preview"
+            className="line-clamp-3 text-sm break-words whitespace-pre-line text-gray-600 dark:text-gray-400"
+          >
+            {story.presentation.trim() || t('presentation.empty')}
+          </p>
         </div>
 
         <CharactersPanel storyId={story.id} />

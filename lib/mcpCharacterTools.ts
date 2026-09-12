@@ -1,6 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { getAllStories } from './storiesRepository'
+import { getAllStories, getStoryById, updateStoryPresentation } from './storiesRepository'
 import { getAllCharacters, createCharacter, updateCharacter } from './charactersRepository'
 import { getAllNotes, createNote, updateNote } from './notesRepository'
 
@@ -110,6 +110,62 @@ export function registerCharacterTools(server: McpServer): void {
         return { content: [{ type: 'text', text: `No character with id ${id} in this story.` }], isError: true }
       }
       return { content: [{ type: 'text', text: `Character updated: ${character.name} (id: ${character.id})` }] }
+    },
+  )
+
+  server.registerTool(
+    'get_story_presentation',
+    {
+      title: 'Get story presentation',
+      description:
+        'Returns the presentation text (synopsis/pitch/context) of a microstory story. If storyId is omitted, uses the most recently modified story.',
+      inputSchema: {
+        storyId: z
+          .string()
+          .optional()
+          .describe('story id (see list_stories); omitted = most recent story'),
+      },
+    },
+    async ({ storyId }) => {
+      const targetStoryId = storyId ?? getAllStories()[0]?.id
+      if (!targetStoryId) {
+        return { content: [{ type: 'text', text: 'No story found.' }] }
+      }
+
+      const story = getStoryById(targetStoryId)
+      if (!story) {
+        return { content: [{ type: 'text', text: `No story with id ${targetStoryId}.` }], isError: true }
+      }
+
+      return { content: [{ type: 'text', text: story.presentation || 'No presentation for this story.' }] }
+    },
+  )
+
+  server.registerTool(
+    'update_story_presentation',
+    {
+      title: 'Update the story presentation',
+      description:
+        'Updates the presentation text (synopsis/pitch/context) of a microstory story. If storyId is omitted, uses the most recently modified story.',
+      inputSchema: {
+        presentation: z.string().describe('new presentation text'),
+        storyId: z
+          .string()
+          .optional()
+          .describe('story id (see list_stories); omitted = most recent story'),
+      },
+    },
+    async ({ presentation, storyId }) => {
+      const targetStoryId = storyId ?? getAllStories()[0]?.id
+      if (!targetStoryId) {
+        return { content: [{ type: 'text', text: 'No story found.' }], isError: true }
+      }
+
+      const story = updateStoryPresentation(targetStoryId, presentation)
+      if (!story) {
+        return { content: [{ type: 'text', text: `No story with id ${targetStoryId}.` }], isError: true }
+      }
+      return { content: [{ type: 'text', text: `Presentation updated for story: ${story.title}` }] }
     },
   )
 

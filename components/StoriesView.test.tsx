@@ -19,6 +19,7 @@ import { fetchStories, createStory, renameStory, deleteStory } from '@/lib/stori
 const STORY = {
   id: 's1',
   title: 'Le dernier hiver',
+  presentation: '',
   createdAt: 1,
   updatedAt: 2,
   lastPassagePreview: 'Il neigeait sur la ville…',

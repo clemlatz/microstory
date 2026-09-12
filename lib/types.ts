@@ -33,6 +33,7 @@ export type ConversationSummaryRecord = {
 export type Story = {
   id: string
   title: string
+  presentation: string
   createdAt: number
   updatedAt: number
   lastPassagePreview: string | null
