@@ -8,10 +8,12 @@ import type { Note } from '@/lib/types'
 
 /**
  * Content of the "Notes" section of the story home view: list + create
- * form. Editing a note (issue #7, mirroring the same change for
- * characters) navigates away to its own dedicated, Notion-style page
- * (`/story/[id]/note/[noteId]`) instead of expanding an inline form here —
- * this panel only ever creates new notes and deletes existing ones.
+ * form. Both editing and creating a note navigate away to its own
+ * dedicated, Notion-style page (`/story/[id]/note/[noteId]`) — the create
+ * form here only collects a title, creates the note with empty content,
+ * and redirects there immediately so the content itself is filled in (and
+ * autosaved) on that page, exactly like editing an existing one. Mirrors
+ * `CharactersPanel`'s pattern.
  */
 export function NotesPanel({ storyId }: { storyId: string }) {
   const { t } = useLocale()
@@ -26,8 +28,7 @@ export function NotesPanel({ storyId }: { storyId: string }) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
 
   useEffect(() => {
     fetchNotes(storyId)
@@ -42,24 +43,20 @@ export function NotesPanel({ storyId }: { storyId: string }) {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     const trimmedTitle = title.trim()
-    const trimmedContent = content.trim()
-    if (!trimmedTitle || !trimmedContent) {
+    if (!trimmedTitle) {
       setError(t('notes.requiredError'))
       return
     }
 
-    setIsSaving(true)
+    setIsCreating(true)
     setError(null)
     try {
-      const created = await createNote(storyId, { title: trimmedTitle, content: trimmedContent })
-      setNotes((prev) => [...prev, created])
-      setTitle('')
-      setContent('')
+      const created = await createNote(storyId, { title: trimmedTitle, content: '' })
+      router.push(`/story/${storyId}/note/${created.id}`)
     } catch (err) {
       console.error('Failed to save note', err)
       setError(errorMessage(err))
-    } finally {
-      setIsSaving(false)
+      setIsCreating(false)
     }
   }
 
@@ -130,14 +127,6 @@ export function NotesPanel({ storyId }: { storyId: string }) {
           value={title}
           onChange={(event) => setTitle(event.target.value)}
         />
-        <textarea
-          data-testid="note-content-input"
-          className="resize-none rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
-          rows={3}
-          placeholder={t('notes.contentPlaceholder')}
-          value={content}
-          onChange={(event) => setContent(event.target.value)}
-        />
         {error && (
           <p role="alert" className="text-sm text-red-600 dark:text-red-400">
             {error}
@@ -148,7 +137,7 @@ export function NotesPanel({ storyId }: { storyId: string }) {
             type="submit"
             data-testid="note-save-button"
             className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
-            disabled={isSaving}
+            disabled={isCreating}
           >
             {t('common.add')}
           </button>

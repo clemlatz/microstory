@@ -99,11 +99,25 @@ describe('POST /api/characters', () => {
     expect(mockedCreateCharacter).not.toHaveBeenCalled()
   })
 
-  it('returns 400 when description is empty', async () => {
-    const response = await POST(makeRequest({ name: 'Alice', description: '   ' }))
+  it('creates a character with an empty description when none is given', async () => {
+    const character = { id: '1', name: 'Alice', description: '', createdAt: 1000, updatedAt: 1000 }
+    mockedCreateCharacter.mockReturnValue(character)
 
-    expect(response.status).toBe(400)
-    expect(mockedCreateCharacter).not.toHaveBeenCalled()
+    const response = await POST(makeRequest({ name: 'Alice' }))
+    const data = await response.json()
+
+    expect(response.status).toBe(201)
+    expect(data).toEqual({ character })
+    expect(mockedCreateCharacter).toHaveBeenCalledWith({ name: 'Alice', description: '' }, 'test-story')
+  })
+
+  it('creates a character with an empty description when it is blank', async () => {
+    const character = { id: '1', name: 'Alice', description: '', createdAt: 1000, updatedAt: 1000 }
+    mockedCreateCharacter.mockReturnValue(character)
+
+    await POST(makeRequest({ name: 'Alice', description: '   ' }))
+
+    expect(mockedCreateCharacter).toHaveBeenCalledWith({ name: 'Alice', description: '' }, 'test-story')
   })
 
 

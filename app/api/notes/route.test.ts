@@ -87,11 +87,25 @@ describe('POST /api/notes', () => {
     expect(mockedCreateNote).not.toHaveBeenCalled()
   })
 
-  it('returns 400 when content is empty', async () => {
-    const response = await POST(makeRequest({ title: 'Idée', content: '   ' }))
+  it('creates a note with empty content when none is given', async () => {
+    const note = { id: '1', title: 'Idée', content: '', createdAt: 1000, updatedAt: 1000 }
+    mockedCreateNote.mockReturnValue(note)
 
-    expect(response.status).toBe(400)
-    expect(mockedCreateNote).not.toHaveBeenCalled()
+    const response = await POST(makeRequest({ title: 'Idée' }))
+    const data = await response.json()
+
+    expect(response.status).toBe(201)
+    expect(data).toEqual({ note })
+    expect(mockedCreateNote).toHaveBeenCalledWith({ title: 'Idée', content: '' }, 'test-story')
+  })
+
+  it('creates a note with empty content when it is blank', async () => {
+    const note = { id: '1', title: 'Idée', content: '', createdAt: 1000, updatedAt: 1000 }
+    mockedCreateNote.mockReturnValue(note)
+
+    await POST(makeRequest({ title: 'Idée', content: '   ' }))
+
+    expect(mockedCreateNote).toHaveBeenCalledWith({ title: 'Idée', content: '' }, 'test-story')
   })
 
   it('returns 400 when storyId is missing', async () => {

@@ -8,10 +8,12 @@ import type { Character } from '@/lib/types'
 
 /**
  * Content of the "Personnages" section of the story home view: list +
- * create form. Editing a character (issue #7) navigates away to its own
- * dedicated, Notion-style page (`/story/[id]/character/[characterId]`)
- * instead of expanding an inline form here — this panel only ever creates
- * new characters and deletes existing ones.
+ * create form. Both editing (issue #7) and creating (this same issue's
+ * follow-up) a character navigate away to its own dedicated, Notion-style
+ * page (`/story/[id]/character/[characterId]`) — the create form here only
+ * collects a name, creates the character with an empty description, and
+ * redirects there immediately so the description itself is filled in
+ * (and autosaved) on that page, exactly like editing an existing one.
  */
 export function CharactersPanel({ storyId }: { storyId: string }) {
   const { t } = useLocale()
@@ -26,8 +28,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
 
   useEffect(() => {
     fetchCharacters(storyId)
@@ -42,24 +43,20 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     const trimmedName = name.trim()
-    const trimmedDescription = description.trim()
-    if (!trimmedName || !trimmedDescription) {
+    if (!trimmedName) {
       setError(t('characters.requiredError'))
       return
     }
 
-    setIsSaving(true)
+    setIsCreating(true)
     setError(null)
     try {
-      const created = await createCharacter(storyId, { name: trimmedName, description: trimmedDescription })
-      setCharacters((prev) => [...prev, created])
-      setName('')
-      setDescription('')
+      const created = await createCharacter(storyId, { name: trimmedName, description: '' })
+      router.push(`/story/${storyId}/character/${created.id}`)
     } catch (err) {
       console.error('Failed to save character', err)
       setError(errorMessage(err))
-    } finally {
-      setIsSaving(false)
+      setIsCreating(false)
     }
   }
 
@@ -130,14 +127,6 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
-        <textarea
-          data-testid="character-description-input"
-          className="resize-none rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
-          rows={3}
-          placeholder={t('characters.descriptionPlaceholder')}
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-        />
         {error && (
           <p role="alert" className="text-sm text-red-600 dark:text-red-400">
             {error}
@@ -148,7 +137,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
             type="submit"
             data-testid="character-save-button"
             className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
-            disabled={isSaving}
+            disabled={isCreating}
           >
             {t('common.add')}
           </button>

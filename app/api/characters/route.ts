@@ -21,15 +21,15 @@ export async function POST(request: Request): Promise<Response> {
 
   const body = await request.json()
 
-  if (!isNonEmptyString(body?.name) || !isNonEmptyString(body?.description)) {
-    return NextResponse.json(
-      { error: 'name and description are required non-empty strings' },
-      { status: 400 },
-    )
+  if (!isNonEmptyString(body?.name)) {
+    return NextResponse.json({ error: 'name is required' }, { status: 400 })
   }
 
   const character = createCharacter(
-    { name: body.name.trim(), description: body.description.trim() },
+    {
+      name: body.name.trim(),
+      description: typeof body?.description === 'string' ? body.description.trim() : '',
+    },
     storyIdResult.storyId,
   )
 

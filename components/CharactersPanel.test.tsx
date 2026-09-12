@@ -64,8 +64,8 @@ describe('CharactersPanel', () => {
     })
   })
 
-  it('adds a new character through the form', async () => {
-    const created: Character = { id: '2', name: 'Bob', description: 'Un allié loyal', createdAt: 2000, updatedAt: 2000 }
+  it('creates a character from just a name and redirects to its edit page', async () => {
+    const created: Character = { id: '2', name: 'Bob', description: '', createdAt: 2000, updatedAt: 2000 }
     mockedCreateCharacter.mockResolvedValue(created)
     const user = userEvent.setup()
 
@@ -73,14 +73,12 @@ describe('CharactersPanel', () => {
     await waitFor(() => expect(mockedFetchCharacters).toHaveBeenCalled())
 
     await user.type(screen.getByTestId('character-name-input'), 'Bob')
-    await user.type(screen.getByTestId('character-description-input'), 'Un allié loyal')
     await user.click(screen.getByTestId('character-save-button'))
 
     await waitFor(() => {
-      expect(screen.getByText('Bob')).toBeInTheDocument()
+      expect(mockedCreateCharacter).toHaveBeenCalledWith('test-story', { name: 'Bob', description: '' })
     })
-    expect(mockedCreateCharacter).toHaveBeenCalledWith('test-story', { name: 'Bob', description: 'Un allié loyal' })
-    expect(screen.getByTestId('character-name-input')).toHaveValue('')
+    expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/character/2')
   })
 
   it('shows a validation error when submitting an empty form', async () => {
@@ -90,9 +88,7 @@ describe('CharactersPanel', () => {
 
     await user.click(screen.getByTestId('character-save-button'))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Name and description are required.',
-    )
+    expect(await screen.findByRole('alert')).toHaveTextContent('Name is required.')
     expect(mockedCreateCharacter).not.toHaveBeenCalled()
   })
 
@@ -132,7 +128,6 @@ describe('CharactersPanel', () => {
     await waitFor(() => expect(mockedFetchCharacters).toHaveBeenCalled())
 
     await user.type(screen.getByTestId('character-name-input'), 'Bob')
-    await user.type(screen.getByTestId('character-description-input'), 'Un allié')
     await user.click(screen.getByTestId('character-save-button'))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('boom')

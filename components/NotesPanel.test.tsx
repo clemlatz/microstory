@@ -57,8 +57,8 @@ describe('NotesPanel', () => {
     })
   })
 
-  it('adds a new note through the form', async () => {
-    const created: Note = { id: '2', title: 'Idée', content: 'Une idée', createdAt: 2000, updatedAt: 2000 }
+  it('creates a note from just a title and redirects to its edit page', async () => {
+    const created: Note = { id: '2', title: 'Idée', content: '', createdAt: 2000, updatedAt: 2000 }
     mockedCreateNote.mockResolvedValue(created)
     const user = userEvent.setup()
 
@@ -66,14 +66,12 @@ describe('NotesPanel', () => {
     await waitFor(() => expect(mockedFetchNotes).toHaveBeenCalled())
 
     await user.type(screen.getByTestId('note-title-input'), 'Idée')
-    await user.type(screen.getByTestId('note-content-input'), 'Une idée')
     await user.click(screen.getByTestId('note-save-button'))
 
     await waitFor(() => {
-      expect(screen.getByText('Idée')).toBeInTheDocument()
+      expect(mockedCreateNote).toHaveBeenCalledWith('test-story', { title: 'Idée', content: '' })
     })
-    expect(mockedCreateNote).toHaveBeenCalledWith('test-story', { title: 'Idée', content: 'Une idée' })
-    expect(screen.getByTestId('note-title-input')).toHaveValue('')
+    expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/note/2')
   })
 
   it('shows a validation error when submitting an empty form', async () => {
@@ -83,7 +81,7 @@ describe('NotesPanel', () => {
 
     await user.click(screen.getByTestId('note-save-button'))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Title and content are required.')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Title is required.')
     expect(mockedCreateNote).not.toHaveBeenCalled()
   })
 
@@ -123,7 +121,6 @@ describe('NotesPanel', () => {
     await waitFor(() => expect(mockedFetchNotes).toHaveBeenCalled())
 
     await user.type(screen.getByTestId('note-title-input'), 'Idée')
-    await user.type(screen.getByTestId('note-content-input'), 'Contenu')
     await user.click(screen.getByTestId('note-save-button'))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('boom')
