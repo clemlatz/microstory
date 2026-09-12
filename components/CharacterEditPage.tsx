@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type CSSProperties, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { updateCharacter } from '@/lib/charactersApi'
@@ -104,8 +104,7 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
 
           <div
             data-testid="character-page-description-input"
-            className="min-h-0 flex-1 overflow-y-auto"
-            style={{ '--bn-colors-editor-background': 'transparent' } as CSSProperties}
+            className="character-description-editor min-h-0 flex-1 overflow-y-auto"
           >
             <CharacterDescriptionEditor initialMarkdown={character.description} onChangeMarkdown={setDescription} />
           </div>

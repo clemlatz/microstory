@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type CSSProperties } from 'react'
 import { useCreateBlockNote } from '@blocknote/react'
 import { BlockNoteView } from '@blocknote/mantine'
 import '@blocknote/mantine/style.css'
@@ -35,6 +35,10 @@ export function CharacterDescriptionEditor({
     <BlockNoteView
       editor={editor}
       onChange={() => onChangeMarkdown(editor.blocksToMarkdownLossy(editor.document))}
+      // Overridden as an inline style, not a CSS rule, because BlockNoteView's
+      // own root element (.bn-root) redeclares this variable itself — a rule
+      // on an ancestor would otherwise be shadowed by that declaration.
+      style={{ '--bn-colors-editor-background': 'transparent' } as CSSProperties}
     />
   )
 }

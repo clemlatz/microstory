@@ -25,3 +25,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/*
+ * The character description editor (BlockNote) sets its own left/right
+ * gutter (--bn-editor's `padding-inline: 54px`) so its content doesn't
+ * align with the page title above it — this removes that gutter so text
+ * starts flush with the title's left edge, Notion-style.
+ */
+.character-description-editor .bn-editor {
+  padding-inline: 0;
+}
