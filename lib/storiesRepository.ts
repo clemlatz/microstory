@@ -81,6 +81,7 @@ export function deleteStory(id: string): void {
   const db = getDb()
   const transaction = db.transaction((storyId: string) => {
     db.prepare('DELETE FROM messages WHERE story_id = ?').run(storyId)
+    db.prepare('DELETE FROM character_versions WHERE story_id = ?').run(storyId)
     db.prepare('DELETE FROM characters WHERE story_id = ?').run(storyId)
     db.prepare('DELETE FROM conversation_summaries WHERE story_id = ?').run(storyId)
     db.prepare("DELETE FROM settings WHERE key LIKE ? ESCAPE '\\'").run(

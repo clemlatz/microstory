@@ -73,6 +73,18 @@ export function updateCharacter(id: string, storyId: string, input: CharacterInp
   const updatedAt = Date.now()
 
   db.prepare(
+    `INSERT INTO character_versions (id, character_id, story_id, name, description, created_at)
+     VALUES (@id, @characterId, @storyId, @name, @description, @createdAt)`,
+  ).run({
+    id: randomUUID(),
+    characterId: id,
+    storyId,
+    name: existing.name,
+    description: existing.description,
+    createdAt: updatedAt,
+  })
+
+  db.prepare(
     'UPDATE characters SET name = @name, description = @description, updated_at = @updatedAt WHERE id = @id AND story_id = @storyId',
   ).run({
     id,
@@ -87,6 +99,7 @@ export function updateCharacter(id: string, storyId: string, input: CharacterInp
 
 export function deleteCharacter(id: string, storyId: string): void {
   const db = getDb()
+  db.prepare('DELETE FROM character_versions WHERE character_id = ? AND story_id = ?').run(id, storyId)
   db.prepare('DELETE FROM characters WHERE id = ? AND story_id = ?').run(id, storyId)
 }
 

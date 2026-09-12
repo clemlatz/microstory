@@ -86,6 +86,31 @@ export function getDb(): Database.Database {
     )
   `)
 
+  // Snapshots of a character's/note's fields as they were right before an
+  // edit overwrote them (lib/charactersRepository.ts's updateCharacter,
+  // lib/notesRepository.ts's updateNote) — a pure backup, not yet exposed
+  // through any UI or API.
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS character_versions (
+      id TEXT PRIMARY KEY,
+      character_id TEXT NOT NULL,
+      story_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    )
+  `)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS note_versions (
+      id TEXT PRIMARY KEY,
+      note_id TEXT NOT NULL,
+      story_id TEXT NOT NULL,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    )
+  `)
+
   addColumnIfMissing(db, 'messages', 'story_id', 'TEXT')
   addColumnIfMissing(db, 'characters', 'story_id', 'TEXT')
   addColumnIfMissing(db, 'conversation_summaries', 'story_id', 'TEXT')
@@ -96,6 +121,12 @@ export function getDb(): Database.Database {
     'CREATE INDEX IF NOT EXISTS idx_conversation_summaries_story_id ON conversation_summaries(story_id)',
   )
   db.exec('CREATE INDEX IF NOT EXISTS idx_notes_story_id ON notes(story_id)')
+  db.exec(
+    'CREATE INDEX IF NOT EXISTS idx_character_versions_character_id ON character_versions(character_id)',
+  )
+  db.exec('CREATE INDEX IF NOT EXISTS idx_character_versions_story_id ON character_versions(story_id)')
+  db.exec('CREATE INDEX IF NOT EXISTS idx_note_versions_note_id ON note_versions(note_id)')
+  db.exec('CREATE INDEX IF NOT EXISTS idx_note_versions_story_id ON note_versions(story_id)')
 
   return db
 }

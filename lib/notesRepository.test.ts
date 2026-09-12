@@ -67,11 +67,48 @@ describe('notesRepository', () => {
     expect(updateNote('missing-id', storyId, { title: 'X', content: 'Y' })).toBeNull()
   })
 
+  it('updateNote backs up the previous title/content into note_versions', async () => {
+    const { createNote, updateNote } = await import('./notesRepository')
+    const { getDb } = await import('./db')
+    const note = createNote({ title: 'Idée', content: 'Une idée' }, storyId)
+
+    updateNote(note.id, storyId, { title: 'Idée révisée', content: 'Une idée plus précise' })
+    updateNote(note.id, storyId, { title: 'Idée finale', content: 'Encore autre chose' })
+
+    const versions = getDb()
+      .prepare(
+        'SELECT note_id, story_id, title, content FROM note_versions WHERE note_id = ? ORDER BY created_at ASC',
+      )
+      .all(note.id)
+
+    expect(versions).toEqual([
+      { note_id: note.id, story_id: storyId, title: 'Idée', content: 'Une idée' },
+      {
+        note_id: note.id,
+        story_id: storyId,
+        title: 'Idée révisée',
+        content: 'Une idée plus précise',
+      },
+    ])
+  })
+
   it('deleteNote removes the note', async () => {
     const { createNote, deleteNote, getAllNotes } = await import('./notesRepository')
     const note = createNote({ title: 'Idée', content: 'Une idée' }, storyId)
     deleteNote(note.id, storyId)
     expect(getAllNotes(storyId)).toEqual([])
+  })
+
+  it('deleteNote also removes its versions', async () => {
+    const { createNote, updateNote, deleteNote } = await import('./notesRepository')
+    const { getDb } = await import('./db')
+    const note = createNote({ title: 'Idée', content: 'Une idée' }, storyId)
+    updateNote(note.id, storyId, { title: 'Idée révisée', content: 'Autre' })
+
+    deleteNote(note.id, storyId)
+
+    const versions = getDb().prepare('SELECT * FROM note_versions WHERE note_id = ?').all(note.id)
+    expect(versions).toEqual([])
   })
 
   it('deleteNote on a missing id does not throw', async () => {

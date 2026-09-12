@@ -73,6 +73,18 @@ export function updateNote(id: string, storyId: string, input: NoteInput): Note 
   const updatedAt = Date.now()
 
   db.prepare(
+    `INSERT INTO note_versions (id, note_id, story_id, title, content, created_at)
+     VALUES (@id, @noteId, @storyId, @title, @content, @createdAt)`,
+  ).run({
+    id: randomUUID(),
+    noteId: id,
+    storyId,
+    title: existing.title,
+    content: existing.content,
+    createdAt: updatedAt,
+  })
+
+  db.prepare(
     'UPDATE notes SET title = @title, content = @content, updated_at = @updatedAt WHERE id = @id AND story_id = @storyId',
   ).run({
     id,
@@ -87,5 +99,6 @@ export function updateNote(id: string, storyId: string, input: NoteInput): Note 
 
 export function deleteNote(id: string, storyId: string): void {
   const db = getDb()
+  db.prepare('DELETE FROM note_versions WHERE note_id = ? AND story_id = ?').run(id, storyId)
   db.prepare('DELETE FROM notes WHERE id = ? AND story_id = ?').run(id, storyId)
 }

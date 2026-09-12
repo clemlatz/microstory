@@ -69,6 +69,31 @@ describe('charactersRepository', () => {
     expect(updateCharacter('missing-id', storyId, { name: 'X', description: 'Y' })).toBeNull()
   })
 
+  it('updateCharacter backs up the previous name/description into character_versions', async () => {
+    const { createCharacter, updateCharacter } = await import('./charactersRepository')
+    const { getDb } = await import('./db')
+    const character = createCharacter({ name: 'Alice', description: 'Une héroïne' }, storyId)
+
+    updateCharacter(character.id, storyId, { name: 'Alice Doe', description: 'Une héroïne intrépide' })
+    updateCharacter(character.id, storyId, { name: 'Alice Doe Two', description: 'Encore autre chose' })
+
+    const versions = getDb()
+      .prepare(
+        'SELECT character_id, story_id, name, description FROM character_versions WHERE character_id = ? ORDER BY created_at ASC',
+      )
+      .all(character.id)
+
+    expect(versions).toEqual([
+      { character_id: character.id, story_id: storyId, name: 'Alice', description: 'Une héroïne' },
+      {
+        character_id: character.id,
+        story_id: storyId,
+        name: 'Alice Doe',
+        description: 'Une héroïne intrépide',
+      },
+    ])
+  })
+
   it('deleteCharacter removes the character', async () => {
     const { createCharacter, deleteCharacter, getAllCharacters } = await import(
       './charactersRepository'
@@ -76,6 +101,22 @@ describe('charactersRepository', () => {
     const character = createCharacter({ name: 'Alice', description: 'Une héroïne' }, storyId)
     deleteCharacter(character.id, storyId)
     expect(getAllCharacters(storyId)).toEqual([])
+  })
+
+  it('deleteCharacter also removes its versions', async () => {
+    const { createCharacter, updateCharacter, deleteCharacter } = await import(
+      './charactersRepository'
+    )
+    const { getDb } = await import('./db')
+    const character = createCharacter({ name: 'Alice', description: 'Une héroïne' }, storyId)
+    updateCharacter(character.id, storyId, { name: 'Alice Doe', description: 'Autre' })
+
+    deleteCharacter(character.id, storyId)
+
+    const versions = getDb()
+      .prepare('SELECT * FROM character_versions WHERE character_id = ?')
+      .all(character.id)
+    expect(versions).toEqual([])
   })
 
   it('deleteCharacter on a missing id does not throw', async () => {
