@@ -46,5 +46,8 @@ next-env.d.ts
 # local-only project instructions (documents personal infra details)
 /CLAUDE.md
 
+# local-only script (documents personal deployment/SSH details)
+/scripts/pull-prod-db.sh
+
 # private development history (design specs and implementation plans), not for public consumption
 /docs/superpowers/
