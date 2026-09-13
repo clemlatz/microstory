@@ -138,6 +138,8 @@ const en = {
   'login.statusCheckError': 'Unable to check the authentication status.',
   'login.genericError': 'Something went wrong.',
   'login.ceremonyAborted': 'The operation was cancelled.',
+  'login.devButton': 'Log in',
+  'login.devLoggingIn': 'Signing in…',
 
   'logout.ariaLabel': 'Log out',
 
@@ -186,10 +188,10 @@ const fr: Record<TranslationKey, string> = {
   'common.delete': 'Supprimer',
   'common.close': 'Fermer',
   'common.loading': 'Chargement…',
-  'common.genericError': 'Une erreur est survenue. Réessaie plus tard.',
+  'common.genericError': 'Une erreur est survenue. Réessayez plus tard.',
   'common.unknownError': 'Erreur inconnue',
 
-  'chatWindow.fallbackError': 'Désolé, une erreur est survenue. Réessaie plus tard.',
+  'chatWindow.fallbackError': 'Désolé, une erreur est survenue. Réessayez plus tard.',
   'chatWindow.errorPrefix': 'Erreur : {message}',
   'chatWindow.summarizeErrorPrefix': 'Résumé impossible : {message}',
   'chatWindow.closeAria': 'Fermer',
@@ -203,9 +205,9 @@ const fr: Record<TranslationKey, string> = {
   'chatWindow.summarizing': 'En train de résumer…',
   'chatWindow.send': 'Envoyer',
   'chatWindow.stop': 'Stop',
-  'chatWindow.continuePlaceholder': 'Continue, ou dis-lui quoi changer…',
+  'chatWindow.continuePlaceholder': 'Continuez, ou dites-lui quoi changer…',
 
-  'messageInput.placeholder': 'Écris ton message…',
+  'messageInput.placeholder': 'Écrivez votre message…',
   'messageInput.send': 'Envoyer',
   'messageInput.stop': 'Stop',
   'messageInput.cancel': 'Annuler',
@@ -215,7 +217,7 @@ const fr: Record<TranslationKey, string> = {
 
   'writerPrompt.title': "Prompt d'écriture",
   'writerPrompt.description':
-    'Donne un rôle ou un style au modèle (ex. « tu es un auteur de roman policier »). Il s’applique aux prochains messages.',
+    'Donnez un rôle ou un style au modèle (ex. « tu es un auteur de roman policier »). Il s’applique aux prochains messages.',
   'writerPrompt.placeholder': 'Tu es un auteur de roman policier...',
   'writerPrompt.saved': 'Prompt enregistré.',
   'writerPrompt.wordLimitTitle': 'Longueur du texte généré',
@@ -285,15 +287,17 @@ const fr: Record<TranslationKey, string> = {
   'storyView.editPrompt': 'Modifier',
 
   'login.registerIntro':
-    'Première utilisation : enregistre un passkey (biométrie, clé de sécurité…) pour protéger l’accès à l’application.',
+    'Première utilisation : enregistrez un passkey (biométrie, clé de sécurité…) pour protéger l’accès à l’application.',
   'login.registerButton': 'Enregistrer un passkey',
   'login.registering': 'Enregistrement…',
-  'login.loginIntro': 'Authentifie-toi avec ton passkey pour accéder à l’application.',
+  'login.loginIntro': 'Authentifiez-vous avec votre passkey pour accéder à l’application.',
   'login.loginButton': 'Se connecter avec le passkey',
   'login.authenticating': 'Authentification…',
   'login.statusCheckError': 'Impossible de vérifier l’état de l’authentification.',
   'login.genericError': 'Une erreur est survenue.',
   'login.ceremonyAborted': 'L’opération a été annulée.',
+  'login.devButton': 'Se connecter',
+  'login.devLoggingIn': 'Connexion…',
 
   'logout.ariaLabel': 'Se déconnecter',
 
@@ -301,7 +305,7 @@ const fr: Record<TranslationKey, string> = {
   'stories.newButton': 'Nouvelle histoire',
   'stories.titlePlaceholder': "Titre de l'histoire",
   'stories.createButton': 'Créer',
-  'stories.empty': 'Aucune histoire pour l’instant — crée la première ci-dessus.',
+  'stories.empty': 'Aucune histoire pour l’instant — créez la première ci-dessus.',
   'stories.rename': 'Renommer',
   'stories.delete': 'Supprimer',
   'stories.deleteTitle': 'Supprimer cette histoire ?',
@@ -320,7 +324,7 @@ const fr: Record<TranslationKey, string> = {
   'presentation.title': 'Présentation',
   'presentation.empty': 'Aucune présentation pour l’instant.',
   'presentation.edit': 'Modifier',
-  'presentation.placeholder': 'Décris l’univers, le pitch ou le contexte de cette histoire…',
+  'presentation.placeholder': 'Décrivez l’univers, le pitch ou le contexte de cette histoire…',
 
   'language.label': 'Langue',
 

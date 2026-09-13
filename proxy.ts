@@ -5,11 +5,13 @@ import { SESSION_COOKIE_NAME, isValidSession } from '@/lib/authRepository'
 /**
  * Passkey login gate (issue #73) — the app's only access control now that
  * encryption-at-rest (and the passphrase gate it came with) is gone. Runs
- * for every request except: static assets, the login page itself, and the
- * two things that must stay reachable without a browser WebAuthn ceremony —
- * `/api/auth/*` (how a session cookie is obtained in the first place) and
- * `/api/mcp` (Claude web's connector, which keeps its own bearer-token
- * check and can't do a WebAuthn flow at all).
+ * for every request except: static assets and the two things that must stay
+ * reachable without a browser WebAuthn ceremony — `/api/auth/*` (how a
+ * session cookie is obtained in the first place) and `/api/mcp` (Claude
+ * web's connector, which keeps its own bearer-token check and can't do a
+ * WebAuthn flow at all). `/login` itself is reachable without a session too,
+ * but is special-cased above `isPublicPath`: with a valid session cookie it
+ * redirects straight to `/` instead of showing the form again.
  *
  * Proxy defaults to the Node.js runtime (Next.js 16), which is what makes
  * calling into `lib/authRepository.ts` (better-sqlite3, a native binding)
@@ -40,11 +42,19 @@ export default function proxy(request: NextRequest): Response {
     return NextResponse.next()
   }
 
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value
+
+  if (pathname === '/login') {
+    if (isValidSession(token)) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+    return NextResponse.next()
+  }
+
   if (isPublicPath(pathname)) {
     return NextResponse.next()
   }
 
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value
   if (isValidSession(token)) {
     return NextResponse.next()
   }

@@ -54,9 +54,24 @@ describe('proxy', () => {
   })
 
   it('lets public paths through without checking the session', () => {
-    const response = proxy(makeRequest('/login'))
+    const response = proxy(makeRequest('/api/mcp'))
     expect(response.status).toBe(200)
     expect(mockedIsValidSession).not.toHaveBeenCalled()
+  })
+
+  it('shows the login page when there is no valid session', () => {
+    mockedIsValidSession.mockReturnValue(false)
+    const response = proxy(makeRequest('/login'))
+    expect(response.status).toBe(200)
+    expect(mockedIsValidSession).toHaveBeenCalledWith(undefined)
+  })
+
+  it('redirects /login to / when already authenticated', () => {
+    mockedIsValidSession.mockReturnValue(true)
+    const response = proxy(makeRequest('/login', 'microstory_session=good-token'))
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('http://localhost/')
+    expect(mockedIsValidSession).toHaveBeenCalledWith('good-token')
   })
 
   it('lets a page request through with a valid session cookie', () => {

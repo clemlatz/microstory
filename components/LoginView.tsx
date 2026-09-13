@@ -35,6 +35,8 @@ function webAuthnErrorMessage(error: unknown, t: (key: TranslationKey) => string
  * passphrase-based EncryptionGate: no key is derived here, this is purely
  * an access gate — `proxy.ts` redirects any unauthenticated request here.
  */
+const isDev = process.env.NODE_ENV === 'development'
+
 export function LoginView() {
   const router = useRouter()
   const { t } = useLocale()
@@ -43,11 +45,26 @@ export function LoginView() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (isDev) return
     fetch('/api/auth/status')
       .then((res) => res.json())
       .then((data: { hasPasskey: boolean }) => setStatus(data.hasPasskey ? 'login' : 'register'))
       .catch(() => setError(t('login.statusCheckError')))
   }, [t])
+
+  async function handleDevLogin() {
+    setIsBusy(true)
+    setError(null)
+    try {
+      await postJson('/api/auth/dev-login', undefined, t('login.genericError'))
+      router.push('/')
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('login.genericError'))
+    } finally {
+      setIsBusy(false)
+    }
+  }
 
   async function handleRegister() {
     setIsBusy(true)
@@ -87,7 +104,17 @@ export function LoginView() {
         <img src="/logo-lotus.png" alt="" className="mx-auto mb-6 h-10 w-auto opacity-90" />
         <h1 className="mb-2 font-serif text-2xl">Microstory</h1>
 
-        {status === 'checking' ? (
+        {isDev ? (
+          <button
+            data-testid="dev-login-button"
+            type="button"
+            disabled={isBusy}
+            onClick={handleDevLogin}
+            className="w-full rounded-lg bg-stone-900 px-4 py-2.5 font-sans text-sm font-medium text-white hover:bg-stone-700 disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-white"
+          >
+            {isBusy ? t('login.devLoggingIn') : t('login.devButton')}
+          </button>
+        ) : status === 'checking' ? (
           <p className="font-sans text-sm text-stone-400 italic dark:text-stone-500">{t('common.loading')}</p>
         ) : status === 'register' ? (
           <>
