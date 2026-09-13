@@ -49,6 +49,11 @@ describe('StoryHomeView', () => {
     await waitFor(() => expect(screen.getByText(/No notes/)).toBeInTheDocument())
   })
 
+  it('renders the search input', async () => {
+    render(<StoryHomeView story={story} onOpenManuscript={vi.fn()} />)
+    expect(screen.getByTestId('search-input')).toBeInTheDocument()
+  })
+
   it('calls onOpenManuscript when the "Manuscrit" button is clicked', async () => {
     const user = userEvent.setup()
     const onOpenManuscript = vi.fn()

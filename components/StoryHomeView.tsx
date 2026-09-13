@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { CharactersPanel } from './CharactersPanel'
 import { NotesPanel } from './NotesPanel'
 import { DocumentationPanel } from './DocumentationPanel'
+import { SearchPanel } from './SearchPanel'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { Story } from '@/lib/types'
 
@@ -92,6 +93,8 @@ export function StoryHomeView({
             {story.presentation.trim() || t('presentation.empty')}
           </p>
         </div>
+
+        <SearchPanel storyId={story.id} />
 
         <CharactersPanel storyId={story.id} />
 

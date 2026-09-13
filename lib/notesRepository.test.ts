@@ -159,4 +159,44 @@ describe('notesRepository', () => {
     expect(getAllNotes(storyId)).toEqual([note])
     expect(getAllNotes('story-2')).toEqual([otherNote])
   })
+
+  describe('searchNotes', () => {
+    it('matches by title, case-insensitively', async () => {
+      const { createNote, searchNotes } = await import('./notesRepository')
+      const note = createNote({ title: 'Règle du monde', content: 'La magie coûte cher' }, storyId)
+      createNote({ title: 'Autre idée', content: 'Contenu sans rapport' }, storyId)
+
+      expect(searchNotes('règle', storyId)).toEqual([note])
+      expect(searchNotes('RÈGLE', storyId)).toEqual([note])
+    })
+
+    it('matches by content', async () => {
+      const { createNote, searchNotes } = await import('./notesRepository')
+      const note = createNote({ title: 'Règle du monde', content: 'La magie coûte cher' }, storyId)
+
+      expect(searchNotes('magie', storyId)).toEqual([note])
+    })
+
+    it('returns an empty array for an empty query', async () => {
+      const { createNote, searchNotes } = await import('./notesRepository')
+      createNote({ title: 'Règle du monde', content: 'La magie coûte cher' }, storyId)
+
+      expect(searchNotes('', storyId)).toEqual([])
+      expect(searchNotes('   ', storyId)).toEqual([])
+    })
+
+    it('returns an empty array when nothing matches', async () => {
+      const { createNote, searchNotes } = await import('./notesRepository')
+      createNote({ title: 'Règle du monde', content: 'La magie coûte cher' }, storyId)
+
+      expect(searchNotes('dragon', storyId)).toEqual([])
+    })
+
+    it("does not match another story's notes", async () => {
+      const { createNote, searchNotes } = await import('./notesRepository')
+      createNote({ title: 'Règle du monde', content: 'La magie coûte cher' }, 'story-2')
+
+      expect(searchNotes('règle', storyId)).toEqual([])
+    })
+  })
 })

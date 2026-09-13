@@ -107,6 +107,22 @@ export function updateCharacter(id: string, storyId: string, input: CharacterInp
   return { ...existing, name: input.name, description: input.description, updatedAt }
 }
 
+/**
+ * Case-insensitive substring search over name/description, scoped to a
+ * single story. Filters in JS rather than via SQL LIKE: SQLite's LIKE only
+ * casefolds ASCII, which would miss e.g. "ALICE" matching "Alice héroïne".
+ */
+export function searchCharacters(query: string, storyId: string): Character[] {
+  const trimmed = query.trim().toLocaleLowerCase()
+  if (!trimmed) return []
+
+  return getAllCharacters(storyId).filter(
+    (character) =>
+      character.name.toLocaleLowerCase().includes(trimmed) ||
+      character.description.toLocaleLowerCase().includes(trimmed),
+  )
+}
+
 export function deleteCharacter(id: string, storyId: string): void {
   const db = getDb()
   db.prepare('DELETE FROM character_versions WHERE character_id = ? AND story_id = ?').run(id, storyId)

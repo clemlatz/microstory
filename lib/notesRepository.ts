@@ -105,6 +105,20 @@ export function updateNote(id: string, storyId: string, input: NoteInput): Note 
   return { ...existing, title: input.title, content: input.content, updatedAt }
 }
 
+/**
+ * Case-insensitive substring search over title/content, scoped to a single
+ * story. Filters in JS rather than via SQL LIKE: SQLite's LIKE only
+ * casefolds ASCII, which would miss e.g. "RÈGLE" matching "Règle".
+ */
+export function searchNotes(query: string, storyId: string): Note[] {
+  const trimmed = query.trim().toLocaleLowerCase()
+  if (!trimmed) return []
+
+  return getAllNotes(storyId).filter(
+    (note) => note.title.toLocaleLowerCase().includes(trimmed) || note.content.toLocaleLowerCase().includes(trimmed),
+  )
+}
+
 export function deleteNote(id: string, storyId: string): void {
   const db = getDb()
   db.prepare('DELETE FROM note_versions WHERE note_id = ? AND story_id = ?').run(id, storyId)

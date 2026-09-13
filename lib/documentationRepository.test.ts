@@ -219,4 +219,69 @@ describe('documentationRepository', () => {
     expect(getAllDocumentationEntries(storyId)).toEqual([entry])
     expect(getAllDocumentationEntries('story-2')).toEqual([otherEntry])
   })
+
+  describe('searchDocumentationEntries', () => {
+    it('matches by title, case-insensitively', async () => {
+      const { createDocumentationEntry, searchDocumentationEntries } = await import(
+        './documentationRepository'
+      )
+      const entry = createDocumentationEntry({ title: 'Gravité lunaire', content: 'Contenu' }, storyId)
+      createDocumentationEntry({ title: 'Autre sujet', content: 'Sans rapport' }, storyId)
+
+      expect(searchDocumentationEntries('gravité', storyId)).toEqual([entry])
+      expect(searchDocumentationEntries('GRAVITÉ', storyId)).toEqual([entry])
+    })
+
+    it('matches by content', async () => {
+      const { createDocumentationEntry, searchDocumentationEntries } = await import(
+        './documentationRepository'
+      )
+      const entry = createDocumentationEntry(
+        { title: 'Gravité lunaire', content: 'Un sixième de la gravité terrestre' },
+        storyId,
+      )
+
+      expect(searchDocumentationEntries('sixième', storyId)).toEqual([entry])
+    })
+
+    it('matches by url', async () => {
+      const { createDocumentationEntry, searchDocumentationEntries } = await import(
+        './documentationRepository'
+      )
+      const entry = createDocumentationEntry(
+        { title: 'Source', content: 'Contenu', url: 'https://example.com/moon-gravity' },
+        storyId,
+      )
+
+      expect(searchDocumentationEntries('moon-gravity', storyId)).toEqual([entry])
+    })
+
+    it('returns an empty array for an empty query', async () => {
+      const { createDocumentationEntry, searchDocumentationEntries } = await import(
+        './documentationRepository'
+      )
+      createDocumentationEntry({ title: 'Gravité lunaire', content: 'Contenu' }, storyId)
+
+      expect(searchDocumentationEntries('', storyId)).toEqual([])
+      expect(searchDocumentationEntries('   ', storyId)).toEqual([])
+    })
+
+    it('returns an empty array when nothing matches', async () => {
+      const { createDocumentationEntry, searchDocumentationEntries } = await import(
+        './documentationRepository'
+      )
+      createDocumentationEntry({ title: 'Gravité lunaire', content: 'Contenu' }, storyId)
+
+      expect(searchDocumentationEntries('dragon', storyId)).toEqual([])
+    })
+
+    it("does not match another story's entries", async () => {
+      const { createDocumentationEntry, searchDocumentationEntries } = await import(
+        './documentationRepository'
+      )
+      createDocumentationEntry({ title: 'Gravité lunaire', content: 'Contenu' }, 'story-2')
+
+      expect(searchDocumentationEntries('gravité', storyId)).toEqual([])
+    })
+  })
 })

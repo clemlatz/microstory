@@ -68,3 +68,15 @@ export type DocumentationEntry = {
   createdAt: number
   updatedAt: number
 }
+
+/**
+ * One match from a knowledge-base search (issue #12), across Character,
+ * Note and Documentation. `snippet` is the matched entry's secondary text
+ * (description/content) so a result gives some context beyond the title.
+ */
+export type SearchResult = {
+  type: 'character' | 'note' | 'documentation'
+  id: string
+  title: string
+  snippet: string
+}

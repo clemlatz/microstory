@@ -174,6 +174,54 @@ describe('charactersRepository', () => {
     expect(getAllCharacters('story-2')).toEqual([otherCharacter])
   })
 
+  describe('searchCharacters', () => {
+    it('matches by name, case-insensitively', async () => {
+      const { createCharacter, searchCharacters } = await import('./charactersRepository')
+      const character = createCharacter({ name: 'Alice', description: 'Une héroïne curieuse' }, storyId)
+      createCharacter({ name: 'Bob', description: 'Un sidekick loyal' }, storyId)
+
+      expect(searchCharacters('ali', storyId)).toEqual([character])
+      expect(searchCharacters('ALICE', storyId)).toEqual([character])
+    })
+
+    it('matches by description', async () => {
+      const { createCharacter, searchCharacters } = await import('./charactersRepository')
+      const character = createCharacter({ name: 'Alice', description: 'Une héroïne curieuse' }, storyId)
+
+      expect(searchCharacters('curieuse', storyId)).toEqual([character])
+    })
+
+    it('returns an empty array for an empty query', async () => {
+      const { createCharacter, searchCharacters } = await import('./charactersRepository')
+      createCharacter({ name: 'Alice', description: 'Une héroïne curieuse' }, storyId)
+
+      expect(searchCharacters('', storyId)).toEqual([])
+      expect(searchCharacters('   ', storyId)).toEqual([])
+    })
+
+    it('returns an empty array when nothing matches', async () => {
+      const { createCharacter, searchCharacters } = await import('./charactersRepository')
+      createCharacter({ name: 'Alice', description: 'Une héroïne curieuse' }, storyId)
+
+      expect(searchCharacters('dragon', storyId)).toEqual([])
+    })
+
+    it('does not match another story\'s characters', async () => {
+      const { createCharacter, searchCharacters } = await import('./charactersRepository')
+      createCharacter({ name: 'Alice', description: 'Une héroïne curieuse' }, 'story-2')
+
+      expect(searchCharacters('alice', storyId)).toEqual([])
+    })
+
+    it('treats % and _ in the query as literal characters, not SQL wildcards', async () => {
+      const { createCharacter, searchCharacters } = await import('./charactersRepository')
+      createCharacter({ name: 'Alice', description: 'Une héroïne curieuse' }, storyId)
+
+      expect(searchCharacters('%', storyId)).toEqual([])
+      expect(searchCharacters('_', storyId)).toEqual([])
+    })
+  })
+
   describe('buildCharactersSystemMessage', () => {
     it('returns null when there are no characters', async () => {
       const { buildCharactersSystemMessage } = await import('./charactersRepository')

@@ -106,6 +106,13 @@ const en = {
   'documentation.urlPlaceholder': 'Source URL (optional)',
   'documentation.requiredError': 'Title is required.',
 
+  'search.placeholder': 'Search characters, notes, documentation…',
+  'search.characters': 'Characters',
+  'search.notes': 'Notes',
+  'search.documentation': 'Documentation',
+  'search.noResults': 'No results.',
+  'search.error': 'Search failed.',
+
   'history.loading': 'Loading history…',
   'history.empty': 'Nothing to show yet — history will fill in as the conversation goes.',
   'history.summaryLabel': 'Summary ({type}) — sent on next turn',
@@ -250,6 +257,13 @@ const fr: Record<TranslationKey, string> = {
   'documentation.titlePlaceholder': 'Titre',
   'documentation.urlPlaceholder': 'URL de la source (optionnel)',
   'documentation.requiredError': 'Le titre est obligatoire.',
+
+  'search.placeholder': 'Rechercher personnages, notes, documentation…',
+  'search.characters': 'Personnages',
+  'search.notes': 'Notes',
+  'search.documentation': 'Documentation',
+  'search.noResults': 'Aucun résultat.',
+  'search.error': 'La recherche a échoué.',
 
   'history.loading': "Chargement de l'historique…",
   'history.empty': "Rien à afficher pour l'instant — l'historique se remplira au fil de la conversation.",

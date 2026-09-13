@@ -122,6 +122,23 @@ export function updateDocumentationEntry(
   return { ...existing, title: input.title, content: input.content, url, updatedAt }
 }
 
+/**
+ * Case-insensitive substring search over title/content/url, scoped to a
+ * single story. Filters in JS rather than via SQL LIKE: SQLite's LIKE only
+ * casefolds ASCII, which would miss e.g. "GRAVITÉ" matching "Gravité lunaire".
+ */
+export function searchDocumentationEntries(query: string, storyId: string): DocumentationEntry[] {
+  const trimmed = query.trim().toLocaleLowerCase()
+  if (!trimmed) return []
+
+  return getAllDocumentationEntries(storyId).filter(
+    (entry) =>
+      entry.title.toLocaleLowerCase().includes(trimmed) ||
+      entry.content.toLocaleLowerCase().includes(trimmed) ||
+      (entry.url ?? '').toLocaleLowerCase().includes(trimmed),
+  )
+}
+
 export function deleteDocumentationEntry(id: string, storyId: string): void {
   const db = getDb()
   db.prepare('DELETE FROM documentation_versions WHERE documentation_id = ? AND story_id = ?').run(
