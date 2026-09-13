@@ -22,6 +22,11 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   title: "Microstory",
   description: "Writing assistant",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Microstory",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
