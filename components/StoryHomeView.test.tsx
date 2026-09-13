@@ -54,6 +54,23 @@ describe('StoryHomeView', () => {
     expect(screen.getByTestId('search-input')).toBeInTheDocument()
   })
 
+  it('hides the characters/notes/documentation panels while a search is active', async () => {
+    const user = userEvent.setup()
+    render(<StoryHomeView story={story} onOpenManuscript={vi.fn()} />)
+    await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
+
+    await user.type(screen.getByTestId('search-input'), 'alice')
+
+    expect(screen.queryByText(/No characters/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/No notes/)).not.toBeInTheDocument()
+    expect(screen.queryByTestId('documentation-list')).not.toBeInTheDocument()
+
+    await user.clear(screen.getByTestId('search-input'))
+
+    await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
+    expect(screen.getByText(/No notes/)).toBeInTheDocument()
+  })
+
   it('calls onOpenManuscript when the "Manuscrit" button is clicked', async () => {
     const user = userEvent.setup()
     const onOpenManuscript = vi.fn()

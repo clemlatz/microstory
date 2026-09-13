@@ -142,4 +142,20 @@ describe('SearchPanel', () => {
       expect(screen.getByRole('alert')).toBeInTheDocument()
     })
   })
+
+  it('calls onActiveChange(true) once a query is typed, and (false) once cleared', async () => {
+    const user = userEvent.setup({ delay: null })
+    mockedSearch.mockResolvedValue(results)
+    const onActiveChange = vi.fn()
+    render(<SearchPanel storyId="test-story" onActiveChange={onActiveChange} />)
+
+    expect(onActiveChange).not.toHaveBeenCalledWith(true)
+
+    const input = screen.getByTestId('search-input')
+    await user.type(input, 'a')
+    expect(onActiveChange).toHaveBeenLastCalledWith(true)
+
+    await user.clear(input)
+    expect(onActiveChange).toHaveBeenLastCalledWith(false)
+  })
 })

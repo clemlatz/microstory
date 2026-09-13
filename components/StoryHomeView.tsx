@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CharactersPanel } from './CharactersPanel'
 import { NotesPanel } from './NotesPanel'
@@ -35,6 +36,12 @@ import type { Story } from '@/lib/types'
  * (like characters and notes) editing it happens on its own dedicated
  * Notion-style page (`/story/[id]/presentation`, `StoryPresentationEditPage`)
  * rather than inline in this view.
+ *
+ * `SearchPanel` (issue #12) sits above those three panels; while it reports
+ * an active query (`onActiveChange`), the panels themselves are hidden —
+ * showing both the search results and the full, unfiltered lists at once
+ * was redundant and cluttered, and `SearchPanel` already covers all three
+ * entity types on its own.
  */
 export function StoryHomeView({
   story,
@@ -45,6 +52,7 @@ export function StoryHomeView({
 }) {
   const router = useRouter()
   const { t } = useLocale()
+  const [isSearchActive, setIsSearchActive] = useState(false)
 
   return (
     <div className="h-full flex-1 overflow-y-auto bg-[#fdfbf6] px-6 py-10 text-stone-900 sm:px-10 dark:bg-stone-950 dark:text-stone-100">
@@ -94,17 +102,21 @@ export function StoryHomeView({
           </p>
         </div>
 
-        <SearchPanel storyId={story.id} />
+        <SearchPanel storyId={story.id} onActiveChange={setIsSearchActive} />
 
-        <CharactersPanel storyId={story.id} />
+        {!isSearchActive && (
+          <>
+            <CharactersPanel storyId={story.id} />
 
-        <div className="mt-8">
-          <NotesPanel storyId={story.id} />
-        </div>
+            <div className="mt-8">
+              <NotesPanel storyId={story.id} />
+            </div>
 
-        <div className="mt-8">
-          <DocumentationPanel storyId={story.id} />
-        </div>
+            <div className="mt-8">
+              <DocumentationPanel storyId={story.id} />
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

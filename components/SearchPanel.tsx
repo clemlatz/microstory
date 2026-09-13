@@ -30,7 +30,13 @@ function groupByType(results: SearchResult[]): Partial<Record<SearchResult['type
  * result navigates straight to its dedicated edit page — the same page
  * each panel's own "Modifier"/"Edit" action already leads to.
  */
-export function SearchPanel({ storyId }: { storyId: string }) {
+export function SearchPanel({
+  storyId,
+  onActiveChange,
+}: {
+  storyId: string
+  onActiveChange?: (isActive: boolean) => void
+}) {
   const { t } = useLocale()
   const router = useRouter()
 
@@ -77,6 +83,11 @@ export function SearchPanel({ storyId }: { storyId: string }) {
   }, [query, storyId, errorMessage])
 
   const isQueryEmpty = query.trim() === ''
+
+  useEffect(() => {
+    onActiveChange?.(!isQueryEmpty)
+  }, [isQueryEmpty, onActiveChange])
+
   const grouped = groupByType(results)
 
   return (
