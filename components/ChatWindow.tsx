@@ -82,8 +82,9 @@ function createMessage(role: Message['role'], content: string): Message {
 /**
  * The manuscript/chat surface for a story — a section reached through
  * `StoryNavDrawer` (issue #13) rather than shown by default. `onOpenNav`,
- * when provided, renders a button in the header that opens that drawer —
- * the same entry point `StoryHomeView` uses for every other section,
+ * when provided, renders a button in the header that toggles that nav
+ * open/closed — the same entry point `StoryHomeView` uses for every other
+ * section,
  * replacing this component's former standalone `onBackToOverview`/
  * `stories-toggle` navigation. It's optional so existing standalone
  * renders/tests of this component keep working unchanged.

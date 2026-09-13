@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { StoryPageClient } from './StoryPageClient'
@@ -116,5 +116,53 @@ describe('StoryPageClient', () => {
     await user.click(screen.getByTestId('story-nav-notes'))
 
     await waitFor(() => expect(screen.getByText(/No notes/)).toBeInTheDocument())
+  })
+
+  describe('on a desktop-width viewport', () => {
+    const originalMatchMedia = window.matchMedia
+
+    beforeEach(() => {
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        matches: true,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }))
+    })
+
+    afterEach(() => {
+      window.matchMedia = originalMatchMedia
+    })
+
+    it('shows the sidebar open by default', async () => {
+      render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+
+      await waitFor(() => expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument())
+    })
+
+    it('keeps the sidebar open after navigating to a different section', async () => {
+      const user = userEvent.setup()
+      render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+      await waitFor(() => expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument())
+
+      await user.click(screen.getByTestId('story-nav-notes'))
+
+      await waitFor(() => expect(screen.getByText(/No notes/)).toBeInTheDocument())
+      expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument()
+    })
+
+    it('hides the sidebar when the toggle button is clicked again', async () => {
+      const user = userEvent.setup()
+      render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+      await waitFor(() => expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument())
+
+      await user.click(screen.getByTestId('story-nav-toggle'))
+
+      expect(screen.queryByTestId('story-nav-drawer')).not.toBeInTheDocument()
+    })
   })
 })

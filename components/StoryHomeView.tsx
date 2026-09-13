@@ -16,7 +16,9 @@ import type { Story } from '@/lib/types'
  * presentation preview), Characters, Notes, or Documentation — driven by
  * the `section` prop `StoryPageClient` owns. Navigating between sections
  * (and to the manuscript, or back to the stories list) happens through
- * `StoryNavDrawer`, opened via the `onOpenNav` header button; the ad hoc
+ * `StoryNavDrawer`, toggled open/closed via the `onOpenNav` header button
+ * (a persistent sidebar on desktop, an overlay on narrower viewports — see
+ * `StoryNavDrawer`'s own doc comment); the ad hoc
  * `stories-back-button`/`open-manuscript-button` this view used to render
  * itself are gone, superseded by that drawer.
  *

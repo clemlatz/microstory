@@ -12,14 +12,22 @@ type NavItem = {
 }
 
 /**
- * Left-hand, Notion-style navigation drawer for a story (issue #13):
- * overlays the main content (same visual pattern as `ConfigPanel` — fixed
- * backdrop + fixed left aside) and lists the story's sections as clickable
- * items, highlighting the currently active one. Replaces the ad hoc
- * navigation that used to live in `StoryHomeView` (`stories-back-button`,
- * `open-manuscript-button`) and `ChatWindow` (`story-overview-toggle`,
- * `stories-toggle`) — every one of those callers now opens this drawer
- * instead.
+ * Left-hand, Notion-style navigation for a story (issue #13, turned into a
+ * persistent desktop sidebar by a later revision): below the `md` (768px)
+ * breakpoint it overlays the main content exactly as before (fixed backdrop
+ * + fixed left aside, closed by default, `StoryPageClient` closes it again
+ * after a section is picked); at `md` and above it instead sits in normal
+ * document flow as a static sidebar (`md:static`, no backdrop) that
+ * `StoryPageClient` shows by default and leaves open across section
+ * changes — it only closes when the user explicitly hides it (the
+ * "Fermer" button here, or the same header toggle button that opened it).
+ * Both modes are driven by the same `open` prop; only the CSS differs
+ * per breakpoint, so there's a single implementation for both.
+ *
+ * Replaces the ad hoc navigation that used to live in `StoryHomeView`
+ * (`stories-back-button`, `open-manuscript-button`) and `ChatWindow`
+ * (`story-overview-toggle`, `stories-toggle`) — every one of those callers
+ * now opens this instead.
  *
  * The "Manuscrit" item is omitted entirely when LLM-assisted writing is
  * disabled (`llmWritingEnabled`, issue #83) — mirroring how `StoryHomeView`
@@ -58,12 +66,12 @@ export function StoryNavDrawer({
     <>
       <div
         data-testid="story-nav-backdrop"
-        className="fixed inset-0 z-40 bg-black/30"
+        className="fixed inset-0 z-40 bg-black/30 md:hidden"
         onClick={onClose}
       />
       <aside
         data-testid="story-nav-drawer"
-        className="fixed inset-y-0 left-0 z-50 flex w-full max-w-xs flex-col border-r border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-950"
+        className="fixed inset-y-0 left-0 z-50 flex w-full max-w-xs flex-col border-r border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-950 md:static md:z-auto md:w-64 md:max-w-none md:shrink-0 md:shadow-none"
       >
         <div className="flex shrink-0 items-center justify-between border-b border-gray-200 p-4 dark:border-gray-800">
           <h2 className="text-lg font-semibold">{t('storyNav.title')}</h2>
