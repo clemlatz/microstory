@@ -1,6 +1,7 @@
 'use client'
 
 import { useLocale } from '@/lib/i18n/LocaleContext'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 export type StorySection = 'overview' | 'characters' | 'notes' | 'documentation' | 'manuscript'
 
@@ -102,6 +103,10 @@ export function StoryNavDrawer({
           >
             {t('storyNav.myStories')}
           </button>
+          <div className="mt-1 flex items-center justify-between gap-2 px-3 py-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('language.label')}</span>
+            <LanguageSwitcher className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300" />
+          </div>
         </div>
       </aside>
     </>

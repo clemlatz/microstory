@@ -122,6 +122,20 @@ describe('StoryNavDrawer', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
+  it('shows the language switcher at the bottom', () => {
+    render(
+      <StoryNavDrawer
+        open={true}
+        onClose={vi.fn()}
+        activeSection="overview"
+        onNavigate={vi.fn()}
+        onBackToStories={vi.fn()}
+        llmWritingEnabled={true}
+      />,
+    )
+    expect(screen.getByTestId('language-switcher')).toBeInTheDocument()
+  })
+
   it('calls onClose when the backdrop is clicked', async () => {
     const user = userEvent.setup()
     const onClose = vi.fn()

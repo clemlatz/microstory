@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,10 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
     >
       <body className="h-full flex flex-col overflow-hidden">
-        <LocaleProvider>
-          <LanguageSwitcher />
-          {children}
-        </LocaleProvider>
+        <LocaleProvider>{children}</LocaleProvider>
       </body>
     </html>
   );
