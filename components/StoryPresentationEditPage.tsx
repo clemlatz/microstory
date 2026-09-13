@@ -80,11 +80,6 @@ export function StoryPresentationEditPage({ story, llmWritingEnabled }: { story:
     }
   }
 
-  function goBackToStory() {
-    flushPendingSave()
-    router.push(`/story/${story.id}`)
-  }
-
   return (
     <StoryShell
       story={story}
@@ -101,15 +96,6 @@ export function StoryPresentationEditPage({ story, llmWritingEnabled }: { story:
     >
       <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
         <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
-          <button
-            data-testid="story-presentation-back-button"
-            type="button"
-            onClick={goBackToStory}
-            className="mb-4 self-start font-sans text-sm text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
-          >
-            {t('storyHome.back')}
-          </button>
-
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="mb-4 flex items-center justify-between gap-4">
               <h1 className="min-w-0 truncate font-serif text-3xl text-stone-900 dark:text-stone-100">

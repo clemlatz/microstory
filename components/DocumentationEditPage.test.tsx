@@ -59,6 +59,7 @@ const WAIT_FOR_AUTOSAVE = { timeout: 2000 }
 
 describe('DocumentationEditPage', () => {
   beforeEach(() => {
+    window.localStorage.clear()
     mockRouterPush.mockReset()
     mockedUpdate.mockReset()
     mockedUpdate.mockResolvedValue(source)
@@ -73,6 +74,12 @@ describe('DocumentationEditPage', () => {
       'Un sixième de la gravité terrestre',
     )
     expect(screen.queryByTestId('documentation-page-save-button')).not.toBeInTheDocument()
+  })
+
+  it('shows the entry title in the title bar instead of the story title', async () => {
+    render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
+
+    expect(screen.getByTestId('story-title')).toHaveTextContent('Gravité lunaire')
   })
 
   it('renders an empty url field when the entry has none', async () => {
@@ -131,28 +138,30 @@ describe('DocumentationEditPage', () => {
     }, WAIT_FOR_AUTOSAVE)
   })
 
-  it('flushes a pending save immediately when navigating back', async () => {
+  it('flushes a pending save immediately when navigating back via the drawer', async () => {
     const user = userEvent.setup()
     render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
     await user.type(screen.getByTestId('documentation-page-title-input'), ' révisée')
-    await user.click(screen.getByTestId('documentation-back-button'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-my-stories'))
 
     expect(mockedUpdate).toHaveBeenCalledWith('story-1', '1', {
       title: 'Gravité lunaire révisée',
       content: 'Un sixième de la gravité terrestre',
       url: 'https://example.com/gravite',
     })
-    expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+    expect(mockRouterPush).toHaveBeenCalledWith('/stories')
   })
 
   it('navigates back without saving when nothing changed', async () => {
     const user = userEvent.setup()
     render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
-    await user.click(screen.getByTestId('documentation-back-button'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-my-stories'))
 
-    expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+    expect(mockRouterPush).toHaveBeenCalledWith('/stories')
     expect(mockedUpdate).not.toHaveBeenCalled()
   })
 

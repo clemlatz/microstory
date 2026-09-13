@@ -50,6 +50,7 @@ const WAIT_FOR_AUTOSAVE = { timeout: 2000 }
 
 describe('StoryPresentationEditPage', () => {
   beforeEach(() => {
+    window.localStorage.clear()
     mockRouterPush.mockReset()
     mockedUpdateStoryPresentation.mockReset()
     mockedUpdateStoryPresentation.mockResolvedValue(story)
@@ -89,27 +90,29 @@ describe('StoryPresentationEditPage', () => {
     }, WAIT_FOR_AUTOSAVE)
   })
 
-  it('flushes a pending save immediately when navigating back', async () => {
+  it('flushes a pending save immediately when navigating back via the drawer', async () => {
     const user = userEvent.setup()
     render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
 
     await user.type(await screen.findByTestId('story-presentation-editor-stub'), ' Suite.')
-    await user.click(screen.getByTestId('story-presentation-back-button'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-my-stories'))
 
     expect(mockedUpdateStoryPresentation).toHaveBeenCalledWith(
       'story-1',
       'Une station polaire coupée du monde. Suite.',
     )
-    expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+    expect(mockRouterPush).toHaveBeenCalledWith('/stories')
   })
 
   it('navigates back without saving when nothing changed', async () => {
     const user = userEvent.setup()
     render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
 
-    await user.click(screen.getByTestId('story-presentation-back-button'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-my-stories'))
 
-    expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+    expect(mockRouterPush).toHaveBeenCalledWith('/stories')
     expect(mockedUpdateStoryPresentation).not.toHaveBeenCalled()
   })
 

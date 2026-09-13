@@ -64,6 +64,7 @@ const WAIT_FOR_AUTOSAVE = { timeout: 2000 }
 
 describe('NoteEditPage', () => {
   beforeEach(() => {
+    window.localStorage.clear()
     mockRouterPush.mockReset()
     mockedUpdateNote.mockReset()
     mockedUpdateNote.mockResolvedValue(idea)
@@ -75,6 +76,12 @@ describe('NoteEditPage', () => {
     expect(screen.getByTestId('note-page-title-input')).toHaveValue('Règle du monde')
     expect(await screen.findByTestId('note-content-editor-stub')).toHaveValue('La magie coûte cher')
     expect(screen.queryByTestId('note-page-save-button')).not.toBeInTheDocument()
+  })
+
+  it('shows the note title in the title bar instead of the story title', async () => {
+    render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
+
+    expect(screen.getByTestId('story-title')).toHaveTextContent('Règle du monde')
   })
 
   it('autosaves a title change after the debounce delay', async () => {
@@ -109,27 +116,29 @@ describe('NoteEditPage', () => {
     }, WAIT_FOR_AUTOSAVE)
   })
 
-  it('flushes a pending save immediately when navigating back', async () => {
+  it('flushes a pending save immediately when navigating back via the drawer', async () => {
     const user = userEvent.setup()
     render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
 
     await user.type(screen.getByTestId('note-page-title-input'), ' révisée')
-    await user.click(screen.getByTestId('note-back-button'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-my-stories'))
 
     expect(mockedUpdateNote).toHaveBeenCalledWith('story-1', '1', {
       title: 'Règle du monde révisée',
       content: 'La magie coûte cher',
     })
-    expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+    expect(mockRouterPush).toHaveBeenCalledWith('/stories')
   })
 
   it('navigates back without saving when nothing changed', async () => {
     const user = userEvent.setup()
     render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
 
-    await user.click(screen.getByTestId('note-back-button'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-my-stories'))
 
-    expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+    expect(mockRouterPush).toHaveBeenCalledWith('/stories')
     expect(mockedUpdateNote).not.toHaveBeenCalled()
   })
 

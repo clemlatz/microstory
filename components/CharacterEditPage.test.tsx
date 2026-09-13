@@ -64,6 +64,7 @@ const WAIT_FOR_AUTOSAVE = { timeout: 2000 }
 
 describe('CharacterEditPage', () => {
   beforeEach(() => {
+    window.localStorage.clear()
     mockRouterPush.mockReset()
     mockedUpdateCharacter.mockReset()
     mockedUpdateCharacter.mockResolvedValue(alice)
@@ -75,6 +76,16 @@ describe('CharacterEditPage', () => {
     expect(screen.getByTestId('character-page-name-input')).toHaveValue('Alice')
     expect(await screen.findByTestId('character-description-editor-stub')).toHaveValue('Une héroïne curieuse')
     expect(screen.queryByTestId('character-page-save-button')).not.toBeInTheDocument()
+  })
+
+  it('shows the character name in the title bar instead of the story title', async () => {
+    const user = userEvent.setup()
+    render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
+
+    expect(screen.getByTestId('story-title')).toHaveTextContent('Alice')
+
+    await user.type(screen.getByTestId('character-page-name-input'), ' Doe')
+    expect(screen.getByTestId('story-title')).toHaveTextContent('Alice Doe')
   })
 
   it('autosaves a name change after the debounce delay', async () => {
@@ -109,27 +120,29 @@ describe('CharacterEditPage', () => {
     }, WAIT_FOR_AUTOSAVE)
   })
 
-  it('flushes a pending save immediately when navigating back', async () => {
+  it('flushes a pending save immediately when navigating back via the drawer', async () => {
     const user = userEvent.setup()
     render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
 
     await user.type(screen.getByTestId('character-page-name-input'), ' Doe')
-    await user.click(screen.getByTestId('character-back-button'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-my-stories'))
 
     expect(mockedUpdateCharacter).toHaveBeenCalledWith('story-1', '1', {
       name: 'Alice Doe',
       description: 'Une héroïne curieuse',
     })
-    expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+    expect(mockRouterPush).toHaveBeenCalledWith('/stories')
   })
 
   it('navigates back without saving when nothing changed', async () => {
     const user = userEvent.setup()
     render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
 
-    await user.click(screen.getByTestId('character-back-button'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-my-stories'))
 
-    expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1')
+    expect(mockRouterPush).toHaveBeenCalledWith('/stories')
     expect(mockedUpdateCharacter).not.toHaveBeenCalled()
   })
 

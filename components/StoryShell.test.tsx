@@ -34,6 +34,21 @@ describe('StoryShell', () => {
     expect(screen.getByTestId('content')).toBeInTheDocument()
   })
 
+  it('shows entryTitle in the title bar instead of the story title when provided', () => {
+    render(
+      <StoryShell
+        story={story}
+        llmWritingEnabled={true}
+        activeSection="characters"
+        onNavigate={vi.fn()}
+        entryTitle="Adaline Marrow"
+      >
+        <p>content</p>
+      </StoryShell>,
+    )
+    expect(screen.getByTestId('story-title')).toHaveTextContent('Adaline Marrow')
+  })
+
   it('highlights the section passed as activeSection', async () => {
     const user = userEvent.setup()
     render(

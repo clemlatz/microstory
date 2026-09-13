@@ -38,8 +38,10 @@ const AUTOSAVE_DELAY_MS = 800
  * overview) rather than left standalone, so this dedicated page doesn't
  * feel like a dead end — the drawer's "Personnages" item is highlighted
  * (`activeSection="characters"`), and picking any other item flushes a
- * pending autosave before navigating away, exactly like the in-page back
- * link already did.
+ * pending autosave before navigating away. The title bar shows the
+ * character's own name (`entryTitle`, issue #16), live as it's typed,
+ * instead of the story's title — there's no separate in-page "back to
+ * story" link any more, navigation goes entirely through the drawer.
  */
 export function CharacterEditPage({
   story,
@@ -104,16 +106,12 @@ export function CharacterEditPage({
     }
   }
 
-  function goBackToStory() {
-    flushPendingSave()
-    router.push(`/story/${storyId}`)
-  }
-
   return (
     <StoryShell
       story={story}
       llmWritingEnabled={llmWritingEnabled}
       activeSection="characters"
+      entryTitle={name}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)
@@ -125,15 +123,6 @@ export function CharacterEditPage({
     >
       <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
         <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
-          <button
-            data-testid="character-back-button"
-            type="button"
-            onClick={goBackToStory}
-            className="mb-4 self-start font-sans text-sm text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
-          >
-            {t('storyHome.back')}
-          </button>
-
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="mb-4 flex items-center justify-between gap-4">
               <input

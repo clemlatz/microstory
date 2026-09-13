@@ -30,6 +30,13 @@ import type { Story } from '@/lib/types'
  * `onBackToStories` defaults to pushing to `/stories`, overridable when a
  * caller needs to run something first (flushing a pending autosave, for
  * instance).
+ *
+ * `entryTitle` (issue #16) lets a standalone entry page (character, note,
+ * documentation) show its own title in the title bar instead of the
+ * story's — passed live as the user types, so it tracks the in-page title
+ * field exactly like that field's own heading does. Omitted by callers
+ * whose page IS the story itself (the overview, the presentation editor),
+ * where showing `story.title` is already correct.
  */
 export function StoryShell({
   story,
@@ -37,6 +44,7 @@ export function StoryShell({
   activeSection,
   onNavigate,
   onBackToStories,
+  entryTitle,
   children,
 }: {
   story: Story
@@ -44,6 +52,7 @@ export function StoryShell({
   activeSection: StorySection
   onNavigate: (section: StorySection) => void
   onBackToStories?: () => void
+  entryTitle?: string
   children: React.ReactNode
 }) {
   const router = useRouter()
@@ -56,7 +65,7 @@ export function StoryShell({
 
   return (
     <div className="flex h-dvh w-full flex-col overflow-hidden">
-      <StoryTitleBar title={story.title} onOpenNav={toggleNav} />
+      <StoryTitleBar title={entryTitle ?? story.title} onOpenNav={toggleNav} />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <StoryNavDrawer
           open={isNavOpen}

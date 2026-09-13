@@ -153,8 +153,6 @@ const en = {
   'stories.deleteTitle': 'Delete this story?',
   'stories.loadError': 'Failed to load stories',
 
-  'storyHome.back': '← My stories',
-
   'storyNav.title': 'Navigation',
   'storyNav.overview': 'Overview',
   'storyNav.characters': 'Characters',
@@ -310,8 +308,6 @@ const fr: Record<TranslationKey, string> = {
   'stories.delete': 'Supprimer',
   'stories.deleteTitle': 'Supprimer cette histoire ?',
   'stories.loadError': 'Échec du chargement des histoires',
-
-  'storyHome.back': '← Mes histoires',
 
   'storyNav.title': 'Navigation',
   'storyNav.overview': 'Aperçu',

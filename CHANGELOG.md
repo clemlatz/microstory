@@ -31,3 +31,4 @@
 - Visiting `/login` while already signed in now redirects straight to the app instead of showing the passkey form again.
 - In development, the login page now shows a single "Log in" button that signs in instantly, skipping the WebAuthn ceremony — useful for devices/emulators with no platform authenticator (e.g. Chrome DevTools' mobile device toolbar). Only active when `NODE_ENV === 'development'`; the underlying route 404s otherwise.
 - Fixed the story navigation drawer's first item being partially hidden under the title bar on mobile: the title bar now has a fixed height and the drawer's mobile overlay starts right below it instead of underneath it (#14).
+- On a character/note/documentation edit page, the title bar now shows that entry's own title (live as it's typed) instead of the story's title, and the redundant in-page "← My stories" link is gone — navigating back now goes entirely through the nav drawer (#16).
