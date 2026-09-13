@@ -40,6 +40,47 @@ function getDesktopServerSnapshot(): boolean {
   return false
 }
 
+// Whether the user has opened/closed the nav is remembered per-browser
+// (`localStorage`), the same tradeoff `LocaleContext` makes for the locale
+// preference: it survives a reload in this browser, but isn't synced across
+// devices. `null` means "no choice remembered yet" — falls back to the
+// viewport-based default (see `isNavOpen` below).
+const NAV_OPEN_STORAGE_KEY = 'microstory_story_nav_open'
+
+let navOpenListeners: Array<() => void> = []
+
+function subscribeToStoredNavOpen(callback: () => void) {
+  navOpenListeners = [...navOpenListeners, callback]
+  return () => {
+    navOpenListeners = navOpenListeners.filter((listener) => listener !== callback)
+  }
+}
+
+function getStoredNavOpen(): boolean | null {
+  try {
+    const stored = window.localStorage.getItem(NAV_OPEN_STORAGE_KEY)
+    if (stored === 'true') return true
+    if (stored === 'false') return false
+  } catch {
+    // Storage can throw (private browsing, blocked site data) — treat as
+    // "no choice remembered", the viewport-based default is a fine fallback.
+  }
+  return null
+}
+
+function getStoredNavOpenServerSnapshot(): boolean | null {
+  return null
+}
+
+function setStoredNavOpen(value: boolean) {
+  try {
+    window.localStorage.setItem(NAV_OPEN_STORAGE_KEY, String(value))
+  } catch {
+    // Non-fatal: the choice just won't survive a reload in this browser.
+  }
+  for (const listener of navOpenListeners) listener()
+}
+
 /**
  * Owns which section of a story is currently shown (issue #13, reworking
  * issue #74's simpler home/manuscript toggle): the knowledge-base sections
@@ -52,15 +93,15 @@ function getDesktopServerSnapshot(): boolean {
  * whichever view is showing, that renders itself either as a mobile overlay
  * or a persistent desktop sidebar (see its own doc comment).
  *
- * `isNavOpen` defaults to following the viewport (`isDesktop`, via
- * `useSyncExternalStore` above) until the user explicitly opens or closes
- * it (`navOverride`, `null` meaning "no explicit choice yet") — so the
- * sidebar is open by default on a desktop-width viewport and closed by
- * default on a narrower one, but once the user hides or shows it, that
- * choice sticks regardless of later viewport changes. `handleNavigate`
- * only auto-closes the nav on a narrower viewport, where it behaves as an
- * overlay that would otherwise cover the newly selected section — on
- * desktop it stays open across section changes.
+ * `isNavOpen` is `storedNavOpen ?? isDesktop`: the last open/closed choice
+ * remembered for this browser (`storedNavOpen`, via `localStorage` above)
+ * wins once one exists; before that, it falls back to following the
+ * viewport (`isDesktop`) — open by default on a desktop-width viewport,
+ * closed by default on a narrower one. Every open/close, whether from the
+ * header toggle button or the auto-close `handleNavigate` does on a
+ * narrower viewport after picking a section, is persisted the same way, so
+ * the next visit (any view, any device — well, any *browser*, see above)
+ * restores exactly the state it was left in.
  *
  * `llmWritingEnabled` (issue #83) gates the manuscript entirely: when
  * false, `activeSection` can never actually reach `'manuscript'`
@@ -77,12 +118,16 @@ export function StoryPageClient({
 }) {
   const router = useRouter()
   const [activeSection, setActiveSection] = useState<StorySection>('overview')
-  const [navOverride, setNavOverride] = useState<boolean | null>(null)
   const isDesktop = useSyncExternalStore(subscribeToDesktopViewport, isDesktopViewport, getDesktopServerSnapshot)
-  const isNavOpen = navOverride ?? isDesktop
+  const storedNavOpen = useSyncExternalStore(
+    subscribeToStoredNavOpen,
+    getStoredNavOpen,
+    getStoredNavOpenServerSnapshot,
+  )
+  const isNavOpen = storedNavOpen ?? isDesktop
 
-  const toggleNav = () => setNavOverride(!isNavOpen)
-  const closeNav = () => setNavOverride(false)
+  const toggleNav = () => setStoredNavOpen(!isNavOpen)
+  const closeNav = () => setStoredNavOpen(false)
 
   const handleNavigate = (section: StorySection) => {
     setActiveSection(section)

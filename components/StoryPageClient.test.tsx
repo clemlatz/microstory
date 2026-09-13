@@ -69,6 +69,10 @@ const story: Story = {
 }
 
 describe('StoryPageClient', () => {
+  beforeEach(() => {
+    window.localStorage.clear()
+  })
+
   it('shows the story overview by default', async () => {
     render(<StoryPageClient story={story} llmWritingEnabled={true} />)
     expect(screen.getByTestId('story-title')).toHaveTextContent('Le Voyage de Nour')
@@ -163,6 +167,33 @@ describe('StoryPageClient', () => {
       await user.click(screen.getByTestId('story-nav-toggle'))
 
       expect(screen.queryByTestId('story-nav-drawer')).not.toBeInTheDocument()
+    })
+
+    it('remembers the sidebar being hidden across remounts (e.g. a reload)', async () => {
+      const user = userEvent.setup()
+      const { unmount } = render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+      await waitFor(() => expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument())
+
+      await user.click(screen.getByTestId('story-nav-toggle'))
+      expect(screen.queryByTestId('story-nav-drawer')).not.toBeInTheDocument()
+      unmount()
+
+      render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+      expect(screen.queryByTestId('story-nav-drawer')).not.toBeInTheDocument()
+    })
+
+    it('remembers the sidebar being shown again after it was hidden, across remounts', async () => {
+      const user = userEvent.setup()
+      const { unmount } = render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+      await waitFor(() => expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument())
+
+      await user.click(screen.getByTestId('story-nav-toggle'))
+      await user.click(screen.getByTestId('story-nav-toggle'))
+      expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument()
+      unmount()
+
+      render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+      await waitFor(() => expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument())
     })
   })
 })
