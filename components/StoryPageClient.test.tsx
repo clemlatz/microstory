@@ -16,6 +16,19 @@ vi.mock('@/lib/charactersApi', () => ({
   deleteCharacter: vi.fn(),
 }))
 
+vi.mock('@/lib/notesApi', () => ({
+  fetchNotes: vi.fn().mockResolvedValue([]),
+  createNote: vi.fn(),
+  updateNote: vi.fn(),
+  deleteNote: vi.fn(),
+}))
+
+vi.mock('@/lib/documentationApi', () => ({
+  fetchDocumentation: vi.fn().mockResolvedValue([]),
+  createDocumentationEntry: vi.fn(),
+  deleteDocumentationEntry: vi.fn(),
+}))
+
 vi.mock('@/lib/aiResponse', () => ({
   fetchAiResponse: vi.fn(),
   fetchMessages: vi.fn().mockResolvedValue([]),
@@ -61,21 +74,47 @@ describe('StoryPageClient', () => {
     expect(screen.getByTestId('story-title')).toHaveTextContent('Le Voyage de Nour')
   })
 
-  it('switches to the manuscript and back', async () => {
+  it('switches to the manuscript and back via the navigation drawer', async () => {
     const user = userEvent.setup()
     render(<StoryPageClient story={story} llmWritingEnabled={true} />)
 
-    await user.click(screen.getByTestId('open-manuscript-button'))
-    await waitFor(() => expect(screen.getByTestId('story-overview-toggle')).toBeInTheDocument())
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-manuscript'))
+    await waitFor(() => expect(screen.getByTestId('story-nav-toggle')).toBeInTheDocument())
+    expect(screen.queryByTestId('story-title')).not.toBeInTheDocument()
 
-    await user.click(screen.getByTestId('story-overview-toggle'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-overview'))
     expect(screen.getByTestId('story-title')).toBeInTheDocument()
   })
 
-  it('hides the "Manuscrit" button and never reaches the manuscript when disabled', async () => {
+  it('highlights the manuscript item as active once on the manuscript', async () => {
+    const user = userEvent.setup()
+    render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-manuscript'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
+
+    expect(screen.getByTestId('story-nav-manuscript')).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('hides the "Manuscrit" item and never reaches the manuscript when disabled', async () => {
+    const user = userEvent.setup()
     render(<StoryPageClient story={story} llmWritingEnabled={false} />)
 
     expect(screen.getByTestId('story-title')).toBeInTheDocument()
-    expect(screen.queryByTestId('open-manuscript-button')).not.toBeInTheDocument()
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    expect(screen.queryByTestId('story-nav-manuscript')).not.toBeInTheDocument()
+  })
+
+  it('navigates between the knowledge-base sections', async () => {
+    const user = userEvent.setup()
+    render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+
+    await user.click(screen.getByTestId('story-nav-toggle'))
+    await user.click(screen.getByTestId('story-nav-notes'))
+
+    await waitFor(() => expect(screen.getByText(/No notes/)).toBeInTheDocument())
   })
 })

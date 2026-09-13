@@ -23,6 +23,12 @@ vi.mock('@/lib/notesApi', () => ({
   deleteNote: vi.fn(),
 }))
 
+vi.mock('@/lib/documentationApi', () => ({
+  fetchDocumentation: vi.fn().mockResolvedValue([]),
+  createDocumentationEntry: vi.fn(),
+  deleteDocumentationEntry: vi.fn(),
+}))
+
 const story: Story = {
   id: 'story-1',
   title: 'Le Voyage de Nour',
@@ -34,77 +40,66 @@ const story: Story = {
 
 describe('StoryHomeView', () => {
   it('shows the story title', async () => {
-    render(<StoryHomeView story={story} onOpenManuscript={vi.fn()} />)
+    render(<StoryHomeView story={story} section="overview" onOpenNav={vi.fn()} />)
     expect(screen.getByTestId('story-title')).toHaveTextContent('Le Voyage de Nour')
-    await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
   })
 
-  it('renders the character list', async () => {
-    render(<StoryHomeView story={story} onOpenManuscript={vi.fn()} />)
+  it('renders only the characters section when active', async () => {
+    render(<StoryHomeView story={story} section="characters" onOpenNav={vi.fn()} />)
     await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
+    expect(screen.queryByText(/No notes/)).not.toBeInTheDocument()
+    expect(screen.queryByTestId('story-presentation-preview')).not.toBeInTheDocument()
   })
 
-  it('renders the notes list', async () => {
-    render(<StoryHomeView story={story} onOpenManuscript={vi.fn()} />)
+  it('renders only the notes section when active', async () => {
+    render(<StoryHomeView story={story} section="notes" onOpenNav={vi.fn()} />)
     await waitFor(() => expect(screen.getByText(/No notes/)).toBeInTheDocument())
+    expect(screen.queryByText(/No characters/)).not.toBeInTheDocument()
   })
 
-  it('renders the search input', async () => {
-    render(<StoryHomeView story={story} onOpenManuscript={vi.fn()} />)
+  it('renders only the documentation section when active', async () => {
+    render(<StoryHomeView story={story} section="documentation" onOpenNav={vi.fn()} />)
+    await waitFor(() => expect(screen.getByText(/No documentation/)).toBeInTheDocument())
+    expect(screen.queryByText(/No notes/)).not.toBeInTheDocument()
+  })
+
+  it('renders the search input regardless of the active section', async () => {
+    render(<StoryHomeView story={story} section="characters" onOpenNav={vi.fn()} />)
     expect(screen.getByTestId('search-input')).toBeInTheDocument()
   })
 
-  it('hides the characters/notes/documentation panels while a search is active', async () => {
+  it('hides the active section content while a search is active', async () => {
     const user = userEvent.setup()
-    render(<StoryHomeView story={story} onOpenManuscript={vi.fn()} />)
+    render(<StoryHomeView story={story} section="characters" onOpenNav={vi.fn()} />)
     await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
 
     await user.type(screen.getByTestId('search-input'), 'alice')
 
     expect(screen.queryByText(/No characters/)).not.toBeInTheDocument()
-    expect(screen.queryByText(/No notes/)).not.toBeInTheDocument()
-    expect(screen.queryByTestId('documentation-list')).not.toBeInTheDocument()
 
     await user.clear(screen.getByTestId('search-input'))
 
     await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
-    expect(screen.getByText(/No notes/)).toBeInTheDocument()
   })
 
-  it('calls onOpenManuscript when the "Manuscrit" button is clicked', async () => {
+  it('opens the navigation drawer when the toggle button is clicked', async () => {
     const user = userEvent.setup()
-    const onOpenManuscript = vi.fn()
-    render(<StoryHomeView story={story} onOpenManuscript={onOpenManuscript} />)
+    const onOpenNav = vi.fn()
+    render(<StoryHomeView story={story} section="overview" onOpenNav={onOpenNav} />)
 
-    await user.click(screen.getByTestId('open-manuscript-button'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
 
-    expect(onOpenManuscript).toHaveBeenCalledTimes(1)
-  })
-
-  it('navigates back to the stories list', async () => {
-    const user = userEvent.setup()
-    render(<StoryHomeView story={story} onOpenManuscript={vi.fn()} />)
-
-    await user.click(screen.getByTestId('stories-back-button'))
-
-    expect(mockRouterPush).toHaveBeenCalledWith('/stories')
-  })
-
-  it('hides the "Manuscrit" button when onOpenManuscript is not provided', async () => {
-    render(<StoryHomeView story={story} />)
-    await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
-
-    expect(screen.queryByTestId('open-manuscript-button')).not.toBeInTheDocument()
+    expect(onOpenNav).toHaveBeenCalledTimes(1)
   })
 
   it('shows a placeholder when the story has no presentation yet', async () => {
-    render(<StoryHomeView story={story} onOpenManuscript={vi.fn()} />)
+    render(<StoryHomeView story={story} section="overview" onOpenNav={vi.fn()} />)
     expect(screen.getByTestId('story-presentation-preview')).toHaveTextContent(/No presentation yet/)
   })
 
   it('shows the story presentation text when set', async () => {
     const storyWithPresentation = { ...story, presentation: 'A polar station cut off from the world.' }
-    render(<StoryHomeView story={storyWithPresentation} onOpenManuscript={vi.fn()} />)
+    render(<StoryHomeView story={storyWithPresentation} section="overview" onOpenNav={vi.fn()} />)
     expect(screen.getByTestId('story-presentation-preview')).toHaveTextContent(
       'A polar station cut off from the world.',
     )
@@ -112,7 +107,7 @@ describe('StoryHomeView', () => {
 
   it('navigates to the presentation edit page', async () => {
     const user = userEvent.setup()
-    render(<StoryHomeView story={story} onOpenManuscript={vi.fn()} />)
+    render(<StoryHomeView story={story} section="overview" onOpenNav={vi.fn()} />)
 
     await user.click(screen.getByTestId('story-presentation-edit-button'))
 

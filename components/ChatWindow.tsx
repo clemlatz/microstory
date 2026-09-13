@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { StoryView } from './StoryView'
 import { HistoryView } from './HistoryView'
 import { MessageInput } from './MessageInput'
@@ -81,21 +80,21 @@ function createMessage(role: Message['role'], content: string): Message {
 }
 
 /**
- * The manuscript/chat surface for a story — now the secondary view (issue
- * #74), reached from `StoryHomeView`'s "Manuscrit" toggle rather than shown
- * by default. `onBackToOverview`, when provided, renders a button in the
- * header that switches back to that overview (`StoryPageClient` owns which
- * of the two is currently shown); it's optional so existing standalone
+ * The manuscript/chat surface for a story — a section reached through
+ * `StoryNavDrawer` (issue #13) rather than shown by default. `onOpenNav`,
+ * when provided, renders a button in the header that opens that drawer —
+ * the same entry point `StoryHomeView` uses for every other section,
+ * replacing this component's former standalone `onBackToOverview`/
+ * `stories-toggle` navigation. It's optional so existing standalone
  * renders/tests of this component keep working unchanged.
  */
 export function ChatWindow({
   storyId,
-  onBackToOverview,
+  onOpenNav,
 }: {
   storyId: string
-  onBackToOverview?: () => void
+  onOpenNav?: () => void
 }) {
-  const router = useRouter()
   const { t } = useLocale()
   const CONFIG_PANEL_SECTIONS = useMemo(
     () => [
@@ -592,26 +591,27 @@ export function ChatWindow({
             </svg>
           </button>
           <img src="/logo-lotus.png" alt="" className="h-4.5 w-auto opacity-75" />
-          {onBackToOverview ? (
+          {onOpenNav ? (
             <button
-              data-testid="story-overview-toggle"
+              data-testid="story-nav-toggle"
               type="button"
-              onClick={onBackToOverview}
-              aria-label={t('chatWindow.backToStoryAria')}
-              className="rounded-lg px-2 py-1.5 font-sans text-sm text-stone-400 hover:bg-stone-100 hover:text-stone-600 dark:text-stone-500 dark:hover:bg-stone-900 dark:hover:text-stone-300"
+              onClick={onOpenNav}
+              aria-label={t('chatWindow.navAria')}
+              className="rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 dark:text-stone-500 dark:hover:bg-stone-900"
             >
-              {t('chatWindow.backToStory')}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                className="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </button>
           ) : null}
-          <button
-            data-testid="stories-toggle"
-            type="button"
-            onClick={() => router.push('/stories')}
-            aria-label={t('chatWindow.myStoriesAria')}
-            className="rounded-lg px-2 py-1.5 font-sans text-sm text-stone-400 hover:bg-stone-100 hover:text-stone-600 dark:text-stone-500 dark:hover:bg-stone-900 dark:hover:text-stone-300"
-          >
-            {t('chatWindow.myStories')}
-          </button>
         </div>
         <div className="flex items-center gap-2">
           {contextUsage ? (

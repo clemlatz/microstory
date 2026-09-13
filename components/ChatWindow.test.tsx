@@ -41,9 +41,8 @@ vi.mock('@/lib/historyApi', () => ({
   fetchHistory: vi.fn(),
 }))
 
-const mockRouterPush = vi.fn()
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockRouterPush }),
+  useRouter: () => ({ push: vi.fn() }),
 }))
 
 import { fetchAiResponse, fetchMessages, resetConversation, resumeAiResponse, stopGeneration } from '@/lib/aiResponse'
@@ -98,7 +97,6 @@ describe('ChatWindow', () => {
     mockedFetchActiveConversationSummary.mockResolvedValue({ summary: '', cutoffId: null })
     mockedFetchHistory.mockReset()
     mockedFetchHistory.mockResolvedValue({ messages: [], summaries: [], activeCutoffId: null })
-    mockRouterPush.mockReset()
   })
 
   it('sends the full message history to fetchAiResponse', async () => {
@@ -191,17 +189,6 @@ describe('ChatWindow', () => {
     await waitFor(() => {
       expect(screen.getByTestId('continue-input')).not.toBeDisabled()
     })
-  })
-
-  it('navigates to /stories when the "Mes histoires" button is clicked', async () => {
-    const user = userEvent.setup()
-
-    render(<ChatWindow storyId="test-story" />)
-    await waitFor(() => expect(mockedFetchMessages).toHaveBeenCalled())
-
-    await user.click(screen.getByTestId('stories-toggle'))
-
-    expect(mockRouterPush).toHaveBeenCalledWith('/stories')
   })
 
   it('opens a confirmation dialog instead of resetting immediately when the reset button is clicked', async () => {
@@ -306,22 +293,22 @@ describe('ChatWindow', () => {
     expect(screen.queryByTestId('config-panel')).not.toBeInTheDocument()
   })
 
-  it('shows a back-to-overview button when onBackToOverview is provided, and calls it', async () => {
+  it('shows a nav-toggle button when onOpenNav is provided, and calls it', async () => {
     const user = userEvent.setup()
-    const onBackToOverview = vi.fn()
-    render(<ChatWindow storyId="test-story" onBackToOverview={onBackToOverview} />)
+    const onOpenNav = vi.fn()
+    render(<ChatWindow storyId="test-story" onOpenNav={onOpenNav} />)
 
     await waitFor(() => expect(mockedFetchMessages).toHaveBeenCalled())
-    await user.click(screen.getByTestId('story-overview-toggle'))
+    await user.click(screen.getByTestId('story-nav-toggle'))
 
-    expect(onBackToOverview).toHaveBeenCalledTimes(1)
+    expect(onOpenNav).toHaveBeenCalledTimes(1)
   })
 
-  it('does not show a back-to-overview button when onBackToOverview is not provided', async () => {
+  it('does not show a nav-toggle button when onOpenNav is not provided', async () => {
     render(<ChatWindow storyId="test-story" />)
 
     await waitFor(() => expect(mockedFetchMessages).toHaveBeenCalled())
-    expect(screen.queryByTestId('story-overview-toggle')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('story-nav-toggle')).not.toBeInTheDocument()
   })
 
   it('shows the LLM section with the configured model name and status', async () => {

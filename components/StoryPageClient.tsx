@@ -1,22 +1,29 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { StoryHomeView } from './StoryHomeView'
 import { ChatWindow } from './ChatWindow'
+import { StoryNavDrawer, type StorySection } from './StoryNavDrawer'
 import type { Story } from '@/lib/types'
 
 /**
- * Owns which of the two main views for a story is currently shown (issue
- * #74): the "Histoire" overview (title + characters, default) or the
- * "Manuscrit" writing surface (`ChatWindow`, now secondary) — a simple local
- * toggle rather than separate routes, so switching back and forth doesn't
- * lose either view's in-progress state within a single visit.
+ * Owns which section of a story is currently shown (issue #13, reworking
+ * issue #74's simpler home/manuscript toggle): the knowledge-base sections
+ * rendered by `StoryHomeView` (Overview, Characters, Notes, Documentation)
+ * plus the manuscript/chat surface (`ChatWindow`) — a local `activeSection`
+ * state rather than separate routes, so switching back and forth within a
+ * single visit doesn't lose any section's in-progress state. Navigation
+ * between sections (and back to the stories list) goes exclusively through
+ * `StoryNavDrawer`, an overlay opened from either underlying view's header
+ * button — it stays mounted here, above whichever view is showing, so a
+ * single drawer instance serves every section.
  *
- * `llmWritingEnabled` (issue #83) gates the manuscript entirely: when false,
- * `view` can never actually reach `'manuscript'` (`onOpenManuscript` is
- * simply not passed down — see `StoryHomeView`, which then also hides its
- * own "Manuscrit" button), so `ChatWindow` — and with it the chat/manuscript
- * surface and its writing/LLM config panel sections — stays unreachable.
+ * `llmWritingEnabled` (issue #83) gates the manuscript entirely: when
+ * false, `activeSection` can never actually reach `'manuscript'`
+ * (`StoryNavDrawer` hides that item, and `ChatWindow` is simply never
+ * rendered), so the manuscript/chat surface and its writing/LLM config
+ * panel stay unreachable.
  */
 export function StoryPageClient({
   story,
@@ -25,16 +32,37 @@ export function StoryPageClient({
   story: Story
   llmWritingEnabled: boolean
 }) {
-  const [view, setView] = useState<'home' | 'manuscript'>('home')
+  const router = useRouter()
+  const [activeSection, setActiveSection] = useState<StorySection>('overview')
+  const [isNavOpen, setIsNavOpen] = useState(false)
 
-  if (llmWritingEnabled && view === 'manuscript') {
-    return <ChatWindow storyId={story.id} onBackToOverview={() => setView('home')} />
+  const openNav = () => setIsNavOpen(true)
+  const closeNav = () => setIsNavOpen(false)
+
+  const handleNavigate = (section: StorySection) => {
+    setActiveSection(section)
+    closeNav()
   }
 
   return (
-    <StoryHomeView
-      story={story}
-      onOpenManuscript={llmWritingEnabled ? () => setView('manuscript') : undefined}
-    />
+    <>
+      {llmWritingEnabled && activeSection === 'manuscript' ? (
+        <ChatWindow storyId={story.id} onOpenNav={openNav} />
+      ) : (
+        <StoryHomeView
+          story={story}
+          section={activeSection === 'manuscript' ? 'overview' : activeSection}
+          onOpenNav={openNav}
+        />
+      )}
+      <StoryNavDrawer
+        open={isNavOpen}
+        onClose={closeNav}
+        activeSection={activeSection}
+        onNavigate={handleNavigate}
+        onBackToStories={() => router.push('/stories')}
+        llmWritingEnabled={llmWritingEnabled}
+      />
+    </>
   )
 }

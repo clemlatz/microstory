@@ -6,49 +6,39 @@ import { CharactersPanel } from './CharactersPanel'
 import { NotesPanel } from './NotesPanel'
 import { DocumentationPanel } from './DocumentationPanel'
 import { SearchPanel } from './SearchPanel'
+import type { StorySection } from './StoryNavDrawer'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { Story } from '@/lib/types'
 
 /**
- * The main view for a story (issue #74): its title and its character list
- * (full CRUD, via `CharactersPanel` — the same component that used to be the
- * config panel's "Personnages" tab, now hosted here instead since that tab
- * was redundant with this view). This is what `/story/[id]` shows by
- * default; the existing manuscript/chat writing surface (`ChatWindow`) is
- * reached via the "Manuscrit" button and becomes secondary, per the issue.
+ * The knowledge-base shell for a story (issue #74, reworked by issue #13):
+ * renders exactly one of its sections at a time — Overview (title +
+ * presentation preview), Characters, Notes, or Documentation — driven by
+ * the `section` prop `StoryPageClient` owns. Navigating between sections
+ * (and to the manuscript, or back to the stories list) happens through
+ * `StoryNavDrawer`, opened via the `onOpenNav` header button; the ad hoc
+ * `stories-back-button`/`open-manuscript-button` this view used to render
+ * itself are gone, superseded by that drawer.
  *
- * Also hosts `NotesPanel` (issue #78) below the character list: free-form
- * title+content notes for anything that doesn't fit a structured entity
- * type, same load/add/edit/delete pattern as `CharactersPanel`.
+ * `SearchPanel` (issue #12) stays persistent above the active section
+ * regardless of which one is showing: while it reports an active query
+ * (`onActiveChange`), the section content is hidden and the search results
+ * show in its place — showing both at once was redundant and cluttered,
+ * and `SearchPanel` already covers all three entity types on its own.
  *
- * `DocumentationPanel` (issue #11) sits below `NotesPanel`: factual
- * reference material (research, sources) kept findable to preserve the
- * story world's credibility — unlike Notes' free-form personal framing,
- * and never auto-injected into any prompt.
- *
- * `onOpenManuscript` is optional (issue #83): omitting it (when LLM-assisted
- * writing is disabled via `LLM_WRITING_ENABLED=false`, see
- * `lib/llmWritingFlag.ts`) hides the "Manuscrit" button entirely, since
- * there would be nowhere left for it to lead.
- *
- * Also shows the story's presentation text (issue #1, a free-form
- * synopsis/pitch), right below the title — a read-only preview here, since
- * (like characters and notes) editing it happens on its own dedicated
- * Notion-style page (`/story/[id]/presentation`, `StoryPresentationEditPage`)
- * rather than inline in this view.
- *
- * `SearchPanel` (issue #12) sits above those three panels; while it reports
- * an active query (`onActiveChange`), the panels themselves are hidden —
- * showing both the search results and the full, unfiltered lists at once
- * was redundant and cluttered, and `SearchPanel` already covers all three
- * entity types on its own.
+ * The story's presentation text (issue #1, a free-form synopsis/pitch) is
+ * shown read-only here, as part of the Overview section — editing it
+ * happens on its own dedicated Notion-style page
+ * (`/story/[id]/presentation`, `StoryPresentationEditPage`).
  */
 export function StoryHomeView({
   story,
-  onOpenManuscript,
+  section,
+  onOpenNav,
 }: {
   story: Story
-  onOpenManuscript?: () => void
+  section: StorySection
+  onOpenNav: () => void
 }) {
   const router = useRouter()
   const { t } = useLocale()
@@ -57,64 +47,64 @@ export function StoryHomeView({
   return (
     <div className="h-full flex-1 overflow-y-auto bg-[#fdfbf6] px-6 py-10 text-stone-900 sm:px-10 dark:bg-stone-950 dark:text-stone-100">
       <div className="mx-auto w-full max-w-2xl">
-        <button
-          data-testid="stories-back-button"
-          type="button"
-          onClick={() => router.push('/stories')}
-          className="mb-4 font-sans text-sm text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
-        >
-          {t('storyHome.back')}
-        </button>
-
-        <div className="mb-8 flex items-center justify-between gap-4">
+        <div className="mb-8 flex items-center gap-3">
+          <button
+            data-testid="story-nav-toggle"
+            type="button"
+            aria-label={t('chatWindow.navAria')}
+            onClick={onOpenNav}
+            className="shrink-0 rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 dark:text-stone-500 dark:hover:bg-stone-900"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
           <h1 data-testid="story-title" className="min-w-0 truncate font-serif text-3xl text-stone-900 dark:text-stone-100">
             {story.title}
           </h1>
-          {onOpenManuscript && (
-            <button
-              data-testid="open-manuscript-button"
-              type="button"
-              onClick={onOpenManuscript}
-              className="shrink-0 rounded-lg border border-[#e7e1d5] bg-[#fffdf8] px-3 py-1.5 font-sans text-sm text-stone-600 hover:bg-stone-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300 dark:hover:bg-stone-800"
-            >
-              {t('storyHome.openManuscript')}
-            </button>
-          )}
-        </div>
-
-        <div className="mb-8">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">{t('presentation.title')}</h3>
-            <button
-              type="button"
-              data-testid="story-presentation-edit-button"
-              className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-              onClick={() => router.push(`/story/${story.id}/presentation`)}
-            >
-              {t('presentation.edit')}
-            </button>
-          </div>
-          <p
-            data-testid="story-presentation-preview"
-            className="line-clamp-3 text-sm break-words whitespace-pre-line text-gray-600 dark:text-gray-400"
-          >
-            {story.presentation.trim() || t('presentation.empty')}
-          </p>
         </div>
 
         <SearchPanel storyId={story.id} onActiveChange={setIsSearchActive} />
 
         {!isSearchActive && (
           <>
-            <CharactersPanel storyId={story.id} />
+            {section === 'overview' && (
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+                    {t('presentation.title')}
+                  </h3>
+                  <button
+                    type="button"
+                    data-testid="story-presentation-edit-button"
+                    className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+                    onClick={() => router.push(`/story/${story.id}/presentation`)}
+                  >
+                    {t('presentation.edit')}
+                  </button>
+                </div>
+                <p
+                  data-testid="story-presentation-preview"
+                  className="text-sm break-words whitespace-pre-line text-gray-600 dark:text-gray-400"
+                >
+                  {story.presentation.trim() || t('presentation.empty')}
+                </p>
+              </div>
+            )}
 
-            <div className="mt-8">
-              <NotesPanel storyId={story.id} />
-            </div>
+            {section === 'characters' && <CharactersPanel storyId={story.id} />}
 
-            <div className="mt-8">
-              <DocumentationPanel storyId={story.id} />
-            </div>
+            {section === 'notes' && <NotesPanel storyId={story.id} />}
+
+            {section === 'documentation' && <DocumentationPanel storyId={story.id} />}
           </>
         )}
       </div>
