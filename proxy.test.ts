@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
 
 vi.mock('@/lib/authRepository', () => ({
@@ -49,6 +49,10 @@ describe('proxy', () => {
     vi.clearAllMocks()
   })
 
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
   it('lets public paths through without checking the session', () => {
     const response = proxy(makeRequest('/login'))
     expect(response.status).toBe(200)
@@ -75,5 +79,24 @@ describe('proxy', () => {
     expect(response.status).toBe(401)
     const data = await response.json()
     expect(data).toEqual({ error: 'authentication required' })
+  })
+
+  it('bypasses the session check entirely when NODE_ENV is development', () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    mockedIsValidSession.mockReturnValue(false)
+
+    const response = proxy(makeRequest('/story/abc'))
+
+    expect(response.status).toBe(200)
+    expect(mockedIsValidSession).not.toHaveBeenCalled()
+  })
+
+  it('still gates requests when NODE_ENV is production', () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    mockedIsValidSession.mockReturnValue(false)
+
+    const response = proxy(makeRequest('/story/abc'))
+
+    expect(response.status).toBe(307)
   })
 })
