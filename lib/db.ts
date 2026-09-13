@@ -87,6 +87,19 @@ export function getDb(): Database.Database {
     )
   `)
 
+  // Factual reference material (issue #11) — see lib/documentationRepository.ts.
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS documentation (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      url TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      story_id TEXT
+    )
+  `)
+
   // Snapshots of a character's/note's fields as they were right before an
   // edit overwrote them (lib/charactersRepository.ts's updateCharacter,
   // lib/notesRepository.ts's updateNote) — a pure backup, not yet exposed
@@ -111,6 +124,17 @@ export function getDb(): Database.Database {
       created_at INTEGER NOT NULL
     )
   `)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS documentation_versions (
+      id TEXT PRIMARY KEY,
+      documentation_id TEXT NOT NULL,
+      story_id TEXT NOT NULL,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      url TEXT,
+      created_at INTEGER NOT NULL
+    )
+  `)
 
   addColumnIfMissing(db, 'messages', 'story_id', 'TEXT')
   addColumnIfMissing(db, 'characters', 'story_id', 'TEXT')
@@ -123,12 +147,19 @@ export function getDb(): Database.Database {
     'CREATE INDEX IF NOT EXISTS idx_conversation_summaries_story_id ON conversation_summaries(story_id)',
   )
   db.exec('CREATE INDEX IF NOT EXISTS idx_notes_story_id ON notes(story_id)')
+  db.exec('CREATE INDEX IF NOT EXISTS idx_documentation_story_id ON documentation(story_id)')
   db.exec(
     'CREATE INDEX IF NOT EXISTS idx_character_versions_character_id ON character_versions(character_id)',
   )
   db.exec('CREATE INDEX IF NOT EXISTS idx_character_versions_story_id ON character_versions(story_id)')
   db.exec('CREATE INDEX IF NOT EXISTS idx_note_versions_note_id ON note_versions(note_id)')
   db.exec('CREATE INDEX IF NOT EXISTS idx_note_versions_story_id ON note_versions(story_id)')
+  db.exec(
+    'CREATE INDEX IF NOT EXISTS idx_documentation_versions_documentation_id ON documentation_versions(documentation_id)',
+  )
+  db.exec(
+    'CREATE INDEX IF NOT EXISTS idx_documentation_versions_story_id ON documentation_versions(story_id)',
+  )
 
   return db
 }

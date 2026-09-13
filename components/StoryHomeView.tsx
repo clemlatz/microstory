@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { CharactersPanel } from './CharactersPanel'
 import { NotesPanel } from './NotesPanel'
+import { DocumentationPanel } from './DocumentationPanel'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { Story } from '@/lib/types'
 
@@ -17,6 +18,11 @@ import type { Story } from '@/lib/types'
  * Also hosts `NotesPanel` (issue #78) below the character list: free-form
  * title+content notes for anything that doesn't fit a structured entity
  * type, same load/add/edit/delete pattern as `CharactersPanel`.
+ *
+ * `DocumentationPanel` (issue #11) sits below `NotesPanel`: factual
+ * reference material (research, sources) kept findable to preserve the
+ * story world's credibility — unlike Notes' free-form personal framing,
+ * and never auto-injected into any prompt.
  *
  * `onOpenManuscript` is optional (issue #83): omitting it (when LLM-assisted
  * writing is disabled via `LLM_WRITING_ENABLED=false`, see
@@ -91,6 +97,10 @@ export function StoryHomeView({
 
         <div className="mt-8">
           <NotesPanel storyId={story.id} />
+        </div>
+
+        <div className="mt-8">
+          <DocumentationPanel storyId={story.id} />
         </div>
       </div>
     </div>

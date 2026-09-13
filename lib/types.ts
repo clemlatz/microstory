@@ -52,3 +52,19 @@ export type Note = {
   createdAt: number
   updatedAt: number
 }
+
+/**
+ * A piece of factual reference material attached to a story (issue #11):
+ * unlike Note (free-form personal ideas), Documentation is meant to keep
+ * research/sources findable so the story world stays credible — an
+ * archive/write-target, never auto-injected into any prompt. `url`
+ * optionally links back to the external source it was found in.
+ */
+export type DocumentationEntry = {
+  id: string
+  title: string
+  content: string
+  url: string | null
+  createdAt: number
+  updatedAt: number
+}

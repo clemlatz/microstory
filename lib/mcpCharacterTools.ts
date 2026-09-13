@@ -3,15 +3,21 @@ import { z } from 'zod'
 import { getAllStories, getStoryById, updateStoryPresentation } from './storiesRepository'
 import { getAllCharacters, createCharacter, updateCharacter } from './charactersRepository'
 import { getAllNotes, createNote, updateNote } from './notesRepository'
+import {
+  getAllDocumentationEntries,
+  createDocumentationEntry,
+  updateDocumentationEntry,
+} from './documentationRepository'
 
 /**
- * Registers the character and note tools shared by every MCP transport
- * (stdio for local clients, Streamable HTTP for remote ones — see
+ * Registers the character, note and documentation tools shared by every MCP
+ * transport (stdio for local clients, Streamable HTTP for remote ones — see
  * mcp/character-server.mts and app/api/mcp/route.ts) so the tool behavior
  * stays identical regardless of how a client connects.
  *
- * Deliberately no delete tool for either: create/update only, so a misread
- * instruction can't make a character or note disappear.
+ * Deliberately no delete tool for any of them: create/update only, so a
+ * misread instruction can't make a character, note or documentation entry
+ * disappear.
  */
 export function registerCharacterTools(server: McpServer): void {
   server.registerTool(
@@ -249,6 +255,96 @@ export function registerCharacterTools(server: McpServer): void {
         return { content: [{ type: 'text', text: `No note with id ${id} in this story.` }], isError: true }
       }
       return { content: [{ type: 'text', text: `Note updated: ${note.title} (id: ${note.id})` }] }
+    },
+  )
+
+  server.registerTool(
+    'get_documentation',
+    {
+      title: 'Get story documentation',
+      description:
+        "Returns the list of documentation entries (title + content + optional source url) for a microstory story — factual reference material (research, sources) archived to keep the story world credible. This is a write-target/archive, not an auto-consulted knowledge source: do not rely on existing entries to answer a new research question unless the user explicitly asks you to consult them. If storyId is omitted, uses the most recently modified story.",
+      inputSchema: {
+        storyId: z
+          .string()
+          .optional()
+          .describe('story id (see list_stories); omitted = most recent story'),
+      },
+    },
+    async ({ storyId }) => {
+      const targetStoryId = storyId ?? getAllStories()[0]?.id
+      if (!targetStoryId) {
+        return { content: [{ type: 'text', text: 'No story found.' }] }
+      }
+
+      const entries = getAllDocumentationEntries(targetStoryId)
+      const text = entries.length
+        ? entries
+            .map((entry) => `- ${entry.title} (id: ${entry.id})${entry.url ? ` [${entry.url}]` : ''}: ${entry.content}`)
+            .join('\n')
+        : 'No documentation for this story.'
+      return { content: [{ type: 'text', text }] }
+    },
+  )
+
+  server.registerTool(
+    'create_documentation',
+    {
+      title: 'Create a documentation entry',
+      description:
+        'Archives a new documentation entry (title + content + optional source url) in a microstory story — use this to save factual research findings (e.g. an answer you found elsewhere) so the user can find them again, not to record personal ideas (use create_note for those instead). If storyId is omitted, uses the most recently modified story.',
+      inputSchema: {
+        title: z.string().min(1).describe('documentation entry title'),
+        content: z.string().min(1).describe('documentation entry content'),
+        url: z.string().optional().describe('optional link to the external source'),
+        storyId: z
+          .string()
+          .optional()
+          .describe('story id (see list_stories); omitted = most recent story'),
+      },
+    },
+    async ({ title, content, url, storyId }) => {
+      const targetStoryId = storyId ?? getAllStories()[0]?.id
+      if (!targetStoryId) {
+        return { content: [{ type: 'text', text: 'No story found.' }], isError: true }
+      }
+
+      const entry = createDocumentationEntry({ title, content, url: url ?? null }, targetStoryId)
+      return { content: [{ type: 'text', text: `Documentation entry created: ${entry.title} (id: ${entry.id})` }] }
+    },
+  )
+
+  server.registerTool(
+    'update_documentation',
+    {
+      title: 'Update a documentation entry',
+      description:
+        "Updates the title, content and/or source url of an existing documentation entry (see get_documentation for its id). If storyId is omitted, uses the most recently modified story.",
+      inputSchema: {
+        id: z.string().describe('id of the documentation entry to update (see get_documentation)'),
+        title: z.string().min(1).describe('new documentation entry title'),
+        content: z.string().min(1).describe('new documentation entry content'),
+        url: z.string().optional().describe('optional link to the external source'),
+        storyId: z
+          .string()
+          .optional()
+          .describe('story id (see list_stories); omitted = most recent story'),
+      },
+    },
+    async ({ id, title, content, url, storyId }) => {
+      const targetStoryId = storyId ?? getAllStories()[0]?.id
+      if (!targetStoryId) {
+        return { content: [{ type: 'text', text: 'No story found.' }], isError: true }
+      }
+
+      const entry = updateDocumentationEntry(id, targetStoryId, { title, content, url: url ?? null })
+      if (!entry) {
+        return {
+          content: [{ type: 'text', text: `No documentation entry with id ${id} in this story.` }],
+          isError: true,
+        }
+      }
+      return { content: [{ type: 'text', text: `Documentation entry updated: ${entry.title} (id: ${entry.id})` }] }
     },
   )
 }

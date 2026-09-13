@@ -190,3 +190,114 @@ describe('mcpCharacterTools - notes', () => {
     expect(result.content[0].text).toBe('No note with id missing-id in this story.')
   })
 })
+
+describe('mcpCharacterTools - documentation', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.stubEnv('DATABASE_PATH', ':memory:')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('get_documentation reports no story found when there is no story', async () => {
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    const result = await callTool(server, 'get_documentation')
+
+    expect(result.content[0].text).toBe('No story found.')
+  })
+
+  it('get_documentation reports no documentation for a story with none', async () => {
+    const { createStory } = await import('./storiesRepository')
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    const story = createStory('My story')
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    const result = await callTool(server, 'get_documentation', { storyId: story.id })
+
+    expect(result.content[0].text).toBe('No documentation for this story.')
+  })
+
+  it('create_documentation creates an entry and get_documentation lists it, including its url', async () => {
+    const { createStory } = await import('./storiesRepository')
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    const story = createStory('My story')
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    const created = await callTool(server, 'create_documentation', {
+      title: 'Lunar gravity',
+      content: 'A sixth of Earth gravity.',
+      url: 'https://example.com/gravity',
+      storyId: story.id,
+    })
+    expect(created.content[0].text).toMatch(/^Documentation entry created: Lunar gravity \(id: .+\)$/)
+
+    const listed = await callTool(server, 'get_documentation', { storyId: story.id })
+    expect(listed.content[0].text).toMatch(
+      /^- Lunar gravity \(id: .+\) \[https:\/\/example\.com\/gravity\]: A sixth of Earth gravity\.$/,
+    )
+  })
+
+  it('create_documentation defaults to the most recently modified story when storyId is omitted', async () => {
+    const { createStory, getAllStories } = await import('./storiesRepository')
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    createStory('Older story')
+    createStory('Recent story')
+    const defaultStoryId = getAllStories()[0].id
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    await callTool(server, 'create_documentation', { title: 'Entry', content: 'Content' })
+
+    const { getAllDocumentationEntries } = await import('./documentationRepository')
+    expect(getAllDocumentationEntries(defaultStoryId)).toHaveLength(1)
+  })
+
+  it('update_documentation updates an existing entry', async () => {
+    const { createStory } = await import('./storiesRepository')
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    const story = createStory('My story')
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    const created = await callTool(server, 'create_documentation', {
+      title: 'Lunar gravity',
+      content: 'Draft',
+      storyId: story.id,
+    })
+    const id = created.content[0].text.match(/id: (.+)\)$/)?.[1]
+
+    const updated = await callTool(server, 'update_documentation', {
+      id,
+      title: 'Lunar gravity, revised',
+      content: 'Final version',
+      storyId: story.id,
+    })
+
+    expect(updated.content[0].text).toBe(`Documentation entry updated: Lunar gravity, revised (id: ${id})`)
+  })
+
+  it('update_documentation reports an error when the entry does not exist', async () => {
+    const { createStory } = await import('./storiesRepository')
+    const { registerCharacterTools } = await import('./mcpCharacterTools')
+    const story = createStory('My story')
+    const server = new McpServer({ name: 'test', version: '0.0.0' })
+    registerCharacterTools(server)
+
+    const result = await callTool(server, 'update_documentation', {
+      id: 'missing-id',
+      title: 'Title',
+      content: 'Content',
+      storyId: story.id,
+    })
+
+    expect(result.isError).toBe(true)
+    expect(result.content[0].text).toBe('No documentation entry with id missing-id in this story.')
+  })
+})

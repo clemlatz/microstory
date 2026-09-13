@@ -99,6 +99,13 @@ const en = {
   'notes.titlePlaceholder': 'Title',
   'notes.requiredError': 'Title is required.',
 
+  'documentation.title': 'Documentation',
+  'documentation.description': 'Factual reference material — research, sources — to keep the world credible.',
+  'documentation.empty': 'No documentation yet.',
+  'documentation.titlePlaceholder': 'Title',
+  'documentation.urlPlaceholder': 'Source URL (optional)',
+  'documentation.requiredError': 'Title is required.',
+
   'history.loading': 'Loading history…',
   'history.empty': 'Nothing to show yet — history will fill in as the conversation goes.',
   'history.summaryLabel': 'Summary ({type}) — sent on next turn',
@@ -235,6 +242,14 @@ const fr: Record<TranslationKey, string> = {
   'notes.empty': 'Aucune note pour l’instant.',
   'notes.titlePlaceholder': 'Titre',
   'notes.requiredError': 'Le titre est obligatoire.',
+
+  'documentation.title': 'Documentation',
+  'documentation.description':
+    'Matériel de référence factuel — recherches, sources — pour garder l’univers crédible.',
+  'documentation.empty': 'Aucune documentation pour l’instant.',
+  'documentation.titlePlaceholder': 'Titre',
+  'documentation.urlPlaceholder': 'URL de la source (optionnel)',
+  'documentation.requiredError': 'Le titre est obligatoire.',
 
   'history.loading': "Chargement de l'historique…",
   'history.empty': "Rien à afficher pour l'instant — l'historique se remplira au fil de la conversation.",
