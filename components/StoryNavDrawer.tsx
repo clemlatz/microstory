@@ -76,7 +76,7 @@ export function StoryNavDrawer({
       />
       <aside
         data-testid="story-nav-drawer"
-        className="fixed inset-y-0 left-0 z-50 flex w-full max-w-xs flex-col border-r border-[var(--reader-rule)] bg-[var(--reader-bg)] font-reader-label shadow-xl md:static md:z-auto md:w-64 md:max-w-none md:shrink-0 md:shadow-none"
+        className="fixed top-14 bottom-0 left-0 z-50 flex w-full max-w-xs flex-col border-r border-[var(--reader-rule)] bg-[var(--reader-bg)] font-reader-label shadow-xl md:static md:top-auto md:bottom-auto md:z-auto md:w-64 md:max-w-none md:shrink-0 md:shadow-none"
       >
         <nav className="min-h-0 flex-1 overflow-y-auto p-2 pt-4">
           {items.map((item) => (
