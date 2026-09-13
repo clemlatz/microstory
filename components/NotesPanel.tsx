@@ -71,58 +71,57 @@ export function NotesPanel({ storyId }: { storyId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <h3 className="mb-2 text-sm font-semibold text-gray-500 dark:text-gray-400">{t('notes.title')}</h3>
-        {isLoading ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">{t('common.loading')}</p>
-        ) : notes.length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">{t('notes.empty')}</p>
-        ) : (
-          <ul className="flex flex-col gap-2" data-testid="note-list">
-            {notes.map((note) => (
-              <li
-                key={note.id}
-                data-testid="note-item"
-                className="rounded-lg border border-gray-200 p-3 dark:border-gray-800"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="font-medium">{note.title}</p>
-                    <p className="line-clamp-3 text-sm break-words whitespace-pre-wrap text-gray-500 dark:text-gray-400">
-                      {note.content}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 gap-2">
-                    <button
-                      type="button"
-                      data-testid="note-edit-button"
-                      className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                      onClick={() => router.push(`/story/${storyId}/note/${note.id}`)}
-                    >
-                      {t('common.edit')}
-                    </button>
-                    <button
-                      type="button"
-                      data-testid="note-delete-button"
-                      className="text-sm text-red-600 hover:underline dark:text-red-400"
-                      onClick={() => handleDelete(note.id)}
-                    >
-                      {t('common.delete')}
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+    <div className="flex flex-col gap-2.5">
+      <div className="flex items-baseline justify-between gap-2 border-b border-[var(--reader-rule)] pb-2">
+        <h3 className="text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase">
+          {t('notes.title')}
+        </h3>
+        {notes.length > 0 && <span className="text-[11px] text-[var(--reader-faint)]">{notes.length}</span>}
       </div>
+      {isLoading ? (
+        <p className="text-sm text-[var(--reader-muted)]">{t('common.loading')}</p>
+      ) : notes.length === 0 ? (
+        <p className="text-sm text-[var(--reader-muted)]">{t('notes.empty')}</p>
+      ) : (
+        <ul className="flex flex-col" data-testid="note-list">
+          {notes.map((note) => (
+            <li key={note.id} data-testid="note-item" className="border-b border-[var(--reader-rule)] py-2.5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-[15px] font-medium text-[var(--reader-ink)]">{note.title}</p>
+                  <p className="font-reader-body line-clamp-3 text-[13px] leading-relaxed break-words whitespace-pre-wrap text-[var(--reader-muted)]">
+                    {note.content}
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-3 text-xs">
+                  <button
+                    type="button"
+                    data-testid="note-edit-button"
+                    className="text-[var(--reader-accent)] hover:underline"
+                    onClick={() => router.push(`/story/${storyId}/note/${note.id}`)}
+                  >
+                    {t('common.edit')}
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="note-delete-button"
+                    className="text-[var(--reader-danger)] hover:underline"
+                    onClick={() => handleDelete(note.id)}
+                  >
+                    {t('common.delete')}
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
-      <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-        <div className="flex gap-2">
+      <form className="flex flex-col gap-2 pt-1" onSubmit={handleSubmit}>
+        <div className="flex items-center gap-2.5">
           <input
             data-testid="note-title-input"
-            className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+            className="min-w-0 flex-1 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-sm text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
             placeholder={t('notes.titlePlaceholder')}
             value={title}
             onChange={(event) => setTitle(event.target.value)}
@@ -130,14 +129,14 @@ export function NotesPanel({ storyId }: { storyId: string }) {
           <button
             type="submit"
             data-testid="note-save-button"
-            className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
+            className="shrink-0 rounded-md bg-[var(--reader-accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--reader-accent-ink)] disabled:opacity-50"
             disabled={isCreating}
           >
             {t('common.add')}
           </button>
         </div>
         {error && (
-          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          <p role="alert" className="text-sm text-[var(--reader-danger)]">
             {error}
           </p>
         )}

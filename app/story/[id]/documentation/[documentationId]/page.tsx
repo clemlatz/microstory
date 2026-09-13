@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { DocumentationEditPage } from '@/components/DocumentationEditPage'
 import { getStoryById } from '@/lib/storiesRepository'
 import { getDocumentationEntryById } from '@/lib/documentationRepository'
+import { isLlmWritingEnabled } from '@/lib/llmWritingFlag'
 
 export default async function DocumentationPage({
   params,
@@ -15,5 +16,5 @@ export default async function DocumentationPage({
   const entry = getDocumentationEntryById(documentationId, id)
   if (!entry) notFound()
 
-  return <DocumentationEditPage storyId={story.id} entry={entry} />
+  return <DocumentationEditPage story={story} entry={entry} llmWritingEnabled={isLlmWritingEnabled()} />
 }

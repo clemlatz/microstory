@@ -1,84 +1,18 @@
 'use client'
 
-import { useState, useSyncExternalStore } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { StoryHomeView } from './StoryHomeView'
+import { StoryShell } from './StoryShell'
 import { ChatWindow } from './ChatWindow'
 import { StoryNavDrawer, type StorySection } from './StoryNavDrawer'
+import { useStoryNavOpen } from '@/lib/useStoryNavOpen'
 import type { Story } from '@/lib/types'
 
-// Matches the `md` breakpoint Tailwind (and `StoryNavDrawer`'s own `md:`
-// classes) use by default — the point at which the nav switches from a
-// mobile overlay to a persistent desktop sidebar.
-const DESKTOP_MEDIA_QUERY = '(min-width: 768px)'
+const STORY_SECTIONS: StorySection[] = ['overview', 'characters', 'notes', 'documentation', 'manuscript']
 
-function isDesktopViewport(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia(DESKTOP_MEDIA_QUERY).matches
-  )
-}
-
-/**
- * Tracks whether the viewport is currently desktop-width, hydration-safe:
- * `useSyncExternalStore` renders `getServerSnapshot`'s value (always
- * `false` — there's no `window` server-side) through the first client
- * render, then reconciles to the real value right after, exactly like
- * `LocaleContext`'s own locale detection does for the same reason. Also
- * reactive to the viewport crossing the breakpoint afterward (a resize),
- * unlike a one-off effect would be.
- */
-function subscribeToDesktopViewport(callback: () => void) {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return () => {}
-  const mediaQueryList = window.matchMedia(DESKTOP_MEDIA_QUERY)
-  mediaQueryList.addEventListener('change', callback)
-  return () => mediaQueryList.removeEventListener('change', callback)
-}
-
-function getDesktopServerSnapshot(): boolean {
-  return false
-}
-
-// Whether the user has opened/closed the nav is remembered per-browser
-// (`localStorage`), the same tradeoff `LocaleContext` makes for the locale
-// preference: it survives a reload in this browser, but isn't synced across
-// devices. `null` means "no choice remembered yet" — falls back to the
-// viewport-based default (see `isNavOpen` below).
-const NAV_OPEN_STORAGE_KEY = 'microstory_story_nav_open'
-
-let navOpenListeners: Array<() => void> = []
-
-function subscribeToStoredNavOpen(callback: () => void) {
-  navOpenListeners = [...navOpenListeners, callback]
-  return () => {
-    navOpenListeners = navOpenListeners.filter((listener) => listener !== callback)
-  }
-}
-
-function getStoredNavOpen(): boolean | null {
-  try {
-    const stored = window.localStorage.getItem(NAV_OPEN_STORAGE_KEY)
-    if (stored === 'true') return true
-    if (stored === 'false') return false
-  } catch {
-    // Storage can throw (private browsing, blocked site data) — treat as
-    // "no choice remembered", the viewport-based default is a fine fallback.
-  }
-  return null
-}
-
-function getStoredNavOpenServerSnapshot(): boolean | null {
-  return null
-}
-
-function setStoredNavOpen(value: boolean) {
-  try {
-    window.localStorage.setItem(NAV_OPEN_STORAGE_KEY, String(value))
-  } catch {
-    // Non-fatal: the choice just won't survive a reload in this browser.
-  }
-  for (const listener of navOpenListeners) listener()
+function isStorySection(value: string | null): value is StorySection {
+  return value !== null && (STORY_SECTIONS as string[]).includes(value)
 }
 
 /**
@@ -89,19 +23,19 @@ function setStoredNavOpen(value: boolean) {
  * state rather than separate routes, so switching back and forth within a
  * single visit doesn't lose any section's in-progress state. Navigation
  * between sections (and back to the stories list) goes exclusively through
- * `StoryNavDrawer` — a single instance, mounted here as a sibling of
- * whichever view is showing, that renders itself either as a mobile overlay
- * or a persistent desktop sidebar (see its own doc comment).
+ * `StoryNavDrawer` — a single instance, rendered here directly for the
+ * manuscript view, or via `StoryShell` for every other section (see its own
+ * doc comment) — that renders itself either as a mobile overlay or a
+ * persistent desktop sidebar (see `StoryNavDrawer`'s own doc comment).
  *
- * `isNavOpen` is `storedNavOpen ?? isDesktop`: the last open/closed choice
- * remembered for this browser (`storedNavOpen`, via `localStorage` above)
- * wins once one exists; before that, it falls back to following the
- * viewport (`isDesktop`) — open by default on a desktop-width viewport,
- * closed by default on a narrower one. Every open/close, whether from the
- * header toggle button or the auto-close `handleNavigate` does on a
- * narrower viewport after picking a section, is persisted the same way, so
- * the next visit (any view, any device — well, any *browser*, see above)
- * restores exactly the state it was left in.
+ * The initial section can be seeded from a `?section=` query param (falling
+ * back to `'overview'` when it's absent, unrecognized, or `'manuscript'`
+ * while `llmWritingEnabled` is false) — read once, via `useState`'s lazy
+ * initializer, not kept in sync afterward. This is what lets a standalone
+ * edit page's drawer (`StoryShell`, used by
+ * `CharacterEditPage`/`NoteEditPage`/`DocumentationEditPage`/
+ * `StoryPresentationEditPage`) send the user back to the *matching* section
+ * instead of always landing on the overview.
  *
  * `llmWritingEnabled` (issue #83) gates the manuscript entirely: when
  * false, `activeSection` can never actually reach `'manuscript'`
@@ -117,44 +51,41 @@ export function StoryPageClient({
   llmWritingEnabled: boolean
 }) {
   const router = useRouter()
-  const [activeSection, setActiveSection] = useState<StorySection>('overview')
-  const isDesktop = useSyncExternalStore(subscribeToDesktopViewport, isDesktopViewport, getDesktopServerSnapshot)
-  const storedNavOpen = useSyncExternalStore(
-    subscribeToStoredNavOpen,
-    getStoredNavOpen,
-    getStoredNavOpenServerSnapshot,
-  )
-  const isNavOpen = storedNavOpen ?? isDesktop
-
-  const toggleNav = () => setStoredNavOpen(!isNavOpen)
-  const closeNav = () => setStoredNavOpen(false)
+  const searchParams = useSearchParams()
+  const [activeSection, setActiveSection] = useState<StorySection>(() => {
+    const requested = searchParams.get('section')
+    if (!isStorySection(requested)) return 'overview'
+    if (requested === 'manuscript' && !llmWritingEnabled) return 'overview'
+    return requested
+  })
+  const { isNavOpen, isDesktop, toggleNav, closeNav } = useStoryNavOpen()
 
   const handleNavigate = (section: StorySection) => {
     setActiveSection(section)
     if (!isDesktop) closeNav()
   }
 
-  return (
-    <div className="flex h-dvh w-full overflow-hidden">
-      <StoryNavDrawer
-        open={isNavOpen}
-        onClose={closeNav}
-        activeSection={activeSection}
-        onNavigate={handleNavigate}
-        onBackToStories={() => router.push('/stories')}
-        llmWritingEnabled={llmWritingEnabled}
-      />
-      <div className="min-w-0 flex-1">
-        {llmWritingEnabled && activeSection === 'manuscript' ? (
+  if (llmWritingEnabled && activeSection === 'manuscript') {
+    return (
+      <div className="flex h-dvh w-full overflow-hidden">
+        <StoryNavDrawer
+          open={isNavOpen}
+          onClose={closeNav}
+          activeSection={activeSection}
+          onNavigate={handleNavigate}
+          onBackToStories={() => router.push('/stories')}
+          llmWritingEnabled={llmWritingEnabled}
+        />
+        <div className="min-w-0 flex-1">
           <ChatWindow storyId={story.id} onOpenNav={toggleNav} />
-        ) : (
-          <StoryHomeView
-            story={story}
-            section={activeSection === 'manuscript' ? 'overview' : activeSection}
-            onOpenNav={toggleNav}
-          />
-        )}
+        </div>
       </div>
-    </div>
+    )
+  }
+
+  return (
+    <StoryShell story={story} llmWritingEnabled={llmWritingEnabled} activeSection={activeSection} onNavigate={setActiveSection}>
+      <StoryHomeView story={story} section={activeSection === 'manuscript' ? 'overview' : activeSection} />
+    </StoryShell>
   )
 }

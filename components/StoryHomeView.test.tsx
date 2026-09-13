@@ -39,38 +39,33 @@ const story: Story = {
 }
 
 describe('StoryHomeView', () => {
-  it('shows the story title', async () => {
-    render(<StoryHomeView story={story} section="overview" onOpenNav={vi.fn()} />)
-    expect(screen.getByTestId('story-title')).toHaveTextContent('Le Voyage de Nour')
-  })
-
   it('renders only the characters section when active', async () => {
-    render(<StoryHomeView story={story} section="characters" onOpenNav={vi.fn()} />)
+    render(<StoryHomeView story={story} section="characters" />)
     await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
     expect(screen.queryByText(/No notes/)).not.toBeInTheDocument()
     expect(screen.queryByTestId('story-presentation-preview')).not.toBeInTheDocument()
   })
 
   it('renders only the notes section when active', async () => {
-    render(<StoryHomeView story={story} section="notes" onOpenNav={vi.fn()} />)
+    render(<StoryHomeView story={story} section="notes" />)
     await waitFor(() => expect(screen.getByText(/No notes/)).toBeInTheDocument())
     expect(screen.queryByText(/No characters/)).not.toBeInTheDocument()
   })
 
   it('renders only the documentation section when active', async () => {
-    render(<StoryHomeView story={story} section="documentation" onOpenNav={vi.fn()} />)
+    render(<StoryHomeView story={story} section="documentation" />)
     await waitFor(() => expect(screen.getByText(/No documentation/)).toBeInTheDocument())
     expect(screen.queryByText(/No notes/)).not.toBeInTheDocument()
   })
 
   it('renders the search input regardless of the active section', async () => {
-    render(<StoryHomeView story={story} section="characters" onOpenNav={vi.fn()} />)
+    render(<StoryHomeView story={story} section="characters" />)
     expect(screen.getByTestId('search-input')).toBeInTheDocument()
   })
 
   it('hides the active section content while a search is active', async () => {
     const user = userEvent.setup()
-    render(<StoryHomeView story={story} section="characters" onOpenNav={vi.fn()} />)
+    render(<StoryHomeView story={story} section="characters" />)
     await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
 
     await user.type(screen.getByTestId('search-input'), 'alice')
@@ -82,24 +77,14 @@ describe('StoryHomeView', () => {
     await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
   })
 
-  it('opens the navigation drawer when the toggle button is clicked', async () => {
-    const user = userEvent.setup()
-    const onOpenNav = vi.fn()
-    render(<StoryHomeView story={story} section="overview" onOpenNav={onOpenNav} />)
-
-    await user.click(screen.getByTestId('story-nav-toggle'))
-
-    expect(onOpenNav).toHaveBeenCalledTimes(1)
-  })
-
   it('shows a placeholder when the story has no presentation yet', async () => {
-    render(<StoryHomeView story={story} section="overview" onOpenNav={vi.fn()} />)
+    render(<StoryHomeView story={story} section="overview" />)
     expect(screen.getByTestId('story-presentation-preview')).toHaveTextContent(/No presentation yet/)
   })
 
   it('shows the story presentation text when set', async () => {
     const storyWithPresentation = { ...story, presentation: 'A polar station cut off from the world.' }
-    render(<StoryHomeView story={storyWithPresentation} section="overview" onOpenNav={vi.fn()} />)
+    render(<StoryHomeView story={storyWithPresentation} section="overview" />)
     expect(screen.getByTestId('story-presentation-preview')).toHaveTextContent(
       'A polar station cut off from the world.',
     )
@@ -107,7 +92,7 @@ describe('StoryHomeView', () => {
 
   it('navigates to the presentation edit page', async () => {
     const user = userEvent.setup()
-    render(<StoryHomeView story={story} section="overview" onOpenNav={vi.fn()} />)
+    render(<StoryHomeView story={story} section="overview" />)
 
     await user.click(screen.getByTestId('story-presentation-edit-button'))
 

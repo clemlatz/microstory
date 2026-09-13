@@ -56,9 +56,9 @@ describe('StoryPresentationEditPage', () => {
   })
 
   it('shows the story title and presentation, with no save button', async () => {
-    render(<StoryPresentationEditPage story={story} />)
+    render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
 
-    expect(screen.getByText('Le dernier hiver')).toBeInTheDocument()
+    expect(screen.getAllByText('Le dernier hiver').length).toBeGreaterThan(0)
     expect(await screen.findByTestId('story-presentation-editor-stub')).toHaveValue(
       'Une station polaire coupée du monde.',
     )
@@ -67,7 +67,7 @@ describe('StoryPresentationEditPage', () => {
 
   it('autosaves a presentation change after the debounce delay', async () => {
     const user = userEvent.setup()
-    render(<StoryPresentationEditPage story={story} />)
+    render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
 
     await user.clear(await screen.findByTestId('story-presentation-editor-stub'))
     await user.type(screen.getByTestId('story-presentation-editor-stub'), 'Un nouveau pitch.')
@@ -80,7 +80,7 @@ describe('StoryPresentationEditPage', () => {
 
   it('autosaves clearing the presentation back to empty', async () => {
     const user = userEvent.setup()
-    render(<StoryPresentationEditPage story={story} />)
+    render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
 
     await user.clear(await screen.findByTestId('story-presentation-editor-stub'))
 
@@ -91,7 +91,7 @@ describe('StoryPresentationEditPage', () => {
 
   it('flushes a pending save immediately when navigating back', async () => {
     const user = userEvent.setup()
-    render(<StoryPresentationEditPage story={story} />)
+    render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
 
     await user.type(await screen.findByTestId('story-presentation-editor-stub'), ' Suite.')
     await user.click(screen.getByTestId('story-presentation-back-button'))
@@ -105,7 +105,7 @@ describe('StoryPresentationEditPage', () => {
 
   it('navigates back without saving when nothing changed', async () => {
     const user = userEvent.setup()
-    render(<StoryPresentationEditPage story={story} />)
+    render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
 
     await user.click(screen.getByTestId('story-presentation-back-button'))
 
@@ -116,7 +116,7 @@ describe('StoryPresentationEditPage', () => {
   it('shows an error message when autosaving fails', async () => {
     mockedUpdateStoryPresentation.mockRejectedValue(new Error('boom'))
     const user = userEvent.setup()
-    render(<StoryPresentationEditPage story={story} />)
+    render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
 
     await user.type(await screen.findByTestId('story-presentation-editor-stub'), ' Suite.')
 

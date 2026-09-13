@@ -3,6 +3,20 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* "Reader" direction (1b): warm white canvas, serif titles/body, small
+   * uppercase sans labels, rust accent — see the Color and type directions
+   * design doc. Scoped to the story overview/knowledge-base surfaces. */
+  --reader-bg: #faf9f5;
+  --reader-ink: #211f1b;
+  --reader-body: #453f38;
+  --reader-muted: #7a7269;
+  --reader-faint: #6e6760;
+  --reader-danger: oklch(0.5 0.15 30);
+  --reader-rule: #e8e4db;
+  --reader-accent: oklch(0.55 0.12 40);
+  --reader-accent-ink: #ffffff;
+  --reader-input-bg: #f0ede4;
 }
 
 @theme inline {
@@ -11,12 +25,25 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-newsreader);
+  --font-reader-body: var(--font-source-serif-4);
+  --font-reader-label: var(--font-source-sans-3);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    --reader-bg: #1b1917;
+    --reader-ink: #f3f0ea;
+    --reader-body: #cbc5bb;
+    --reader-muted: #918a80;
+    --reader-faint: #918a80;
+    --reader-danger: oklch(0.72 0.14 30);
+    --reader-rule: #2e2a26;
+    --reader-accent: oklch(0.72 0.12 40);
+    --reader-accent-ink: #1b1917;
+    --reader-input-bg: #262220;
   }
 }
 

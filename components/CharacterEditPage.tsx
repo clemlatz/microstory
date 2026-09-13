@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { updateCharacter } from '@/lib/charactersApi'
+import { StoryShell } from './StoryShell'
 import { useLocale } from '@/lib/i18n/LocaleContext'
-import type { Character } from '@/lib/types'
+import type { Character, Story } from '@/lib/types'
 
 const CharacterDescriptionEditor = dynamic(
   () => import('./CharacterDescriptionEditor').then((mod) => mod.CharacterDescriptionEditor),
@@ -32,10 +33,26 @@ const AUTOSAVE_DELAY_MS = 800
  * isn't lost to an in-flight debounce timer. Nothing autosaves while the
  * name or description is empty (mirroring the old submit validation) —
  * saving simply waits for both to be filled in again.
+ *
+ * Wrapped in `StoryShell` (same title bar + navigation drawer as the story
+ * overview) rather than left standalone, so this dedicated page doesn't
+ * feel like a dead end — the drawer's "Personnages" item is highlighted
+ * (`activeSection="characters"`), and picking any other item flushes a
+ * pending autosave before navigating away, exactly like the in-page back
+ * link already did.
  */
-export function CharacterEditPage({ storyId, character }: { storyId: string; character: Character }) {
+export function CharacterEditPage({
+  story,
+  character,
+  llmWritingEnabled,
+}: {
+  story: Story
+  character: Character
+  llmWritingEnabled: boolean
+}) {
   const { t } = useLocale()
   const router = useRouter()
+  const storyId = story.id
 
   const [name, setName] = useState(character.name)
   const [description, setDescription] = useState(character.description)
@@ -79,58 +96,76 @@ export function CharacterEditPage({ storyId, character }: { storyId: string; cha
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, description])
 
-  function goBackToStory() {
+  function flushPendingSave() {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
       debounceRef.current = null
       persist(name, description)
     }
+  }
+
+  function goBackToStory() {
+    flushPendingSave()
     router.push(`/story/${storyId}`)
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
-        <button
-          data-testid="character-back-button"
-          type="button"
-          onClick={goBackToStory}
-          className="mb-4 self-start font-sans text-sm text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
-        >
-          {t('storyHome.back')}
-        </button>
-
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <div className="mb-4 flex items-center justify-between gap-4">
-            <input
-              data-testid="character-page-name-input"
-              className="min-w-0 flex-1 border-none bg-transparent font-serif text-3xl text-stone-900 outline-none placeholder:text-stone-300 dark:text-stone-100 dark:placeholder:text-stone-600"
-              placeholder={t('characters.namePlaceholder')}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
-            <span
-              data-testid="character-page-save-status"
-              className="shrink-0 font-sans text-sm text-stone-400 dark:text-stone-500"
-            >
-              {isSaving ? t('common.saving') : t('common.saved')}
-            </span>
-          </div>
-
-          {error && (
-            <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">
-              {error}
-            </p>
-          )}
-
-          <div
-            data-testid="character-page-description-input"
-            className="character-description-editor min-h-0 flex-1 overflow-y-auto"
+    <StoryShell
+      story={story}
+      llmWritingEnabled={llmWritingEnabled}
+      activeSection="characters"
+      onNavigate={(section) => {
+        flushPendingSave()
+        router.push(`/story/${storyId}?section=${section}`)
+      }}
+      onBackToStories={() => {
+        flushPendingSave()
+        router.push('/stories')
+      }}
+    >
+      <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
+        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
+          <button
+            data-testid="character-back-button"
+            type="button"
+            onClick={goBackToStory}
+            className="mb-4 self-start font-sans text-sm text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
           >
-            <CharacterDescriptionEditor initialMarkdown={character.description} onChangeMarkdown={setDescription} />
+            {t('storyHome.back')}
+          </button>
+
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <input
+                data-testid="character-page-name-input"
+                className="min-w-0 flex-1 border-none bg-transparent font-serif text-3xl text-stone-900 outline-none placeholder:text-stone-300 dark:text-stone-100 dark:placeholder:text-stone-600"
+                placeholder={t('characters.namePlaceholder')}
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+              <span
+                data-testid="character-page-save-status"
+                className="shrink-0 font-sans text-sm text-stone-400 dark:text-stone-500"
+              >
+                {isSaving ? t('common.saving') : t('common.saved')}
+              </span>
+            </div>
+
+            {error && (
+              <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">
+                {error}
+              </p>
+            )}
+
+            <div
+              data-testid="character-page-description-input"
+              className="character-description-editor min-h-0 flex-1 overflow-y-auto"
+            >
+              <CharacterDescriptionEditor initialMarkdown={character.description} onChangeMarkdown={setDescription} />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </StoryShell>
   )
 }

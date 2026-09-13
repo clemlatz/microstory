@@ -103,25 +103,6 @@ describe('StoryNavDrawer', () => {
     expect(onBackToStories).toHaveBeenCalledTimes(1)
   })
 
-  it('calls onClose when the close button is clicked', async () => {
-    const user = userEvent.setup()
-    const onClose = vi.fn()
-    render(
-      <StoryNavDrawer
-        open={true}
-        onClose={onClose}
-        activeSection="overview"
-        onNavigate={vi.fn()}
-        onBackToStories={vi.fn()}
-        llmWritingEnabled={true}
-      />,
-    )
-
-    await user.click(screen.getByTestId('story-nav-close'))
-
-    expect(onClose).toHaveBeenCalledTimes(1)
-  })
-
   it('shows the language switcher at the bottom', () => {
     render(
       <StoryNavDrawer

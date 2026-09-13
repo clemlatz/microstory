@@ -5,8 +5,10 @@ import { StoryPageClient } from './StoryPageClient'
 import type { Story } from '@/lib/types'
 
 const mockRouterPush = vi.fn()
+let mockSearchParams = new URLSearchParams()
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockRouterPush }),
+  useSearchParams: () => mockSearchParams,
 }))
 
 vi.mock('@/lib/charactersApi', () => ({
@@ -71,11 +73,33 @@ const story: Story = {
 describe('StoryPageClient', () => {
   beforeEach(() => {
     window.localStorage.clear()
+    mockSearchParams = new URLSearchParams()
   })
 
   it('shows the story overview by default', async () => {
     render(<StoryPageClient story={story} llmWritingEnabled={true} />)
     expect(screen.getByTestId('story-title')).toHaveTextContent('Le Voyage de Nour')
+  })
+
+  it('seeds the initial section from the ?section= query param', async () => {
+    mockSearchParams = new URLSearchParams('section=notes')
+    render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+
+    await waitFor(() => expect(screen.getByText(/No notes/)).toBeInTheDocument())
+  })
+
+  it('falls back to the overview for an unrecognized ?section= value', async () => {
+    mockSearchParams = new URLSearchParams('section=bogus')
+    render(<StoryPageClient story={story} llmWritingEnabled={true} />)
+
+    expect(screen.getByTestId('story-presentation-preview')).toBeInTheDocument()
+  })
+
+  it('falls back to the overview when ?section=manuscript is disabled', async () => {
+    mockSearchParams = new URLSearchParams('section=manuscript')
+    render(<StoryPageClient story={story} llmWritingEnabled={false} />)
+
+    expect(screen.getByTestId('story-presentation-preview')).toBeInTheDocument()
   })
 
   it('switches to the manuscript and back via the navigation drawer', async () => {

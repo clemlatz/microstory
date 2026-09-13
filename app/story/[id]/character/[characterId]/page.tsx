@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { CharacterEditPage } from '@/components/CharacterEditPage'
 import { getStoryById } from '@/lib/storiesRepository'
 import { getCharacterById } from '@/lib/charactersRepository'
+import { isLlmWritingEnabled } from '@/lib/llmWritingFlag'
 
 export default async function CharacterPage({
   params,
@@ -15,5 +16,5 @@ export default async function CharacterPage({
   const character = getCharacterById(characterId, id)
   if (!character) notFound()
 
-  return <CharacterEditPage storyId={story.id} character={character} />
+  return <CharacterEditPage story={story} character={character} llmWritingEnabled={isLlmWritingEnabled()} />
 }

@@ -10,7 +10,11 @@ import { useLocale } from '@/lib/i18n/LocaleContext'
  * expires on its own). Clears the server-side session row and its cookie,
  * then sends the browser back to the passkey login screen.
  */
-export function LogoutButton() {
+export function LogoutButton({
+  className = 'rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 disabled:opacity-50 dark:text-stone-500 dark:hover:bg-stone-900',
+}: {
+  className?: string
+} = {}) {
   const router = useRouter()
   const { t } = useLocale()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -35,7 +39,7 @@ export function LogoutButton() {
       title={t('logout.ariaLabel')}
       disabled={isLoggingOut}
       onClick={handleLogout}
-      className="rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 disabled:opacity-50 dark:text-stone-500 dark:hover:bg-stone-900"
+      className={className}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

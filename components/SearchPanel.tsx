@@ -95,14 +95,14 @@ export function SearchPanel({
       <input
         data-testid="search-input"
         type="search"
-        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+        className="w-full rounded-md border-none bg-[var(--reader-input-bg)] px-3 py-2 text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
         placeholder={t('search.placeholder')}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
       />
 
       {!isQueryEmpty && error && (
-        <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="mt-2 text-sm text-[var(--reader-danger)]">
           {error}
         </p>
       )}
@@ -110,11 +110,11 @@ export function SearchPanel({
       {!isQueryEmpty && !error && hasSearched && !isSearching && (
         <div className="mt-2 flex flex-col gap-3" data-testid="search-results">
           {results.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">{t('search.noResults')}</p>
+            <p className="text-sm text-[var(--reader-muted)]">{t('search.noResults')}</p>
           ) : (
             GROUP_ORDER.filter((type) => grouped[type]?.length).map((type) => (
               <div key={type}>
-                <h4 className="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                <h4 className="mb-1 text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase">
                   {t(`search.${type === 'character' ? 'characters' : type === 'note' ? 'notes' : 'documentation'}`)}
                 </h4>
                 <ul className="flex flex-col gap-1">
@@ -123,13 +123,13 @@ export function SearchPanel({
                       <button
                         type="button"
                         data-testid="search-result-item"
-                        className="w-full rounded-lg border border-gray-200 p-2 text-left hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900"
+                        className="w-full rounded-md p-2 text-left hover:bg-[var(--reader-input-bg)]"
                         onClick={() =>
                           router.push(`/story/${storyId}/${EDIT_PATH_BY_TYPE[result.type]}/${result.id}`)
                         }
                       >
-                        <p className="font-medium">{result.title}</p>
-                        <p className="line-clamp-2 text-sm break-words text-gray-500 dark:text-gray-400">
+                        <p className="text-[15px] font-medium text-[var(--reader-ink)]">{result.title}</p>
+                        <p className="font-reader-body line-clamp-2 text-[13px] break-words text-[var(--reader-muted)]">
                           {result.snippet}
                         </p>
                       </button>

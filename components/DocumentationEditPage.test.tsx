@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DocumentationEditPage } from './DocumentationEditPage'
-import type { DocumentationEntry } from '@/lib/types'
+import type { DocumentationEntry, Story } from '@/lib/types'
 
 const mockRouterPush = vi.fn()
 vi.mock('next/navigation', () => ({
@@ -46,6 +46,15 @@ const source: DocumentationEntry = {
   updatedAt: 1000,
 }
 
+const story: Story = {
+  id: 'story-1',
+  title: 'Le Voyage de Nour',
+  presentation: '',
+  createdAt: 1000,
+  updatedAt: 2000,
+  lastPassagePreview: null,
+}
+
 const WAIT_FOR_AUTOSAVE = { timeout: 2000 }
 
 describe('DocumentationEditPage', () => {
@@ -56,7 +65,7 @@ describe('DocumentationEditPage', () => {
   })
 
   it('shows the entry title, url and content, with no save button', async () => {
-    render(<DocumentationEditPage storyId="story-1" entry={source} />)
+    render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
     expect(screen.getByTestId('documentation-page-title-input')).toHaveValue('Gravité lunaire')
     expect(screen.getByTestId('documentation-page-url-input')).toHaveValue('https://example.com/gravite')
@@ -67,14 +76,14 @@ describe('DocumentationEditPage', () => {
   })
 
   it('renders an empty url field when the entry has none', async () => {
-    render(<DocumentationEditPage storyId="story-1" entry={{ ...source, url: null }} />)
+    render(<DocumentationEditPage story={story} entry={{ ...source, url: null }} llmWritingEnabled={true} />)
 
     expect(screen.getByTestId('documentation-page-url-input')).toHaveValue('')
   })
 
   it('autosaves a title change after the debounce delay', async () => {
     const user = userEvent.setup()
-    render(<DocumentationEditPage storyId="story-1" entry={source} />)
+    render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
     await user.clear(screen.getByTestId('documentation-page-title-input'))
     await user.type(screen.getByTestId('documentation-page-title-input'), 'Gravité révisée')
@@ -92,7 +101,7 @@ describe('DocumentationEditPage', () => {
 
   it('autosaves a url change after the debounce delay', async () => {
     const user = userEvent.setup()
-    render(<DocumentationEditPage storyId="story-1" entry={source} />)
+    render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
     await user.clear(screen.getByTestId('documentation-page-url-input'))
     await user.type(screen.getByTestId('documentation-page-url-input'), 'https://example.com/other')
@@ -108,7 +117,7 @@ describe('DocumentationEditPage', () => {
 
   it('autosaves a content change after the debounce delay', async () => {
     const user = userEvent.setup()
-    render(<DocumentationEditPage storyId="story-1" entry={source} />)
+    render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
     await user.clear(await screen.findByTestId('documentation-content-editor-stub'))
     await user.type(screen.getByTestId('documentation-content-editor-stub'), 'Un dixième de la gravité')
@@ -124,7 +133,7 @@ describe('DocumentationEditPage', () => {
 
   it('flushes a pending save immediately when navigating back', async () => {
     const user = userEvent.setup()
-    render(<DocumentationEditPage storyId="story-1" entry={source} />)
+    render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
     await user.type(screen.getByTestId('documentation-page-title-input'), ' révisée')
     await user.click(screen.getByTestId('documentation-back-button'))
@@ -139,7 +148,7 @@ describe('DocumentationEditPage', () => {
 
   it('navigates back without saving when nothing changed', async () => {
     const user = userEvent.setup()
-    render(<DocumentationEditPage storyId="story-1" entry={source} />)
+    render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
     await user.click(screen.getByTestId('documentation-back-button'))
 
@@ -149,7 +158,7 @@ describe('DocumentationEditPage', () => {
 
   it('does not autosave while the title is empty', async () => {
     const user = userEvent.setup()
-    render(<DocumentationEditPage storyId="story-1" entry={source} />)
+    render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
     await user.clear(screen.getByTestId('documentation-page-title-input'))
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -159,7 +168,7 @@ describe('DocumentationEditPage', () => {
 
   it('does not autosave while the content is empty', async () => {
     const user = userEvent.setup()
-    render(<DocumentationEditPage storyId="story-1" entry={source} />)
+    render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
     await user.clear(await screen.findByTestId('documentation-content-editor-stub'))
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -170,7 +179,7 @@ describe('DocumentationEditPage', () => {
   it('shows an error message when autosaving fails', async () => {
     mockedUpdate.mockRejectedValue(new Error('boom'))
     const user = userEvent.setup()
-    render(<DocumentationEditPage storyId="story-1" entry={source} />)
+    render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
     await user.type(screen.getByTestId('documentation-page-title-input'), ' révisée')
 

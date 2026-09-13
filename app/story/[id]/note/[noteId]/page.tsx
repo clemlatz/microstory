@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { NoteEditPage } from '@/components/NoteEditPage'
 import { getStoryById } from '@/lib/storiesRepository'
 import { getNoteById } from '@/lib/notesRepository'
+import { isLlmWritingEnabled } from '@/lib/llmWritingFlag'
 
 export default async function NotePage({ params }: { params: Promise<{ id: string; noteId: string }> }) {
   const { id, noteId } = await params
@@ -11,5 +12,5 @@ export default async function NotePage({ params }: { params: Promise<{ id: strin
   const note = getNoteById(noteId, id)
   if (!note) notFound()
 
-  return <NoteEditPage storyId={story.id} note={note} />
+  return <NoteEditPage story={story} note={note} llmWritingEnabled={isLlmWritingEnabled()} />
 }
