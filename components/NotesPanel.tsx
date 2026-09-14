@@ -85,7 +85,12 @@ export function NotesPanel({ storyId }: { storyId: string }) {
       ) : (
         <ul className="flex flex-col" data-testid="note-list">
           {notes.map((note) => (
-            <li key={note.id} data-testid="note-item" className="border-b border-[var(--reader-rule)] py-2.5">
+            <li
+              key={note.id}
+              data-testid="note-item"
+              className="cursor-pointer border-b border-[var(--reader-rule)] py-2.5"
+              onClick={() => router.push(`/story/${storyId}/note/${note.id}`)}
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-[15px] font-medium text-[var(--reader-ink)]">{note.title}</p>
@@ -96,17 +101,12 @@ export function NotesPanel({ storyId }: { storyId: string }) {
                 <div className="flex shrink-0 items-center gap-1 text-xs">
                   <button
                     type="button"
-                    data-testid="note-edit-button"
-                    className="inline-flex min-h-11 items-center rounded-md px-3 text-[var(--reader-accent)] hover:underline"
-                    onClick={() => router.push(`/story/${storyId}/note/${note.id}`)}
-                  >
-                    {t('common.edit')}
-                  </button>
-                  <button
-                    type="button"
                     data-testid="note-delete-button"
                     className="inline-flex min-h-11 items-center rounded-md px-3 text-[var(--reader-danger)] hover:underline"
-                    onClick={() => handleDelete(note.id)}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      handleDelete(note.id)
+                    }}
                   >
                     {t('common.delete')}
                   </button>

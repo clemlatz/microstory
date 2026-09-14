@@ -104,19 +104,28 @@ describe('DocumentationPanel', () => {
     expect(mockedCreate).not.toHaveBeenCalled()
   })
 
-  it('navigates to the edit page when clicking edit', async () => {
+  it('navigates to the edit page when clicking anywhere on the card', async () => {
     mockedFetch.mockResolvedValue([source])
     const user = userEvent.setup()
 
     render(<DocumentationPanel storyId="test-story" />)
     await waitFor(() => expect(screen.getByText('Gravité lunaire')).toBeInTheDocument())
 
-    await user.click(screen.getByTestId('documentation-edit-button'))
+    await user.click(screen.getByTestId('documentation-item'))
 
     expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/documentation/1')
   })
 
-  it('deletes an entry', async () => {
+  it('does not show a separate edit button', async () => {
+    mockedFetch.mockResolvedValue([source])
+
+    render(<DocumentationPanel storyId="test-story" />)
+    await waitFor(() => expect(screen.getByText('Gravité lunaire')).toBeInTheDocument())
+
+    expect(screen.queryByTestId('documentation-edit-button')).not.toBeInTheDocument()
+  })
+
+  it('deletes an entry without navigating to its page', async () => {
     mockedFetch.mockResolvedValue([source])
     mockedDelete.mockResolvedValue(undefined)
     const user = userEvent.setup()
@@ -130,6 +139,7 @@ describe('DocumentationPanel', () => {
       expect(screen.queryByTestId('documentation-item')).not.toBeInTheDocument()
     })
     expect(mockedDelete).toHaveBeenCalledWith('test-story', '1')
+    expect(mockRouterPush).not.toHaveBeenCalledWith('/story/test-story/documentation/1')
   })
 
   it('shows an error message when saving fails', async () => {

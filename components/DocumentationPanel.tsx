@@ -93,7 +93,12 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
       ) : (
         <ul className="flex flex-col" data-testid="documentation-list">
           {entries.map((entry) => (
-            <li key={entry.id} data-testid="documentation-item" className="border-b border-[var(--reader-rule)] py-2.5">
+            <li
+              key={entry.id}
+              data-testid="documentation-item"
+              className="cursor-pointer border-b border-[var(--reader-rule)] py-2.5"
+              onClick={() => router.push(`/story/${storyId}/documentation/${entry.id}`)}
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-[15px] font-medium text-[var(--reader-ink)]">{entry.title}</p>
@@ -107,6 +112,7 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs break-all text-[var(--reader-accent)] hover:underline"
+                      onClick={(event) => event.stopPropagation()}
                     >
                       {entry.url}
                     </a>
@@ -115,17 +121,12 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
                 <div className="flex shrink-0 items-center gap-1 text-xs">
                   <button
                     type="button"
-                    data-testid="documentation-edit-button"
-                    className="inline-flex min-h-11 items-center rounded-md px-3 text-[var(--reader-accent)] hover:underline"
-                    onClick={() => router.push(`/story/${storyId}/documentation/${entry.id}`)}
-                  >
-                    {t('common.edit')}
-                  </button>
-                  <button
-                    type="button"
                     data-testid="documentation-delete-button"
                     className="inline-flex min-h-11 items-center rounded-md px-3 text-[var(--reader-danger)] hover:underline"
-                    onClick={() => handleDelete(entry.id)}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      handleDelete(entry.id)
+                    }}
                   >
                     {t('common.delete')}
                   </button>

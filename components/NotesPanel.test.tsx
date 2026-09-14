@@ -85,19 +85,28 @@ describe('NotesPanel', () => {
     expect(mockedCreateNote).not.toHaveBeenCalled()
   })
 
-  it('navigates to the note edit page when clicking edit', async () => {
+  it('navigates to the note edit page when clicking anywhere on the card', async () => {
     mockedFetchNotes.mockResolvedValue([idea])
     const user = userEvent.setup()
 
     render(<NotesPanel storyId="test-story" />)
     await waitFor(() => expect(screen.getByText('Règle du monde')).toBeInTheDocument())
 
-    await user.click(screen.getByTestId('note-edit-button'))
+    await user.click(screen.getByTestId('note-item'))
 
     expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/note/1')
   })
 
-  it('deletes a note', async () => {
+  it('does not show a separate edit button', async () => {
+    mockedFetchNotes.mockResolvedValue([idea])
+
+    render(<NotesPanel storyId="test-story" />)
+    await waitFor(() => expect(screen.getByText('Règle du monde')).toBeInTheDocument())
+
+    expect(screen.queryByTestId('note-edit-button')).not.toBeInTheDocument()
+  })
+
+  it('deletes a note without navigating to its page', async () => {
     mockedFetchNotes.mockResolvedValue([idea])
     mockedDeleteNote.mockResolvedValue(undefined)
     const user = userEvent.setup()
@@ -111,6 +120,7 @@ describe('NotesPanel', () => {
       expect(screen.queryByTestId('note-item')).not.toBeInTheDocument()
     })
     expect(mockedDeleteNote).toHaveBeenCalledWith('test-story', '1')
+    expect(mockRouterPush).not.toHaveBeenCalledWith('/story/test-story/note/1')
   })
 
   it('shows an error message when saving fails', async () => {
