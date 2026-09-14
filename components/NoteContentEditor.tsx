@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useCreateBlockNote } from '@blocknote/react'
+import { useCreateBlockNote, SideMenuController } from '@blocknote/react'
 import { BlockNoteView } from '@blocknote/mantine'
 import '@blocknote/mantine/style.css'
 import '@blocknote/core/fonts/inter.css'
+import { BlockNoteSideMenu } from './BlockNoteDragHandleMenu'
 
 /**
  * The BlockNote block editor used by `NoteEditPage`'s content field —
@@ -17,6 +18,10 @@ import '@blocknote/core/fonts/inter.css'
  * Its background/gutter overrides live in `app/globals.css` under
  * `.note-content-editor`, not here — see that file's comment (and
  * `CharacterDescriptionEditor`'s) for why.
+ *
+ * The default side menu is disabled (`sideMenu={false}`) and replaced by
+ * `BlockNoteSideMenu` via `SideMenuController` (issue #17) — see
+ * `BlockNoteDragHandleMenu.tsx`.
  */
 export function NoteContentEditor({
   initialMarkdown,
@@ -37,6 +42,12 @@ export function NoteContentEditor({
   }, [editor, initialMarkdown])
 
   return (
-    <BlockNoteView editor={editor} onChange={() => onChangeMarkdown(editor.blocksToMarkdownLossy(editor.document))} />
+    <BlockNoteView
+      editor={editor}
+      sideMenu={false}
+      onChange={() => onChangeMarkdown(editor.blocksToMarkdownLossy(editor.document))}
+    >
+      <SideMenuController sideMenu={BlockNoteSideMenu} />
+    </BlockNoteView>
   )
 }

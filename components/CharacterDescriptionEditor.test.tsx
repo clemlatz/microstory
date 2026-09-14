@@ -25,6 +25,9 @@ vi.mock('@blocknote/react', () => ({
     tryParseMarkdownToBlocks: mockTryParseMarkdownToBlocks,
     blocksToMarkdownLossy: mockBlocksToMarkdownLossy,
   }),
+  // The "Move up"/"Move down" drag handle menu customization
+  // (BlockNoteDragHandleMenu.tsx) is exercised by its own test, not here.
+  SideMenuController: () => null,
 }))
 
 vi.mock('@blocknote/mantine', () => ({
