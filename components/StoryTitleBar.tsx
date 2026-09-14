@@ -29,17 +29,28 @@ import { LogoutButton } from './LogoutButton'
  * now the only place the title appears, and the only place it's edited.
  * Omitted by callers whose title isn't editable here (the story overview
  * itself, reached via `StoryPageClient`), which keeps the plain `<h1>`.
+ *
+ * `isSaving` (issue #20) renders a discreet save-status icon (a small dot)
+ * right after the title — a pulsing muted dot while `isSaving` is true, a
+ * plain checkmark once it settles to `false` — replacing the "Saving…"/
+ * "Saved" text block each entry-edit page used to show in its own body.
+ * Only rendered when `isSaving` is not `undefined` (i.e. only by callers
+ * that autosave — every `onTitleChange` caller so far), and always carries
+ * an `aria-label` reflecting the same two states so the status stays
+ * accessible despite showing no text.
  */
 export function StoryTitleBar({
   title,
   onOpenNav,
   onTitleChange,
   titlePlaceholder,
+  isSaving,
 }: {
   title: string
   onOpenNav: () => void
   onTitleChange?: (value: string) => void
   titlePlaceholder?: string
+  isSaving?: boolean
 }) {
   const { t } = useLocale()
 
@@ -82,6 +93,36 @@ export function StoryTitleBar({
         >
           {title}
         </h1>
+      )}
+      {isSaving !== undefined && (
+        <span
+          data-testid="story-save-status"
+          role="status"
+          aria-label={isSaving ? t('common.saving') : t('common.saved')}
+          title={isSaving ? t('common.saving') : t('common.saved')}
+          className="shrink-0"
+        >
+          {isSaving ? (
+            <span
+              className="block h-2 w-2 animate-pulse rounded-full bg-[var(--reader-muted)]"
+              aria-hidden="true"
+            />
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-3.5 w-3.5 text-[var(--reader-faint)]"
+              aria-hidden="true"
+            >
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          )}
+        </span>
       )}
       <LogoutButton className="shrink-0 rounded-lg p-3 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50" />
     </div>

@@ -117,6 +117,7 @@ export function CharacterEditPage({
       entryTitle={name}
       onEntryTitleChange={setName}
       entryTitlePlaceholder={t('characters.namePlaceholder')}
+      isSaving={isSaving}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)
@@ -129,15 +130,6 @@ export function CharacterEditPage({
       <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
         <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
           <div className="flex flex-1 flex-col overflow-hidden">
-            <div className="mb-4 flex items-center justify-end">
-              <span
-                data-testid="character-page-save-status"
-                className="shrink-0 font-sans text-sm text-stone-400 dark:text-stone-500"
-              >
-                {isSaving ? t('common.saving') : t('common.saved')}
-              </span>
-            </div>
-
             {error && (
               <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">
                 {error}

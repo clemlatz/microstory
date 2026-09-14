@@ -100,6 +100,7 @@ export function DocumentationEditPage({
       entryTitle={title}
       onEntryTitleChange={setTitle}
       entryTitlePlaceholder={t('documentation.titlePlaceholder')}
+      isSaving={isSaving}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)
@@ -112,15 +113,6 @@ export function DocumentationEditPage({
       <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
         <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
           <div className="flex flex-1 flex-col overflow-hidden">
-            <div className="mb-2 flex items-center justify-end">
-              <span
-                data-testid="documentation-page-save-status"
-                className="shrink-0 font-sans text-sm text-stone-400 dark:text-stone-500"
-              >
-                {isSaving ? t('common.saving') : t('common.saved')}
-              </span>
-            </div>
-
             <input
               data-testid="documentation-page-url-input"
               className="mb-4 border-none bg-transparent font-sans text-sm text-stone-500 outline-none placeholder:text-stone-300 dark:text-stone-400 dark:placeholder:text-stone-600"
