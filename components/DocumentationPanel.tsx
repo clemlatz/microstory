@@ -112,11 +112,11 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
                     </a>
                   )}
                 </div>
-                <div className="flex shrink-0 gap-3 text-xs">
+                <div className="flex shrink-0 items-center gap-1 text-xs">
                   <button
                     type="button"
                     data-testid="documentation-edit-button"
-                    className="text-[var(--reader-accent)] hover:underline"
+                    className="inline-flex min-h-11 items-center rounded-md px-3 text-[var(--reader-accent)] hover:underline"
                     onClick={() => router.push(`/story/${storyId}/documentation/${entry.id}`)}
                   >
                     {t('common.edit')}
@@ -124,7 +124,7 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
                   <button
                     type="button"
                     data-testid="documentation-delete-button"
-                    className="text-[var(--reader-danger)] hover:underline"
+                    className="inline-flex min-h-11 items-center rounded-md px-3 text-[var(--reader-danger)] hover:underline"
                     onClick={() => handleDelete(entry.id)}
                   >
                     {t('common.delete')}
@@ -140,7 +140,7 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
         <div className="flex items-center gap-2.5">
           <input
             data-testid="documentation-title-input"
-            className="min-w-0 flex-1 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-sm text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
+            className="min-w-0 flex-1 min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-sm text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
             placeholder={t('documentation.titlePlaceholder')}
             value={title}
             onChange={(event) => setTitle(event.target.value)}
@@ -148,7 +148,7 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
           <button
             type="submit"
             data-testid="documentation-save-button"
-            className="shrink-0 rounded-md bg-[var(--reader-accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--reader-accent-ink)] disabled:opacity-50"
+            className="shrink-0 min-h-11 rounded-md bg-[var(--reader-accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--reader-accent-ink)] disabled:opacity-50"
             disabled={isCreating}
           >
             {t('common.add')}

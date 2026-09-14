@@ -63,7 +63,7 @@ export function StoryHomeView({
                   <button
                     type="button"
                     data-testid="story-presentation-edit-button"
-                    className="text-sm text-[var(--reader-accent)] hover:underline"
+                    className="inline-flex min-h-11 items-center rounded-md px-3 text-sm text-[var(--reader-accent)] hover:underline"
                     onClick={() => router.push(`/story/${story.id}/presentation`)}
                   >
                     {t('presentation.edit')}

@@ -117,8 +117,8 @@ export function MessageInput({
           type="button"
           className={
             isFloating
-              ? 'shrink-0 rounded-xl bg-stone-700 px-4 py-2 text-white dark:bg-stone-600'
-              : 'rounded-lg bg-gray-700 px-4 py-2 text-white dark:bg-gray-600'
+              ? 'min-h-11 shrink-0 rounded-xl bg-stone-700 px-4 py-2 text-white dark:bg-stone-600'
+              : 'min-h-11 rounded-lg bg-gray-700 px-4 py-2 text-white dark:bg-gray-600'
           }
           onClick={onStop}
         >
@@ -132,8 +132,8 @@ export function MessageInput({
               type="button"
               className={
                 isFloating
-                  ? 'shrink-0 rounded-xl border border-[#e7e1d5] px-3 py-2 text-stone-500 hover:bg-[#f6f1e7] dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800'
-                  : 'shrink-0 rounded-lg border border-gray-300 px-3 py-2 text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'
+                  ? 'min-h-11 shrink-0 rounded-xl border border-[#e7e1d5] px-3 py-2 text-stone-500 hover:bg-[#f6f1e7] dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800'
+                  : 'min-h-11 shrink-0 rounded-lg border border-gray-300 px-3 py-2 text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'
               }
               onClick={onCancel}
             >
@@ -145,8 +145,8 @@ export function MessageInput({
             type="button"
             className={
               isFloating
-                ? 'shrink-0 rounded-xl bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500'
-                : 'rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500'
+                ? 'min-h-11 shrink-0 rounded-xl bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500'
+                : 'min-h-11 rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500'
             }
             disabled={disabled}
             onClick={submit}

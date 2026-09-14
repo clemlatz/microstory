@@ -190,7 +190,7 @@ export function WriterPromptPanel({ storyId }: { storyId: string }) {
           <button
             type="submit"
             data-testid="writer-prompt-save-button"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
+            className="min-h-11 rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
             disabled={isSaving || isLoading}
           >
             {t('common.save')}
@@ -212,7 +212,7 @@ export function WriterPromptPanel({ storyId }: { storyId: string }) {
             min={1}
             step={1}
             data-testid="story-word-limit-input"
-            className="w-32 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+            className="w-32 min-h-11 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             value={maxStoryWords}
             disabled={isWordLimitLoading}
             onChange={(event) => {
@@ -233,7 +233,7 @@ export function WriterPromptPanel({ storyId }: { storyId: string }) {
             <button
               type="submit"
               data-testid="story-word-limit-save-button"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
+              className="min-h-11 rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
               disabled={isWordLimitSaving || isWordLimitLoading || maxStoryWords <= 0}
             >
               {t('common.save')}
@@ -256,7 +256,7 @@ export function WriterPromptPanel({ storyId }: { storyId: string }) {
             min={1}
             step={1}
             data-testid="verbatim-window-input"
-            className="w-32 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+            className="w-32 min-h-11 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             value={verbatimWindowWords}
             disabled={isVerbatimWindowLoading}
             onChange={(event) => {
@@ -277,7 +277,7 @@ export function WriterPromptPanel({ storyId }: { storyId: string }) {
             <button
               type="submit"
               data-testid="verbatim-window-save-button"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
+              className="min-h-11 rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
               disabled={isVerbatimWindowSaving || isVerbatimWindowLoading || verbatimWindowWords <= 0}
             >
               {t('common.save')}
@@ -300,7 +300,7 @@ export function WriterPromptPanel({ storyId }: { storyId: string }) {
             min={1}
             step={1}
             data-testid="auto-summary-threshold-input"
-            className="w-32 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+            className="w-32 min-h-11 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             value={autoSummaryThresholdWords}
             disabled={isAutoSummaryThresholdLoading}
             onChange={(event) => {
@@ -321,7 +321,7 @@ export function WriterPromptPanel({ storyId }: { storyId: string }) {
             <button
               type="submit"
               data-testid="auto-summary-threshold-save-button"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
+              className="min-h-11 rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
               disabled={
                 isAutoSummaryThresholdSaving || isAutoSummaryThresholdLoading || autoSummaryThresholdWords <= 0
               }

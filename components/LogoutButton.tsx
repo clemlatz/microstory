@@ -11,7 +11,7 @@ import { useLocale } from '@/lib/i18n/LocaleContext'
  * then sends the browser back to the passkey login screen.
  */
 export function LogoutButton({
-  className = 'rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 disabled:opacity-50 dark:text-stone-500 dark:hover:bg-stone-900',
+  className = 'rounded-lg p-3 text-stone-400 hover:bg-stone-100 disabled:opacity-50 dark:text-stone-500 dark:hover:bg-stone-900',
 }: {
   className?: string
 } = {}) {

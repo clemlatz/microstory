@@ -137,7 +137,7 @@ function SummaryItem({
             type="button"
             data-testid="history-summary-edit-button"
             onClick={handleStartEdit}
-            className="shrink-0 font-sans text-xs font-medium text-stone-400 underline hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
+            className="inline-flex min-h-11 shrink-0 items-center rounded-md px-3 font-sans text-xs font-medium text-stone-400 underline hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
           >
             {t('common.edit')}
           </button>
@@ -163,7 +163,7 @@ function SummaryItem({
               data-testid="history-summary-save-button"
               onClick={handleSave}
               disabled={isSaving || draft.trim().length === 0}
-              className="rounded-md bg-amber-600 px-3 py-1 font-sans text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-700"
+              className="inline-flex min-h-11 items-center rounded-md bg-amber-600 px-3 font-sans text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-700"
             >
               {isSaving ? t('history.saving') : t('common.save')}
             </button>
@@ -172,7 +172,7 @@ function SummaryItem({
               data-testid="history-summary-cancel-button"
               onClick={handleCancel}
               disabled={isSaving}
-              className="rounded-md px-3 py-1 font-sans text-xs font-medium text-stone-500 hover:text-stone-700 dark:text-stone-500 dark:hover:text-stone-300"
+              className="inline-flex min-h-11 items-center rounded-md px-3 font-sans text-xs font-medium text-stone-500 hover:text-stone-700 dark:text-stone-500 dark:hover:text-stone-300"
             >
               {t('common.cancel')}
             </button>
@@ -250,7 +250,7 @@ function PromptItem({
             type="button"
             data-testid="history-prompt-edit-button"
             onClick={handleStartEdit}
-            className="shrink-0 font-sans text-xs font-medium text-stone-400 underline hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
+            className="inline-flex min-h-11 shrink-0 items-center rounded-md px-3 font-sans text-xs font-medium text-stone-400 underline hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
           >
             {t('common.edit')}
           </button>
@@ -272,7 +272,7 @@ function PromptItem({
               data-testid="history-prompt-save-button"
               onClick={handleSave}
               disabled={draft.trim().length === 0}
-              className="rounded-md bg-amber-600 px-3 py-1 font-sans text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-700"
+              className="inline-flex min-h-11 items-center rounded-md bg-amber-600 px-3 font-sans text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-700"
             >
               {t('common.save')}
             </button>
@@ -280,7 +280,7 @@ function PromptItem({
               type="button"
               data-testid="history-prompt-cancel-button"
               onClick={handleCancel}
-              className="rounded-md px-3 py-1 font-sans text-xs font-medium text-stone-500 hover:text-stone-700 dark:text-stone-500 dark:hover:text-stone-300"
+              className="inline-flex min-h-11 items-center rounded-md px-3 font-sans text-xs font-medium text-stone-500 hover:text-stone-700 dark:text-stone-500 dark:hover:text-stone-300"
             >
               {t('common.cancel')}
             </button>
@@ -344,7 +344,7 @@ function ResetButton({ onOpenResetConfirm }: { onOpenResetConfirm: () => void })
     <button
       data-testid="reset-button"
       type="button"
-      className="flex items-center gap-2 rounded-lg px-3 py-1.5 font-sans text-sm text-stone-400 hover:bg-stone-100 hover:text-stone-600 dark:text-stone-500 dark:hover:bg-stone-900 dark:hover:text-stone-300"
+      className="flex min-h-11 items-center gap-2 rounded-lg px-3 font-sans text-sm text-stone-400 hover:bg-stone-100 hover:text-stone-600 dark:text-stone-500 dark:hover:bg-stone-900 dark:hover:text-stone-300"
       onClick={onOpenResetConfirm}
     >
       <svg
@@ -386,7 +386,7 @@ function SummarizeButton({
     <button
       data-testid="summarize-button"
       type="button"
-      className="flex items-center gap-2 rounded-lg px-3 py-1.5 font-sans text-sm text-stone-400 hover:bg-stone-100 hover:text-stone-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-stone-400 dark:text-stone-500 dark:hover:bg-stone-900 dark:hover:text-stone-300 dark:disabled:hover:text-stone-500"
+      className="flex min-h-11 items-center gap-2 rounded-lg px-3 font-sans text-sm text-stone-400 hover:bg-stone-100 hover:text-stone-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-stone-400 dark:text-stone-500 dark:hover:bg-stone-900 dark:hover:text-stone-300 dark:disabled:hover:text-stone-500"
       disabled={isDisabled}
       onClick={onSummarize}
     >

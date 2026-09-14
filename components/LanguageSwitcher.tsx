@@ -21,7 +21,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       onChange={(event) => setLocale(event.target.value as Locale)}
       className={
         className ??
-        'rounded-lg border border-stone-300 bg-white/90 px-2 py-1 text-xs text-stone-600 shadow-sm hover:bg-white dark:border-stone-700 dark:bg-stone-900/90 dark:text-stone-300 dark:hover:bg-stone-900'
+        'min-h-11 rounded-lg border border-stone-300 bg-white/90 px-2 text-xs text-stone-600 shadow-sm hover:bg-white dark:border-stone-700 dark:bg-stone-900/90 dark:text-stone-300 dark:hover:bg-stone-900'
       }
     >
       <option value="en">English</option>

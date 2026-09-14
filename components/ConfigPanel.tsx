@@ -43,7 +43,7 @@ export function ConfigPanel({ open, onClose, sections }: ConfigPanelProps) {
           <button
             data-testid="config-panel-close"
             type="button"
-            className="text-sm text-gray-500 hover:underline dark:text-gray-400"
+            className="inline-flex min-h-11 items-center rounded-md px-3 text-sm text-gray-500 hover:underline dark:text-gray-400"
             onClick={onClose}
           >
             Fermer
@@ -59,8 +59,8 @@ export function ConfigPanel({ open, onClose, sections }: ConfigPanelProps) {
                 aria-pressed={section.id === activeSection?.id}
                 className={
                   section.id === activeSection?.id
-                    ? 'rounded-md bg-gray-200 px-3 py-1.5 text-sm font-medium dark:bg-gray-800'
-                    : 'rounded-md px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900'
+                    ? 'min-h-11 rounded-md bg-gray-200 px-3 text-sm font-medium dark:bg-gray-800'
+                    : 'min-h-11 rounded-md px-3 text-sm text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900'
                 }
                 onClick={() => setActiveSectionId(section.id)}
               >

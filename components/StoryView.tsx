@@ -34,7 +34,7 @@ function EditPromptControl({ onStartEditPrompt }: { onStartEditPrompt: () => voi
       type="button"
       aria-label={t('storyView.editPrompt')}
       title={t('storyView.editPrompt')}
-      className="mt-3 flex items-center gap-1.5 rounded-full border border-[#e7e1d5] px-2.5 py-1 font-sans text-xs text-stone-400 hover:bg-[#f6f1e7] hover:text-stone-600 disabled:pointer-events-none disabled:opacity-40 dark:border-stone-700 dark:text-stone-500 dark:hover:bg-stone-900 dark:hover:text-stone-300"
+      className="mt-3 flex min-h-11 items-center gap-1.5 rounded-full border border-[#e7e1d5] px-3 font-sans text-xs text-stone-400 hover:bg-[#f6f1e7] hover:text-stone-600 disabled:pointer-events-none disabled:opacity-40 dark:border-stone-700 dark:text-stone-500 dark:hover:bg-stone-900 dark:hover:text-stone-300"
       onClick={onStartEditPrompt}
     >
       <svg

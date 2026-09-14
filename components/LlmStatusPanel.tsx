@@ -165,7 +165,7 @@ export function LlmStatusPanel({ storyId }: { storyId: string }) {
             max={MAX_REPETITION_PENALTY}
             step={0.1}
             data-testid="repetition-penalty-input"
-            className="w-32 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+            className="w-32 min-h-11 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             value={repetitionPenalty}
             disabled={isPenaltyLoading}
             onChange={(event) => {
@@ -186,7 +186,7 @@ export function LlmStatusPanel({ storyId }: { storyId: string }) {
             <button
               type="submit"
               data-testid="repetition-penalty-save-button"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
+              className="min-h-11 rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50 dark:bg-blue-500"
               disabled={
                 isPenaltySaving ||
                 isPenaltyLoading ||

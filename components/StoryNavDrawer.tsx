@@ -156,8 +156,8 @@ export function StoryNavDrawer({
               onClick={() => onNavigate(item.section)}
               className={
                 item.section === activeSection
-                  ? 'flex w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 py-2 text-left text-sm font-medium text-[var(--reader-ink)]'
-                  : 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]'
+                  ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-sm font-medium text-[var(--reader-ink)]'
+                  : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]'
               }
             >
               {item.icon}
@@ -170,13 +170,13 @@ export function StoryNavDrawer({
             data-testid="story-nav-my-stories"
             type="button"
             onClick={onBackToStories}
-            className="block w-full rounded-md px-3 py-2 text-left text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
+            className="flex min-h-11 w-full items-center rounded-md px-3 text-left text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
           >
             {t('storyNav.myStories')}
           </button>
           <div className="mt-1 flex items-center justify-between gap-2 px-3 py-2">
             <span className="text-sm text-[var(--reader-muted)]">{t('language.label')}</span>
-            <LanguageSwitcher className="rounded-md border-none bg-[var(--reader-input-bg)] px-2 py-1 text-sm text-[var(--reader-muted)]" />
+            <LanguageSwitcher className="min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2 text-sm text-[var(--reader-muted)]" />
           </div>
         </div>
       </aside>

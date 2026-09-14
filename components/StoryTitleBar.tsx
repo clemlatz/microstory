@@ -50,7 +50,7 @@ export function StoryTitleBar({
         type="button"
         aria-label={t('chatWindow.navAria')}
         onClick={onOpenNav}
-        className="shrink-0 rounded-lg p-1.5 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
+        className="shrink-0 rounded-lg p-3 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +70,7 @@ export function StoryTitleBar({
       {onTitleChange ? (
         <input
           data-testid="story-title"
-          className="min-w-0 flex-1 truncate border-none bg-transparent text-center font-reader-body text-base font-semibold tracking-tight text-[var(--reader-ink)] outline-none placeholder:text-[var(--reader-faint)]"
+          className="min-h-11 min-w-0 flex-1 truncate border-none bg-transparent text-center font-reader-body text-base font-semibold tracking-tight text-[var(--reader-ink)] outline-none placeholder:text-[var(--reader-faint)]"
           placeholder={titlePlaceholder}
           value={title}
           onChange={(event) => onTitleChange(event.target.value)}
@@ -83,7 +83,7 @@ export function StoryTitleBar({
           {title}
         </h1>
       )}
-      <LogoutButton className="shrink-0 rounded-lg p-1.5 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50" />
+      <LogoutButton className="shrink-0 rounded-lg p-3 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50" />
     </div>
   )
 }

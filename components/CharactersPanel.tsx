@@ -98,11 +98,11 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
                     {character.description}
                   </p>
                 </div>
-                <div className="flex shrink-0 gap-3 text-xs">
+                <div className="flex shrink-0 items-center gap-1 text-xs">
                   <button
                     type="button"
                     data-testid="character-delete-button"
-                    className="text-[var(--reader-danger)] hover:underline"
+                    className="inline-flex min-h-11 items-center rounded-md px-3 text-[var(--reader-danger)] hover:underline"
                     onClick={(event) => {
                       event.stopPropagation()
                       handleDelete(character.id)
@@ -121,7 +121,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
         <div className="flex items-center gap-2.5">
           <input
             data-testid="character-name-input"
-            className="min-w-0 flex-1 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-sm text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
+            className="min-w-0 flex-1 min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-sm text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
             placeholder={t('characters.namePlaceholder')}
             value={name}
             onChange={(event) => setName(event.target.value)}
@@ -129,7 +129,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
           <button
             type="submit"
             data-testid="character-save-button"
-            className="shrink-0 rounded-md bg-[var(--reader-accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--reader-accent-ink)] disabled:opacity-50"
+            className="shrink-0 min-h-11 rounded-md bg-[var(--reader-accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--reader-accent-ink)] disabled:opacity-50"
             disabled={isCreating}
           >
             {t('common.add')}

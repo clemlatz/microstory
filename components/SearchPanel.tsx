@@ -95,7 +95,7 @@ export function SearchPanel({
       <input
         data-testid="search-input"
         type="search"
-        className="w-full rounded-md border-none bg-[var(--reader-input-bg)] px-3 py-2 text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
+        className="min-h-11 w-full rounded-md border-none bg-[var(--reader-input-bg)] px-3 py-2 text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
         placeholder={t('search.placeholder')}
         value={query}
         onChange={(event) => setQuery(event.target.value)}

@@ -576,7 +576,7 @@ export function ChatWindow({
             data-testid="config-panel-toggle"
             type="button"
             aria-label={t('chatWindow.configAria')}
-            className="rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 dark:text-stone-500 dark:hover:bg-stone-900"
+            className="rounded-lg p-3 text-stone-400 hover:bg-stone-100 dark:text-stone-500 dark:hover:bg-stone-900"
             onClick={() => setIsConfigPanelOpen((open) => !open)}
           >
             <svg
@@ -598,7 +598,7 @@ export function ChatWindow({
               type="button"
               onClick={onOpenNav}
               aria-label={t('chatWindow.navAria')}
-              className="rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 dark:text-stone-500 dark:hover:bg-stone-900"
+              className="rounded-lg p-3 text-stone-400 hover:bg-stone-100 dark:text-stone-500 dark:hover:bg-stone-900"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -627,7 +627,7 @@ export function ChatWindow({
             aria-label={t('chatWindow.historyAria')}
             title={t('chatWindow.historyAria')}
             aria-pressed={isHistoryOpen}
-            className={`rounded-lg p-1.5 hover:bg-stone-100 dark:hover:bg-stone-900 ${
+            className={`rounded-lg p-3 hover:bg-stone-100 dark:hover:bg-stone-900 ${
               isHistoryOpen
                 ? 'text-stone-600 dark:text-stone-300'
                 : 'text-stone-400 dark:text-stone-500'
