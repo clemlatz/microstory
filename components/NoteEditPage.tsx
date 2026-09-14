@@ -17,10 +17,11 @@ const AUTOSAVE_DELAY_MS = 800
 /**
  * Notion-style dedicated page for editing one note (issue #7, mirroring
  * the same change for characters — see `CharacterEditPage`'s doc comment
- * for the shared rationale: title field doubling as the page heading, no
- * field labels, BlockNote content editor filling the viewport, autosave
- * instead of a save button, and now `StoryShell`'s title bar/navigation
- * drawer wrapping it too, with "Notes" highlighted).
+ * for the shared rationale: no field labels, BlockNote content editor
+ * filling the viewport, autosave instead of a save button, and
+ * `StoryShell`'s title bar/navigation drawer wrapping it, with "Notes"
+ * highlighted, its own title bar doubling as the editable title field
+ * (issue #18) rather than a separate heading in the page body).
  */
 export function NoteEditPage({
   story,
@@ -91,6 +92,8 @@ export function NoteEditPage({
       llmWritingEnabled={llmWritingEnabled}
       activeSection="notes"
       entryTitle={title}
+      onEntryTitleChange={setTitle}
+      entryTitlePlaceholder={t('notes.titlePlaceholder')}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)
@@ -103,14 +106,7 @@ export function NoteEditPage({
       <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
         <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
           <div className="flex flex-1 flex-col overflow-hidden">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <input
-                data-testid="note-page-title-input"
-                className="min-w-0 flex-1 border-none bg-transparent font-serif text-3xl text-stone-900 outline-none placeholder:text-stone-300 dark:text-stone-100 dark:placeholder:text-stone-600"
-                placeholder={t('notes.titlePlaceholder')}
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-              />
+            <div className="mb-4 flex items-center justify-end">
               <span
                 data-testid="note-page-save-status"
                 className="shrink-0 font-sans text-sm text-stone-400 dark:text-stone-500"

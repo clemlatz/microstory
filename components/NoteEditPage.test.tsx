@@ -73,7 +73,7 @@ describe('NoteEditPage', () => {
   it('shows the note title and content, with no save button', async () => {
     render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
 
-    expect(screen.getByTestId('note-page-title-input')).toHaveValue('Règle du monde')
+    expect(screen.getByTestId('story-title')).toHaveValue('Règle du monde')
     expect(await screen.findByTestId('note-content-editor-stub')).toHaveValue('La magie coûte cher')
     expect(screen.queryByTestId('note-page-save-button')).not.toBeInTheDocument()
   })
@@ -81,15 +81,15 @@ describe('NoteEditPage', () => {
   it('shows the note title in the title bar instead of the story title', async () => {
     render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
 
-    expect(screen.getByTestId('story-title')).toHaveTextContent('Règle du monde')
+    expect(screen.getByTestId('story-title')).toHaveValue('Règle du monde')
   })
 
   it('autosaves a title change after the debounce delay', async () => {
     const user = userEvent.setup()
     render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
 
-    await user.clear(screen.getByTestId('note-page-title-input'))
-    await user.type(screen.getByTestId('note-page-title-input'), 'Règle révisée')
+    await user.clear(screen.getByTestId('story-title'))
+    await user.type(screen.getByTestId('story-title'), 'Règle révisée')
     expect(mockedUpdateNote).not.toHaveBeenCalled()
 
     await waitFor(() => {
@@ -120,7 +120,7 @@ describe('NoteEditPage', () => {
     const user = userEvent.setup()
     render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
 
-    await user.type(screen.getByTestId('note-page-title-input'), ' révisée')
+    await user.type(screen.getByTestId('story-title'), ' révisée')
     await user.click(screen.getByTestId('story-nav-toggle'))
     await user.click(screen.getByTestId('story-nav-my-stories'))
 
@@ -146,7 +146,7 @@ describe('NoteEditPage', () => {
     const user = userEvent.setup()
     render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
 
-    await user.clear(screen.getByTestId('note-page-title-input'))
+    await user.clear(screen.getByTestId('story-title'))
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     expect(mockedUpdateNote).not.toHaveBeenCalled()
@@ -167,7 +167,7 @@ describe('NoteEditPage', () => {
     const user = userEvent.setup()
     render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
 
-    await user.type(screen.getByTestId('note-page-title-input'), ' révisée')
+    await user.type(screen.getByTestId('story-title'), ' révisée')
 
     expect(await screen.findByRole('alert', {}, WAIT_FOR_AUTOSAVE)).toHaveTextContent('boom')
   })

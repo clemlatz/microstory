@@ -49,6 +49,30 @@ describe('StoryShell', () => {
     expect(screen.getByTestId('story-title')).toHaveTextContent('Adaline Marrow')
   })
 
+  it('makes the entryTitle editable in the title bar when onEntryTitleChange is provided', async () => {
+    const user = userEvent.setup()
+    const onEntryTitleChange = vi.fn()
+    render(
+      <StoryShell
+        story={story}
+        llmWritingEnabled={true}
+        activeSection="characters"
+        onNavigate={vi.fn()}
+        entryTitle="Adaline Marrow"
+        onEntryTitleChange={onEntryTitleChange}
+      >
+        <p>content</p>
+      </StoryShell>,
+    )
+
+    const input = screen.getByTestId('story-title')
+    expect(input).toHaveValue('Adaline Marrow')
+
+    await user.type(input, '!')
+
+    expect(onEntryTitleChange).toHaveBeenCalledWith('Adaline Marrow!')
+  })
+
   it('highlights the section passed as activeSection', async () => {
     const user = userEvent.setup()
     render(

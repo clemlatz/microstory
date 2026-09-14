@@ -10,11 +10,13 @@ vi.mock('next/navigation', () => ({
 }))
 
 vi.mock('@/lib/storiesApi', () => ({
+  renameStory: vi.fn(),
   updateStoryPresentation: vi.fn(),
 }))
 
-import { updateStoryPresentation } from '@/lib/storiesApi'
+import { renameStory, updateStoryPresentation } from '@/lib/storiesApi'
 
+const mockedRenameStory = vi.mocked(renameStory)
 const mockedUpdateStoryPresentation = vi.mocked(updateStoryPresentation)
 
 // See NoteEditPage.test.tsx's comment: BlockNote is stubbed as a plain
@@ -52,18 +54,45 @@ describe('StoryPresentationEditPage', () => {
   beforeEach(() => {
     window.localStorage.clear()
     mockRouterPush.mockReset()
+    mockedRenameStory.mockReset()
+    mockedRenameStory.mockResolvedValue(story)
     mockedUpdateStoryPresentation.mockReset()
     mockedUpdateStoryPresentation.mockResolvedValue(story)
   })
 
-  it('shows the story title and presentation, with no save button', async () => {
+  it('shows the story title once, as an editable field, and the presentation, with no save button', async () => {
     render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
 
-    expect(screen.getAllByText('Le dernier hiver').length).toBeGreaterThan(0)
+    expect(screen.getByTestId('story-title')).toHaveValue('Le dernier hiver')
     expect(await screen.findByTestId('story-presentation-editor-stub')).toHaveValue(
       'Une station polaire coupée du monde.',
     )
     expect(screen.queryByTestId('story-presentation-save-button')).not.toBeInTheDocument()
+  })
+
+  it('updates the title bar live as the title is edited, with no duplicate heading in the body', async () => {
+    const user = userEvent.setup()
+    render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
+
+    await user.type(screen.getByTestId('story-title'), ' Suite')
+
+    expect(screen.getByTestId('story-title')).toHaveValue('Le dernier hiver Suite')
+    expect(screen.queryByText('Le dernier hiver', { selector: 'h1' })).not.toBeInTheDocument()
+  })
+
+  it('autosaves a title change after the debounce delay', async () => {
+    const user = userEvent.setup()
+    render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
+
+    await user.type(screen.getByTestId('story-title'), ' Suite')
+
+    await waitFor(() => {
+      expect(mockedRenameStory).toHaveBeenCalledWith('story-1', 'Le dernier hiver Suite')
+    }, WAIT_FOR_AUTOSAVE)
+    expect(mockedUpdateStoryPresentation).toHaveBeenCalledWith(
+      'story-1',
+      'Une station polaire coupée du monde.',
+    )
   })
 
   it('autosaves a presentation change after the debounce delay', async () => {
@@ -90,6 +119,19 @@ describe('StoryPresentationEditPage', () => {
     }, WAIT_FOR_AUTOSAVE)
   })
 
+  it('does not autosave while the title is empty', async () => {
+    const user = userEvent.setup()
+    render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
+
+    await user.clear(screen.getByTestId('story-title'))
+    // No positive assertion can prove a debounced call never fires without
+    // waiting past its delay — wait it out, then assert nothing happened.
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    expect(mockedRenameStory).not.toHaveBeenCalled()
+    expect(mockedUpdateStoryPresentation).not.toHaveBeenCalled()
+  })
+
   it('flushes a pending save immediately when navigating back via the drawer', async () => {
     const user = userEvent.setup()
     render(<StoryPresentationEditPage story={story} llmWritingEnabled={true} />)
@@ -113,6 +155,7 @@ describe('StoryPresentationEditPage', () => {
     await user.click(screen.getByTestId('story-nav-my-stories'))
 
     expect(mockRouterPush).toHaveBeenCalledWith('/stories')
+    expect(mockedRenameStory).not.toHaveBeenCalled()
     expect(mockedUpdateStoryPresentation).not.toHaveBeenCalled()
   })
 

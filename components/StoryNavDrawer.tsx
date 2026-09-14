@@ -1,5 +1,6 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
@@ -9,7 +10,62 @@ type NavItem = {
   section: StorySection
   label: string
   testId: string
+  icon: ReactNode
 }
+
+function NavIcon({ children }: { children: ReactNode }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  )
+}
+
+const OverviewIcon = (
+  <NavIcon>
+    <rect width="7" height="7" x="3" y="3" rx="1.5" />
+    <rect width="7" height="7" x="14" y="3" rx="1.5" />
+    <rect width="7" height="7" x="3" y="14" rx="1.5" />
+    <rect width="7" height="7" x="14" y="14" rx="1.5" />
+  </NavIcon>
+)
+
+const CharactersIcon = (
+  <NavIcon>
+    <circle cx="12" cy="8" r="3.5" />
+    <path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5" />
+  </NavIcon>
+)
+
+const NotesIcon = (
+  <NavIcon>
+    <path d="M5 4h14v13l-4 3H5z" />
+    <path d="M8.5 9h7M8.5 12.5h4.5" />
+  </NavIcon>
+)
+
+const DocumentationIcon = (
+  <NavIcon>
+    <path d="M12 6.5c-1.4-1-3.3-1.5-5.5-1.5-1 0-1.9.1-2.5.3v13.2c.6-.2 1.5-.3 2.5-.3 2.2 0 4.1.5 5.5 1.5" />
+    <path d="M12 6.5c1.4-1 3.3-1.5 5.5-1.5 1 0 1.9.1 2.5.3v13.2c-.6-.2-1.5-.3-2.5-.3-2.2 0-4.1.5-5.5 1.5V6.5Z" />
+  </NavIcon>
+)
+
+const ManuscriptIcon = (
+  <NavIcon>
+    <path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L8 19l-4 1Z" />
+  </NavIcon>
+)
 
 /**
  * Left-hand, Notion-style navigation for a story (issue #13, turned into a
@@ -58,12 +114,24 @@ export function StoryNavDrawer({
   if (!open) return null
 
   const items: NavItem[] = [
-    { section: 'overview', label: t('storyNav.overview'), testId: 'story-nav-overview' },
-    { section: 'characters', label: t('storyNav.characters'), testId: 'story-nav-characters' },
-    { section: 'notes', label: t('storyNav.notes'), testId: 'story-nav-notes' },
-    { section: 'documentation', label: t('storyNav.documentation'), testId: 'story-nav-documentation' },
+    { section: 'overview', label: t('storyNav.overview'), testId: 'story-nav-overview', icon: OverviewIcon },
+    { section: 'characters', label: t('storyNav.characters'), testId: 'story-nav-characters', icon: CharactersIcon },
+    { section: 'notes', label: t('storyNav.notes'), testId: 'story-nav-notes', icon: NotesIcon },
+    {
+      section: 'documentation',
+      label: t('storyNav.documentation'),
+      testId: 'story-nav-documentation',
+      icon: DocumentationIcon,
+    },
     ...(llmWritingEnabled
-      ? [{ section: 'manuscript' as const, label: t('storyNav.manuscript'), testId: 'story-nav-manuscript' }]
+      ? [
+          {
+            section: 'manuscript' as const,
+            label: t('storyNav.manuscript'),
+            testId: 'story-nav-manuscript',
+            icon: ManuscriptIcon,
+          },
+        ]
       : []),
   ]
 
@@ -88,10 +156,11 @@ export function StoryNavDrawer({
               onClick={() => onNavigate(item.section)}
               className={
                 item.section === activeSection
-                  ? 'block w-full rounded-md bg-[var(--reader-input-bg)] px-3 py-2 text-left text-sm font-medium text-[var(--reader-ink)]'
-                  : 'block w-full rounded-md px-3 py-2 text-left text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]'
+                  ? 'flex w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 py-2 text-left text-sm font-medium text-[var(--reader-ink)]'
+                  : 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]'
               }
             >
+              {item.icon}
               {item.label}
             </button>
           ))}

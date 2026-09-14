@@ -21,8 +21,26 @@ import { LogoutButton } from './LogoutButton'
  * Also hosts the sign-out control (`LogoutButton`, restyled to the Reader
  * palette via its `className` prop) on the right, mirroring the toggle
  * button's size so the title stays centered between them.
+ *
+ * `onTitleChange` (issue #18) makes the title itself editable in place —
+ * an `<input>` rather than a plain `<h1>` — for a standalone entry page
+ * (character, note, documentation, story presentation), which no longer
+ * shows its own separate title/name field in the page body: this bar is
+ * now the only place the title appears, and the only place it's edited.
+ * Omitted by callers whose title isn't editable here (the story overview
+ * itself, reached via `StoryPageClient`), which keeps the plain `<h1>`.
  */
-export function StoryTitleBar({ title, onOpenNav }: { title: string; onOpenNav: () => void }) {
+export function StoryTitleBar({
+  title,
+  onOpenNav,
+  onTitleChange,
+  titlePlaceholder,
+}: {
+  title: string
+  onOpenNav: () => void
+  onTitleChange?: (value: string) => void
+  titlePlaceholder?: string
+}) {
   const { t } = useLocale()
 
   return (
@@ -49,12 +67,22 @@ export function StoryTitleBar({ title, onOpenNav }: { title: string; onOpenNav: 
           <path d="M9 3v18" />
         </svg>
       </button>
-      <h1
-        data-testid="story-title"
-        className="min-w-0 flex-1 truncate text-center font-reader-body text-base font-semibold tracking-tight text-[var(--reader-ink)]"
-      >
-        {title}
-      </h1>
+      {onTitleChange ? (
+        <input
+          data-testid="story-title"
+          className="min-w-0 flex-1 truncate border-none bg-transparent text-center font-reader-body text-base font-semibold tracking-tight text-[var(--reader-ink)] outline-none placeholder:text-[var(--reader-faint)]"
+          placeholder={titlePlaceholder}
+          value={title}
+          onChange={(event) => onTitleChange(event.target.value)}
+        />
+      ) : (
+        <h1
+          data-testid="story-title"
+          className="min-w-0 flex-1 truncate text-center font-reader-body text-base font-semibold tracking-tight text-[var(--reader-ink)]"
+        >
+          {title}
+        </h1>
+      )}
       <LogoutButton className="shrink-0 rounded-lg p-1.5 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50" />
     </div>
   )

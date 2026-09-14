@@ -32,11 +32,17 @@ import type { Story } from '@/lib/types'
  * instance).
  *
  * `entryTitle` (issue #16) lets a standalone entry page (character, note,
- * documentation) show its own title in the title bar instead of the
- * story's — passed live as the user types, so it tracks the in-page title
- * field exactly like that field's own heading does. Omitted by callers
- * whose page IS the story itself (the overview, the presentation editor),
- * where showing `story.title` is already correct.
+ * documentation, story presentation) show its own title in the title bar
+ * instead of the story's — passed live as the user types. Omitted by
+ * `StoryPageClient` (the overview itself), where showing `story.title`,
+ * read-only, is already correct.
+ *
+ * `onEntryTitleChange` (issue #18) makes that title editable directly in
+ * the bar (`StoryTitleBar`'s own `input` variant) — every `entryTitle`
+ * caller passes it, since each of those pages no longer shows its own
+ * separate title/name field in the body; this bar is now the only place
+ * the title appears and the only place it's edited. `entryTitlePlaceholder`
+ * is the input's placeholder when the title is empty, forwarded as-is.
  */
 export function StoryShell({
   story,
@@ -45,6 +51,8 @@ export function StoryShell({
   onNavigate,
   onBackToStories,
   entryTitle,
+  onEntryTitleChange,
+  entryTitlePlaceholder,
   children,
 }: {
   story: Story
@@ -53,6 +61,8 @@ export function StoryShell({
   onNavigate: (section: StorySection) => void
   onBackToStories?: () => void
   entryTitle?: string
+  onEntryTitleChange?: (value: string) => void
+  entryTitlePlaceholder?: string
   children: React.ReactNode
 }) {
   const router = useRouter()
@@ -65,7 +75,12 @@ export function StoryShell({
 
   return (
     <div className="flex h-dvh w-full flex-col overflow-hidden">
-      <StoryTitleBar title={entryTitle ?? story.title} onOpenNav={toggleNav} />
+      <StoryTitleBar
+        title={entryTitle ?? story.title}
+        onOpenNav={toggleNav}
+        onTitleChange={entryTitle !== undefined ? onEntryTitleChange : undefined}
+        titlePlaceholder={entryTitlePlaceholder}
+      />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <StoryNavDrawer
           open={isNavOpen}

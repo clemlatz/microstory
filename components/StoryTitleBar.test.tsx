@@ -27,4 +27,17 @@ describe('StoryTitleBar', () => {
     render(<StoryTitleBar title="Le Voyage de Nour" onOpenNav={vi.fn()} />)
     expect(screen.getByTestId('logout-button')).toBeInTheDocument()
   })
+
+  it('renders the title as an editable input when onTitleChange is provided', async () => {
+    const user = userEvent.setup()
+    const onTitleChange = vi.fn()
+    render(<StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} onTitleChange={onTitleChange} />)
+
+    const input = screen.getByTestId('story-title')
+    expect(input).toHaveValue('Adaline Marrow')
+
+    await user.type(input, '!')
+
+    expect(onTitleChange).toHaveBeenCalledWith('Adaline Marrow!')
+  })
 })

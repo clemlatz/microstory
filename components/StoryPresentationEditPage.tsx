@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { updateStoryPresentation } from '@/lib/storiesApi'
+import { renameStory, updateStoryPresentation } from '@/lib/storiesApi'
 import { StoryShell } from './StoryShell'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { Story } from '@/lib/types'
@@ -16,25 +16,31 @@ const StoryPresentationEditor = dynamic(
 const AUTOSAVE_DELAY_MS = 800
 
 /**
- * Notion-style dedicated page for editing a story's presentation text
- * (issue #1): a free-form synopsis/pitch/context field, shown and edited
- * separately from the story's title (unlike `CharacterEditPage`/
- * `NoteEditPage`, there is no name/title field here to double as the page
- * heading — the story's own title is shown read-only instead). Same
- * BlockNote content editor and debounced-autosave pattern as characters
- * and notes, and the same `StoryShell` title bar/navigation drawer
- * wrapping it, with "Aperçu" highlighted since the presentation lives on
- * the overview section.
+ * Notion-style dedicated page for editing a story's title and presentation
+ * text (issue #1, title editing added by issue #18): the title bar itself
+ * (`entryTitle`/`onEntryTitleChange`, fed live into `StoryShell`) is the
+ * editable title field — this page's body shows no separate title heading
+ * or input, since showing the title both there and in the bar read as a
+ * duplicated title. Same BlockNote content editor and debounced-autosave
+ * pattern as characters and notes, and the same `StoryShell` title
+ * bar/navigation drawer wrapping it, with "Aperçu" highlighted since the
+ * presentation lives on the overview section.
  *
- * Unlike a character's name/description or a note's title/content, an
- * empty presentation is a valid, savable state (a story simply has none
- * yet) — so, unlike those pages' `persist`, this one has no
- * empty-content guard before saving.
+ * `persist` saves title and presentation together (mirroring
+ * `CharacterEditPage`'s combined name/description save) via two API calls
+ * run in parallel — `renameStory` and `updateStoryPresentation` — rather
+ * than a single request, since `lib/storiesApi.ts` exposes them as
+ * separate functions (also used independently by `StoriesView`). The
+ * title is guarded against being empty (a story always has one, like a
+ * character's name or a note's title); unlike those pages, the
+ * presentation itself has no such guard — an empty presentation is a
+ * valid, savable state.
  */
 export function StoryPresentationEditPage({ story, llmWritingEnabled }: { story: Story; llmWritingEnabled: boolean }) {
   const { t } = useLocale()
   const router = useRouter()
 
+  const [title, setTitle] = useState(story.title)
   const [presentation, setPresentation] = useState(story.presentation)
   const [error, setError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
@@ -42,13 +48,19 @@ export function StoryPresentationEditPage({ story, llmWritingEnabled }: { story:
   const isFirstRender = useRef(true)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  async function persist(nextPresentation: string) {
+  async function persist(nextTitle: string, nextPresentation: string) {
+    const trimmedTitle = nextTitle.trim()
+    if (!trimmedTitle) return
+
     setIsSaving(true)
     try {
-      await updateStoryPresentation(story.id, nextPresentation.trim())
+      await Promise.all([
+        renameStory(story.id, trimmedTitle),
+        updateStoryPresentation(story.id, nextPresentation.trim()),
+      ])
       setError(null)
     } catch (err) {
-      console.error('Failed to save the story presentation', err)
+      console.error('Failed to save the story', err)
       setError(err instanceof Error && err.message ? err.message : t('common.genericError'))
     } finally {
       setIsSaving(false)
@@ -63,20 +75,20 @@ export function StoryPresentationEditPage({ story, llmWritingEnabled }: { story:
 
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null
-      persist(presentation)
+      persist(title, presentation)
     }, AUTOSAVE_DELAY_MS)
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presentation])
+  }, [title, presentation])
 
   function flushPendingSave() {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
       debounceRef.current = null
-      persist(presentation)
+      persist(title, presentation)
     }
   }
 
@@ -85,6 +97,8 @@ export function StoryPresentationEditPage({ story, llmWritingEnabled }: { story:
       story={story}
       llmWritingEnabled={llmWritingEnabled}
       activeSection="overview"
+      entryTitle={title}
+      onEntryTitleChange={setTitle}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${story.id}?section=${section}`)
@@ -97,10 +111,7 @@ export function StoryPresentationEditPage({ story, llmWritingEnabled }: { story:
       <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
         <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
           <div className="flex flex-1 flex-col overflow-hidden">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <h1 className="min-w-0 truncate font-serif text-3xl text-stone-900 dark:text-stone-100">
-                {story.title}
-              </h1>
+            <div className="mb-4 flex items-center justify-end">
               <span
                 data-testid="story-presentation-save-status"
                 className="shrink-0 font-sans text-sm text-stone-400 dark:text-stone-500"

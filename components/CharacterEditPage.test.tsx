@@ -73,27 +73,27 @@ describe('CharacterEditPage', () => {
   it('shows the character name and description, with no save button', async () => {
     render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
 
-    expect(screen.getByTestId('character-page-name-input')).toHaveValue('Alice')
+    expect(screen.getByTestId('story-title')).toHaveValue('Alice')
     expect(await screen.findByTestId('character-description-editor-stub')).toHaveValue('Une héroïne curieuse')
     expect(screen.queryByTestId('character-page-save-button')).not.toBeInTheDocument()
   })
 
-  it('shows the character name in the title bar instead of the story title', async () => {
+  it('shows the character name in the title bar instead of the story title, live as it is edited', async () => {
     const user = userEvent.setup()
     render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
 
-    expect(screen.getByTestId('story-title')).toHaveTextContent('Alice')
+    expect(screen.getByTestId('story-title')).toHaveValue('Alice')
 
-    await user.type(screen.getByTestId('character-page-name-input'), ' Doe')
-    expect(screen.getByTestId('story-title')).toHaveTextContent('Alice Doe')
+    await user.type(screen.getByTestId('story-title'), ' Doe')
+    expect(screen.getByTestId('story-title')).toHaveValue('Alice Doe')
   })
 
   it('autosaves a name change after the debounce delay', async () => {
     const user = userEvent.setup()
     render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
 
-    await user.clear(screen.getByTestId('character-page-name-input'))
-    await user.type(screen.getByTestId('character-page-name-input'), 'Alice Doe')
+    await user.clear(screen.getByTestId('story-title'))
+    await user.type(screen.getByTestId('story-title'), 'Alice Doe')
     expect(mockedUpdateCharacter).not.toHaveBeenCalled()
 
     await waitFor(() => {
@@ -124,7 +124,7 @@ describe('CharacterEditPage', () => {
     const user = userEvent.setup()
     render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
 
-    await user.type(screen.getByTestId('character-page-name-input'), ' Doe')
+    await user.type(screen.getByTestId('story-title'), ' Doe')
     await user.click(screen.getByTestId('story-nav-toggle'))
     await user.click(screen.getByTestId('story-nav-my-stories'))
 
@@ -150,7 +150,7 @@ describe('CharacterEditPage', () => {
     const user = userEvent.setup()
     render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
 
-    await user.clear(screen.getByTestId('character-page-name-input'))
+    await user.clear(screen.getByTestId('story-title'))
     // No positive assertion can prove a debounced call never fires without
     // waiting past its delay — wait it out, then assert nothing happened.
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -173,7 +173,7 @@ describe('CharacterEditPage', () => {
     const user = userEvent.setup()
     render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
 
-    await user.type(screen.getByTestId('character-page-name-input'), ' Doe')
+    await user.type(screen.getByTestId('story-title'), ' Doe')
 
     expect(await screen.findByRole('alert', {}, WAIT_FOR_AUTOSAVE)).toHaveTextContent('boom')
   })

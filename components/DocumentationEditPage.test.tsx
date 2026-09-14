@@ -68,7 +68,7 @@ describe('DocumentationEditPage', () => {
   it('shows the entry title, url and content, with no save button', async () => {
     render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
-    expect(screen.getByTestId('documentation-page-title-input')).toHaveValue('Gravité lunaire')
+    expect(screen.getByTestId('story-title')).toHaveValue('Gravité lunaire')
     expect(screen.getByTestId('documentation-page-url-input')).toHaveValue('https://example.com/gravite')
     expect(await screen.findByTestId('documentation-content-editor-stub')).toHaveValue(
       'Un sixième de la gravité terrestre',
@@ -79,7 +79,7 @@ describe('DocumentationEditPage', () => {
   it('shows the entry title in the title bar instead of the story title', async () => {
     render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
-    expect(screen.getByTestId('story-title')).toHaveTextContent('Gravité lunaire')
+    expect(screen.getByTestId('story-title')).toHaveValue('Gravité lunaire')
   })
 
   it('renders an empty url field when the entry has none', async () => {
@@ -92,8 +92,8 @@ describe('DocumentationEditPage', () => {
     const user = userEvent.setup()
     render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
-    await user.clear(screen.getByTestId('documentation-page-title-input'))
-    await user.type(screen.getByTestId('documentation-page-title-input'), 'Gravité révisée')
+    await user.clear(screen.getByTestId('story-title'))
+    await user.type(screen.getByTestId('story-title'), 'Gravité révisée')
     expect(mockedUpdate).not.toHaveBeenCalled()
 
     await waitFor(() => {
@@ -142,7 +142,7 @@ describe('DocumentationEditPage', () => {
     const user = userEvent.setup()
     render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
-    await user.type(screen.getByTestId('documentation-page-title-input'), ' révisée')
+    await user.type(screen.getByTestId('story-title'), ' révisée')
     await user.click(screen.getByTestId('story-nav-toggle'))
     await user.click(screen.getByTestId('story-nav-my-stories'))
 
@@ -169,7 +169,7 @@ describe('DocumentationEditPage', () => {
     const user = userEvent.setup()
     render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
-    await user.clear(screen.getByTestId('documentation-page-title-input'))
+    await user.clear(screen.getByTestId('story-title'))
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     expect(mockedUpdate).not.toHaveBeenCalled()
@@ -190,7 +190,7 @@ describe('DocumentationEditPage', () => {
     const user = userEvent.setup()
     render(<DocumentationEditPage story={story} entry={source} llmWritingEnabled={true} />)
 
-    await user.type(screen.getByTestId('documentation-page-title-input'), ' révisée')
+    await user.type(screen.getByTestId('story-title'), ' révisée')
 
     expect(await screen.findByRole('alert', {}, WAIT_FOR_AUTOSAVE)).toHaveTextContent('boom')
   })

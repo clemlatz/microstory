@@ -17,11 +17,12 @@ const AUTOSAVE_DELAY_MS = 800
 
 /**
  * Notion-style dedicated page for editing one documentation entry (issue
- * #11), mirroring `NoteEditPage` exactly (title field doubling as the page
- * heading, BlockNote content editor filling the viewport, autosave instead
- * of a save button, `StoryShell`'s title bar/navigation drawer wrapping it
- * with "Documentation" highlighted) with one addition: an optional source
- * URL field below the title.
+ * #11), mirroring `NoteEditPage` exactly (BlockNote content editor filling
+ * the viewport, autosave instead of a save button, `StoryShell`'s title
+ * bar/navigation drawer wrapping it with "Documentation" highlighted, that
+ * title bar itself the editable title field — issue #18 — rather than a
+ * separate heading in the page body) with one addition: an optional
+ * source URL field at the top of the body.
  */
 export function DocumentationEditPage({
   story,
@@ -97,6 +98,8 @@ export function DocumentationEditPage({
       llmWritingEnabled={llmWritingEnabled}
       activeSection="documentation"
       entryTitle={title}
+      onEntryTitleChange={setTitle}
+      entryTitlePlaceholder={t('documentation.titlePlaceholder')}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)
@@ -109,14 +112,7 @@ export function DocumentationEditPage({
       <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
         <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
           <div className="flex flex-1 flex-col overflow-hidden">
-            <div className="mb-2 flex items-center justify-between gap-4">
-              <input
-                data-testid="documentation-page-title-input"
-                className="min-w-0 flex-1 border-none bg-transparent font-serif text-3xl text-stone-900 outline-none placeholder:text-stone-300 dark:text-stone-100 dark:placeholder:text-stone-600"
-                placeholder={t('documentation.titlePlaceholder')}
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-              />
+            <div className="mb-2 flex items-center justify-end">
               <span
                 data-testid="documentation-page-save-status"
                 className="shrink-0 font-sans text-sm text-stone-400 dark:text-stone-500"
