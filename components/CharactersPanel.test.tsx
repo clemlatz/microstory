@@ -92,19 +92,28 @@ describe('CharactersPanel', () => {
     expect(mockedCreateCharacter).not.toHaveBeenCalled()
   })
 
-  it('navigates to the character edit page when clicking edit', async () => {
+  it('navigates to the character edit page when clicking anywhere on the card', async () => {
     mockedFetchCharacters.mockResolvedValue([alice])
     const user = userEvent.setup()
 
     render(<CharactersPanel storyId="test-story" />)
     await waitFor(() => expect(screen.getByText('Alice')).toBeInTheDocument())
 
-    await user.click(screen.getByTestId('character-edit-button'))
+    await user.click(screen.getByTestId('character-item'))
 
     expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/character/1')
   })
 
-  it('deletes a character', async () => {
+  it('does not show a separate edit button', async () => {
+    mockedFetchCharacters.mockResolvedValue([alice])
+
+    render(<CharactersPanel storyId="test-story" />)
+    await waitFor(() => expect(screen.getByText('Alice')).toBeInTheDocument())
+
+    expect(screen.queryByTestId('character-edit-button')).not.toBeInTheDocument()
+  })
+
+  it('deletes a character without navigating to its page', async () => {
     mockedFetchCharacters.mockResolvedValue([alice])
     mockedDeleteCharacter.mockResolvedValue(undefined)
     const user = userEvent.setup()
@@ -118,6 +127,7 @@ describe('CharactersPanel', () => {
       expect(screen.queryByTestId('character-item')).not.toBeInTheDocument()
     })
     expect(mockedDeleteCharacter).toHaveBeenCalledWith('test-story', '1')
+    expect(mockRouterPush).not.toHaveBeenCalledWith('/story/test-story/character/1')
   })
 
   it('shows an error message when saving fails', async () => {

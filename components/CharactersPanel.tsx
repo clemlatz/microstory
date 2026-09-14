@@ -85,7 +85,12 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
       ) : (
         <ul className="flex flex-col" data-testid="character-list">
           {characters.map((character) => (
-            <li key={character.id} data-testid="character-item" className="border-b border-[var(--reader-rule)] py-2.5">
+            <li
+              key={character.id}
+              data-testid="character-item"
+              className="cursor-pointer border-b border-[var(--reader-rule)] py-2.5"
+              onClick={() => router.push(`/story/${storyId}/character/${character.id}`)}
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-[15px] font-medium text-[var(--reader-ink)]">{character.name}</p>
@@ -96,17 +101,12 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
                 <div className="flex shrink-0 gap-3 text-xs">
                   <button
                     type="button"
-                    data-testid="character-edit-button"
-                    className="text-[var(--reader-accent)] hover:underline"
-                    onClick={() => router.push(`/story/${storyId}/character/${character.id}`)}
-                  >
-                    {t('common.edit')}
-                  </button>
-                  <button
-                    type="button"
                     data-testid="character-delete-button"
                     className="text-[var(--reader-danger)] hover:underline"
-                    onClick={() => handleDelete(character.id)}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      handleDelete(character.id)
+                    }}
                   >
                     {t('common.delete')}
                   </button>
