@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchCharacters, createCharacter, deleteCharacter } from '@/lib/charactersApi'
 import { useLocale } from '@/lib/i18n/LocaleContext'
+import { ConfirmDialog } from './ConfirmDialog'
+import { TrashIcon } from './TrashIcon'
 import type { Character } from '@/lib/types'
 
 /**
@@ -29,6 +31,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
   const [error, setError] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [isCreating, setIsCreating] = useState(false)
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchCharacters(storyId)
@@ -67,6 +70,8 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
     } catch (err) {
       console.error('Failed to delete character', err)
       setError(errorMessage(err))
+    } finally {
+      setDeleteTargetId(null)
     }
   }
 
@@ -101,14 +106,15 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
                 <div className="flex shrink-0 items-center gap-1 text-xs">
                   <button
                     type="button"
+                    aria-label={t('common.delete')}
                     data-testid="character-delete-button"
-                    className="inline-flex min-h-11 items-center rounded-md px-3 text-[var(--reader-danger)] hover:underline"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-[var(--reader-danger)] hover:bg-[var(--reader-input-bg)]"
                     onClick={(event) => {
                       event.stopPropagation()
-                      handleDelete(character.id)
+                      setDeleteTargetId(character.id)
                     }}
                   >
-                    {t('common.delete')}
+                    <TrashIcon />
                   </button>
                 </div>
               </div>
@@ -141,6 +147,16 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
           </p>
         )}
       </form>
+
+      <ConfirmDialog
+        open={deleteTargetId !== null}
+        title={t('characters.deleteTitle')}
+        confirmLabel={t('common.delete')}
+        onConfirm={() => {
+          if (deleteTargetId) handleDelete(deleteTargetId)
+        }}
+        onCancel={() => setDeleteTargetId(null)}
+      />
     </div>
   )
 }

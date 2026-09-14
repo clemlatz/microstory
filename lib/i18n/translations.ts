@@ -90,11 +90,13 @@ const en = {
   'characters.empty': 'No characters yet.',
   'characters.namePlaceholder': 'Name',
   'characters.requiredError': 'Name is required.',
+  'characters.deleteTitle': 'Delete this character?',
 
   'notes.title': 'Notes',
   'notes.empty': 'No notes yet.',
   'notes.titlePlaceholder': 'Title',
   'notes.requiredError': 'Title is required.',
+  'notes.deleteTitle': 'Delete this note?',
 
   'documentation.title': 'Documentation',
   'documentation.description': 'Factual reference material — research, sources — to keep the world credible.',
@@ -102,6 +104,7 @@ const en = {
   'documentation.titlePlaceholder': 'Title',
   'documentation.urlPlaceholder': 'Source URL (optional)',
   'documentation.requiredError': 'Title is required.',
+  'documentation.deleteTitle': 'Delete this documentation entry?',
 
   'search.placeholder': 'Search characters, notes, documentation…',
   'search.characters': 'Characters',
@@ -245,11 +248,13 @@ const fr: Record<TranslationKey, string> = {
   'characters.empty': 'Aucun personnage pour l’instant.',
   'characters.namePlaceholder': 'Nom',
   'characters.requiredError': 'Le nom est obligatoire.',
+  'characters.deleteTitle': 'Supprimer ce personnage ?',
 
   'notes.title': 'Notes',
   'notes.empty': 'Aucune note pour l’instant.',
   'notes.titlePlaceholder': 'Titre',
   'notes.requiredError': 'Le titre est obligatoire.',
+  'notes.deleteTitle': 'Supprimer cette note ?',
 
   'documentation.title': 'Documentation',
   'documentation.description':
@@ -258,6 +263,7 @@ const fr: Record<TranslationKey, string> = {
   'documentation.titlePlaceholder': 'Titre',
   'documentation.urlPlaceholder': 'URL de la source (optionnel)',
   'documentation.requiredError': 'Le titre est obligatoire.',
+  'documentation.deleteTitle': 'Supprimer cette entrée de documentation ?',
 
   'search.placeholder': 'Rechercher personnages, notes, documentation…',
   'search.characters': 'Personnages',

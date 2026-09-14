@@ -113,7 +113,7 @@ describe('CharactersPanel', () => {
     expect(screen.queryByTestId('character-edit-button')).not.toBeInTheDocument()
   })
 
-  it('deletes a character without navigating to its page', async () => {
+  it('asks for confirmation before deleting, and does not delete until confirmed', async () => {
     mockedFetchCharacters.mockResolvedValue([alice])
     mockedDeleteCharacter.mockResolvedValue(undefined)
     const user = userEvent.setup()
@@ -123,11 +123,32 @@ describe('CharactersPanel', () => {
 
     await user.click(screen.getByTestId('character-delete-button'))
 
+    expect(screen.getByTestId('confirm-dialog')).toBeInTheDocument()
+    expect(mockedDeleteCharacter).not.toHaveBeenCalled()
+    expect(screen.getByTestId('character-item')).toBeInTheDocument()
+
+    await user.click(screen.getByTestId('confirm-dialog-confirm'))
+
     await waitFor(() => {
       expect(screen.queryByTestId('character-item')).not.toBeInTheDocument()
     })
     expect(mockedDeleteCharacter).toHaveBeenCalledWith('test-story', '1')
     expect(mockRouterPush).not.toHaveBeenCalledWith('/story/test-story/character/1')
+  })
+
+  it('does not delete the character when the confirmation dialog is cancelled', async () => {
+    mockedFetchCharacters.mockResolvedValue([alice])
+    const user = userEvent.setup()
+
+    render(<CharactersPanel storyId="test-story" />)
+    await waitFor(() => expect(screen.getByText('Alice')).toBeInTheDocument())
+
+    await user.click(screen.getByTestId('character-delete-button'))
+    await user.click(screen.getByTestId('confirm-dialog-cancel'))
+
+    expect(screen.queryByTestId('confirm-dialog')).not.toBeInTheDocument()
+    expect(mockedDeleteCharacter).not.toHaveBeenCalled()
+    expect(screen.getByTestId('character-item')).toBeInTheDocument()
   })
 
   it('shows an error message when saving fails', async () => {

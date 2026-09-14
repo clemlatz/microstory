@@ -125,7 +125,7 @@ describe('DocumentationPanel', () => {
     expect(screen.queryByTestId('documentation-edit-button')).not.toBeInTheDocument()
   })
 
-  it('deletes an entry without navigating to its page', async () => {
+  it('asks for confirmation before deleting, and does not delete until confirmed', async () => {
     mockedFetch.mockResolvedValue([source])
     mockedDelete.mockResolvedValue(undefined)
     const user = userEvent.setup()
@@ -135,11 +135,32 @@ describe('DocumentationPanel', () => {
 
     await user.click(screen.getByTestId('documentation-delete-button'))
 
+    expect(screen.getByTestId('confirm-dialog')).toBeInTheDocument()
+    expect(mockedDelete).not.toHaveBeenCalled()
+    expect(screen.getByTestId('documentation-item')).toBeInTheDocument()
+
+    await user.click(screen.getByTestId('confirm-dialog-confirm'))
+
     await waitFor(() => {
       expect(screen.queryByTestId('documentation-item')).not.toBeInTheDocument()
     })
     expect(mockedDelete).toHaveBeenCalledWith('test-story', '1')
     expect(mockRouterPush).not.toHaveBeenCalledWith('/story/test-story/documentation/1')
+  })
+
+  it('does not delete the entry when the confirmation dialog is cancelled', async () => {
+    mockedFetch.mockResolvedValue([source])
+    const user = userEvent.setup()
+
+    render(<DocumentationPanel storyId="test-story" />)
+    await waitFor(() => expect(screen.getByText('Gravité lunaire')).toBeInTheDocument())
+
+    await user.click(screen.getByTestId('documentation-delete-button'))
+    await user.click(screen.getByTestId('confirm-dialog-cancel'))
+
+    expect(screen.queryByTestId('confirm-dialog')).not.toBeInTheDocument()
+    expect(mockedDelete).not.toHaveBeenCalled()
+    expect(screen.getByTestId('documentation-item')).toBeInTheDocument()
   })
 
   it('shows an error message when saving fails', async () => {

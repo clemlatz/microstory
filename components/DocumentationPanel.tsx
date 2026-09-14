@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchDocumentation, createDocumentationEntry, deleteDocumentationEntry } from '@/lib/documentationApi'
 import { useLocale } from '@/lib/i18n/LocaleContext'
+import { ConfirmDialog } from './ConfirmDialog'
+import { TrashIcon } from './TrashIcon'
 import type { DocumentationEntry } from '@/lib/types'
 
 /**
@@ -34,6 +36,7 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
   const [error, setError] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [isCreating, setIsCreating] = useState(false)
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchDocumentation(storyId)
@@ -72,6 +75,8 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
     } catch (err) {
       console.error('Failed to delete documentation entry', err)
       setError(errorMessage(err))
+    } finally {
+      setDeleteTargetId(null)
     }
   }
 
@@ -121,14 +126,15 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
                 <div className="flex shrink-0 items-center gap-1 text-xs">
                   <button
                     type="button"
+                    aria-label={t('common.delete')}
                     data-testid="documentation-delete-button"
-                    className="inline-flex min-h-11 items-center rounded-md px-3 text-[var(--reader-danger)] hover:underline"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-[var(--reader-danger)] hover:bg-[var(--reader-input-bg)]"
                     onClick={(event) => {
                       event.stopPropagation()
-                      handleDelete(entry.id)
+                      setDeleteTargetId(entry.id)
                     }}
                   >
-                    {t('common.delete')}
+                    <TrashIcon />
                   </button>
                 </div>
               </div>
@@ -161,6 +167,16 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
           </p>
         )}
       </form>
+
+      <ConfirmDialog
+        open={deleteTargetId !== null}
+        title={t('documentation.deleteTitle')}
+        confirmLabel={t('common.delete')}
+        onConfirm={() => {
+          if (deleteTargetId) handleDelete(deleteTargetId)
+        }}
+        onCancel={() => setDeleteTargetId(null)}
+      />
     </div>
   )
 }

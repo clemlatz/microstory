@@ -106,7 +106,7 @@ describe('NotesPanel', () => {
     expect(screen.queryByTestId('note-edit-button')).not.toBeInTheDocument()
   })
 
-  it('deletes a note without navigating to its page', async () => {
+  it('asks for confirmation before deleting, and does not delete until confirmed', async () => {
     mockedFetchNotes.mockResolvedValue([idea])
     mockedDeleteNote.mockResolvedValue(undefined)
     const user = userEvent.setup()
@@ -116,11 +116,32 @@ describe('NotesPanel', () => {
 
     await user.click(screen.getByTestId('note-delete-button'))
 
+    expect(screen.getByTestId('confirm-dialog')).toBeInTheDocument()
+    expect(mockedDeleteNote).not.toHaveBeenCalled()
+    expect(screen.getByTestId('note-item')).toBeInTheDocument()
+
+    await user.click(screen.getByTestId('confirm-dialog-confirm'))
+
     await waitFor(() => {
       expect(screen.queryByTestId('note-item')).not.toBeInTheDocument()
     })
     expect(mockedDeleteNote).toHaveBeenCalledWith('test-story', '1')
     expect(mockRouterPush).not.toHaveBeenCalledWith('/story/test-story/note/1')
+  })
+
+  it('does not delete the note when the confirmation dialog is cancelled', async () => {
+    mockedFetchNotes.mockResolvedValue([idea])
+    const user = userEvent.setup()
+
+    render(<NotesPanel storyId="test-story" />)
+    await waitFor(() => expect(screen.getByText('Règle du monde')).toBeInTheDocument())
+
+    await user.click(screen.getByTestId('note-delete-button'))
+    await user.click(screen.getByTestId('confirm-dialog-cancel'))
+
+    expect(screen.queryByTestId('confirm-dialog')).not.toBeInTheDocument()
+    expect(mockedDeleteNote).not.toHaveBeenCalled()
+    expect(screen.getByTestId('note-item')).toBeInTheDocument()
   })
 
   it('shows an error message when saving fails', async () => {
