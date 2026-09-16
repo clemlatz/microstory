@@ -58,23 +58,16 @@ describe('StoryHomeView', () => {
     expect(screen.queryByText(/No notes/)).not.toBeInTheDocument()
   })
 
-  it('renders the search input regardless of the active section', async () => {
-    render(<StoryHomeView story={story} section="characters" />)
+  it('renders only the search panel when the search section is active', async () => {
+    render(<StoryHomeView story={story} section="search" />)
     expect(screen.getByTestId('search-input')).toBeInTheDocument()
+    expect(screen.queryByTestId('story-presentation-preview')).not.toBeInTheDocument()
   })
 
-  it('hides the active section content while a search is active', async () => {
-    const user = userEvent.setup()
+  it('does not render the search input on other sections', async () => {
     render(<StoryHomeView story={story} section="characters" />)
     await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
-
-    await user.type(screen.getByTestId('search-input'), 'alice')
-
-    expect(screen.queryByText(/No characters/)).not.toBeInTheDocument()
-
-    await user.clear(screen.getByTestId('search-input'))
-
-    await waitFor(() => expect(screen.getByText(/No characters/)).toBeInTheDocument())
+    expect(screen.queryByTestId('search-input')).not.toBeInTheDocument()
   })
 
   it('shows a placeholder when the story has no presentation yet', async () => {

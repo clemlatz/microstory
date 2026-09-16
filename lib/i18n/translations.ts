@@ -157,6 +157,7 @@ const en = {
   'stories.loadError': 'Failed to load stories',
 
   'storyNav.title': 'Navigation',
+  'storyNav.search': 'Search',
   'storyNav.overview': 'Overview',
   'storyNav.characters': 'Characters',
   'storyNav.notes': 'Notes',
@@ -316,6 +317,7 @@ const fr: Record<TranslationKey, string> = {
   'stories.loadError': 'Échec du chargement des histoires',
 
   'storyNav.title': 'Navigation',
+  'storyNav.search': 'Recherche',
   'storyNav.overview': 'Aperçu',
   'storyNav.characters': 'Personnages',
   'storyNav.notes': 'Notes',

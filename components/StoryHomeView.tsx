@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CharactersPanel } from './CharactersPanel'
 import { NotesPanel } from './NotesPanel'
@@ -25,11 +24,10 @@ import type { Story } from '@/lib/types'
  * it, since it must span the full window width rather than just this
  * view's own content pane (see its own doc comment).
  *
- * `SearchPanel` (issue #12) stays persistent above the active section
- * regardless of which one is showing: while it reports an active query
- * (`onActiveChange`), the section content is hidden and the search results
- * show in its place — showing both at once was redundant and cluttered,
- * and `SearchPanel` already covers all three entity types on its own.
+ * `SearchPanel` (issue #12) used to sit persistently above every section;
+ * issue #21 moved it to its own dedicated `'search'` section instead
+ * (its own sidebar entry, above "Overview") — it now renders on its own,
+ * full-page, the same way every other section does.
  *
  * The story's presentation text (issue #1, a free-form synopsis/pitch) is
  * shown read-only here, as part of the Overview section — editing it
@@ -45,14 +43,13 @@ export function StoryHomeView({
 }) {
   const router = useRouter()
   const { t } = useLocale()
-  const [isSearchActive, setIsSearchActive] = useState(false)
 
   return (
     <div className="h-full flex-1 overflow-y-auto bg-[var(--reader-bg)] font-reader-label">
       <div className="mx-auto w-full max-w-2xl px-6 py-10 text-[var(--reader-ink)] sm:px-10">
-        <SearchPanel storyId={story.id} onActiveChange={setIsSearchActive} />
+        {section === 'search' && <SearchPanel storyId={story.id} />}
 
-        {!isSearchActive && (
+        {section !== 'search' && (
           <>
             {section === 'overview' && (
               <div>

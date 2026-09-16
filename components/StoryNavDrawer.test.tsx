@@ -29,11 +29,27 @@ describe('StoryNavDrawer', () => {
         llmWritingEnabled={true}
       />,
     )
+    expect(screen.getByTestId('story-nav-search')).toBeInTheDocument()
     expect(screen.getByTestId('story-nav-overview')).toBeInTheDocument()
     expect(screen.getByTestId('story-nav-characters')).toBeInTheDocument()
     expect(screen.getByTestId('story-nav-notes')).toBeInTheDocument()
     expect(screen.getByTestId('story-nav-documentation')).toBeInTheDocument()
     expect(screen.getByTestId('story-nav-manuscript')).toBeInTheDocument()
+  })
+
+  it('shows the search item as the first entry', () => {
+    render(
+      <StoryNavDrawer
+        open={true}
+        onClose={vi.fn()}
+        activeSection="overview"
+        onNavigate={vi.fn()}
+        onBackToStories={vi.fn()}
+        llmWritingEnabled={true}
+      />,
+    )
+    const items = screen.getAllByRole('button').filter((el) => el.dataset.testid?.startsWith('story-nav-'))
+    expect(items[0]).toHaveAttribute('data-testid', 'story-nav-search')
   })
 
   it('hides the manuscript item when llmWritingEnabled is false', () => {

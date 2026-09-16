@@ -9,7 +9,7 @@ import { StoryNavDrawer, type StorySection } from './StoryNavDrawer'
 import { useStoryNavOpen } from '@/lib/useStoryNavOpen'
 import type { Story } from '@/lib/types'
 
-const STORY_SECTIONS: StorySection[] = ['overview', 'characters', 'notes', 'documentation', 'manuscript']
+const STORY_SECTIONS: StorySection[] = ['search', 'overview', 'characters', 'notes', 'documentation', 'manuscript']
 
 function isStorySection(value: string | null): value is StorySection {
   return value !== null && (STORY_SECTIONS as string[]).includes(value)

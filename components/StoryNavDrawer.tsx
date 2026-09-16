@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
-export type StorySection = 'overview' | 'characters' | 'notes' | 'documentation' | 'manuscript'
+export type StorySection = 'search' | 'overview' | 'characters' | 'notes' | 'documentation' | 'manuscript'
 
 type NavItem = {
   section: StorySection
@@ -30,6 +30,13 @@ function NavIcon({ children }: { children: ReactNode }) {
     </svg>
   )
 }
+
+const SearchIcon = (
+  <NavIcon>
+    <circle cx="10.5" cy="10.5" r="6.5" />
+    <path d="M20 20l-4.35-4.35" />
+  </NavIcon>
+)
 
 const OverviewIcon = (
   <NavIcon>
@@ -114,6 +121,7 @@ export function StoryNavDrawer({
   if (!open) return null
 
   const items: NavItem[] = [
+    { section: 'search', label: t('storyNav.search'), testId: 'story-nav-search', icon: SearchIcon },
     { section: 'overview', label: t('storyNav.overview'), testId: 'story-nav-overview', icon: OverviewIcon },
     { section: 'characters', label: t('storyNav.characters'), testId: 'story-nav-characters', icon: CharactersIcon },
     { section: 'notes', label: t('storyNav.notes'), testId: 'story-nav-notes', icon: NotesIcon },
