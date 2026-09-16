@@ -560,7 +560,7 @@ export function HistoryView({
 
   return (
     <div data-testid="history-view" ref={containerRef} className={CONTAINER_CLASSNAME}>
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+      <div className="mx-auto flex w-full max-w-[700px] flex-col gap-4">
         {items.map((item) => {
           if (item.kind === 'summary') {
             return (

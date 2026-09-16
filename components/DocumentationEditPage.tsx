@@ -111,8 +111,8 @@ export function DocumentationEditPage({
       }}
     >
       <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
-        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
-          <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex w-full max-w-[700px] flex-col px-6 py-6 sm:px-10">
             <input
               data-testid="documentation-page-url-input"
               className="mb-4 border-none bg-transparent font-sans text-sm text-stone-500 outline-none placeholder:text-stone-300 dark:text-stone-400 dark:placeholder:text-stone-600"
@@ -127,10 +127,7 @@ export function DocumentationEditPage({
               </p>
             )}
 
-            <div
-              data-testid="documentation-page-content-input"
-              className="documentation-content-editor min-h-0 flex-1 overflow-y-auto"
-            >
+            <div data-testid="documentation-page-content-input" className="documentation-content-editor">
               <DocumentationContentEditor initialMarkdown={entry.content} onChangeMarkdown={setContent} />
             </div>
           </div>

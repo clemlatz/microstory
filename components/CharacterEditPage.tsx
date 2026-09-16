@@ -128,18 +128,15 @@ export function CharacterEditPage({
       }}
     >
       <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
-        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden px-6 py-6 sm:px-10">
-          <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex w-full max-w-[700px] flex-col px-6 py-6 sm:px-10">
             {error && (
               <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">
                 {error}
               </p>
             )}
 
-            <div
-              data-testid="character-page-description-input"
-              className="character-description-editor min-h-0 flex-1 overflow-y-auto"
-            >
+            <div data-testid="character-page-description-input" className="character-description-editor">
               <CharacterDescriptionEditor initialMarkdown={character.description} onChangeMarkdown={setDescription} />
             </div>
           </div>
