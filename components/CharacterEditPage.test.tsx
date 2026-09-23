@@ -57,7 +57,6 @@ const story: Story = {
   presentation: '',
   createdAt: 1000,
   updatedAt: 2000,
-  lastPassagePreview: null,
 }
 
 const WAIT_FOR_AUTOSAVE = { timeout: 2000 }
@@ -71,7 +70,7 @@ describe('CharacterEditPage', () => {
   })
 
   it('shows the character name and description, with no save button', async () => {
-    render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
+    render(<CharacterEditPage story={story} character={alice} />)
 
     expect(screen.getByTestId('story-title')).toHaveValue('Alice')
     expect(await screen.findByTestId('character-description-editor-stub')).toHaveValue('Une héroïne curieuse')
@@ -80,7 +79,7 @@ describe('CharacterEditPage', () => {
 
   it('shows the character name in the title bar instead of the story title, live as it is edited', async () => {
     const user = userEvent.setup()
-    render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
+    render(<CharacterEditPage story={story} character={alice} />)
 
     expect(screen.getByTestId('story-title')).toHaveValue('Alice')
 
@@ -90,7 +89,7 @@ describe('CharacterEditPage', () => {
 
   it('autosaves a name change after the debounce delay', async () => {
     const user = userEvent.setup()
-    render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
+    render(<CharacterEditPage story={story} character={alice} />)
 
     await user.clear(screen.getByTestId('story-title'))
     await user.type(screen.getByTestId('story-title'), 'Alice Doe')
@@ -107,7 +106,7 @@ describe('CharacterEditPage', () => {
 
   it('autosaves a description change after the debounce delay', async () => {
     const user = userEvent.setup()
-    render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
+    render(<CharacterEditPage story={story} character={alice} />)
 
     await user.clear(await screen.findByTestId('character-description-editor-stub'))
     await user.type(screen.getByTestId('character-description-editor-stub'), 'Une héroïne intrépide')
@@ -122,7 +121,7 @@ describe('CharacterEditPage', () => {
 
   it('flushes a pending save immediately when navigating back via the drawer', async () => {
     const user = userEvent.setup()
-    render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
+    render(<CharacterEditPage story={story} character={alice} />)
 
     await user.type(screen.getByTestId('story-title'), ' Doe')
     await user.click(screen.getByTestId('story-nav-toggle'))
@@ -137,7 +136,7 @@ describe('CharacterEditPage', () => {
 
   it('navigates back without saving when nothing changed', async () => {
     const user = userEvent.setup()
-    render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
+    render(<CharacterEditPage story={story} character={alice} />)
 
     await user.click(screen.getByTestId('story-nav-toggle'))
     await user.click(screen.getByTestId('story-nav-my-stories'))
@@ -148,7 +147,7 @@ describe('CharacterEditPage', () => {
 
   it('does not autosave while the name is empty', async () => {
     const user = userEvent.setup()
-    render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
+    render(<CharacterEditPage story={story} character={alice} />)
 
     await user.clear(screen.getByTestId('story-title'))
     // No positive assertion can prove a debounced call never fires without
@@ -160,7 +159,7 @@ describe('CharacterEditPage', () => {
 
   it('does not autosave while the description is empty', async () => {
     const user = userEvent.setup()
-    render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
+    render(<CharacterEditPage story={story} character={alice} />)
 
     await user.clear(await screen.findByTestId('character-description-editor-stub'))
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -171,7 +170,7 @@ describe('CharacterEditPage', () => {
   it('shows an error message when autosaving fails', async () => {
     mockedUpdateCharacter.mockRejectedValue(new Error('boom'))
     const user = userEvent.setup()
-    render(<CharacterEditPage story={story} character={alice} llmWritingEnabled={true} />)
+    render(<CharacterEditPage story={story} character={alice} />)
 
     await user.type(screen.getByTestId('story-title'), ' Doe')
 

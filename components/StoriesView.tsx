@@ -192,11 +192,6 @@ export function StoriesView() {
                       <time className="block font-sans text-xs text-stone-400 dark:text-stone-500">
                         {new Date(story.updatedAt).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}
                       </time>
-                      {story.lastPassagePreview ? (
-                        <p className="mt-1.5 truncate font-sans text-sm text-stone-500 dark:text-stone-400">
-                          {story.lastPassagePreview}
-                        </p>
-                      ) : null}
                     </div>
                     <div className="flex shrink-0 gap-1 font-sans text-sm">
                       <button

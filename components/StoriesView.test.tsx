@@ -22,7 +22,6 @@ const STORY = {
   presentation: '',
   createdAt: 1,
   updatedAt: 2,
-  lastPassagePreview: 'Il neigeait sur la ville…',
 }
 
 describe('StoriesView', () => {
@@ -33,10 +32,9 @@ describe('StoriesView', () => {
     vi.mocked(deleteStory).mockReset()
   })
 
-  it('lists stories with title and preview', async () => {
+  it('lists stories with title', async () => {
     render(<StoriesView />)
     expect(await screen.findByText('Le dernier hiver')).toBeInTheDocument()
-    expect(screen.getByText(/Il neigeait sur la ville/)).toBeInTheDocument()
   })
 
   it('creates a new story from the form', async () => {

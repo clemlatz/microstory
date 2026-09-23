@@ -12,13 +12,12 @@ describe('StoryNavDrawer', () => {
         activeSection="overview"
         onNavigate={vi.fn()}
         onBackToStories={vi.fn()}
-        llmWritingEnabled={true}
       />,
     )
     expect(screen.queryByTestId('story-nav-drawer')).not.toBeInTheDocument()
   })
 
-  it('lists every section, including the manuscript, when llmWritingEnabled is true', () => {
+  it('lists every section', () => {
     render(
       <StoryNavDrawer
         open={true}
@@ -26,7 +25,6 @@ describe('StoryNavDrawer', () => {
         activeSection="overview"
         onNavigate={vi.fn()}
         onBackToStories={vi.fn()}
-        llmWritingEnabled={true}
       />,
     )
     expect(screen.getByTestId('story-nav-search')).toBeInTheDocument()
@@ -34,7 +32,6 @@ describe('StoryNavDrawer', () => {
     expect(screen.getByTestId('story-nav-characters')).toBeInTheDocument()
     expect(screen.getByTestId('story-nav-notes')).toBeInTheDocument()
     expect(screen.getByTestId('story-nav-documentation')).toBeInTheDocument()
-    expect(screen.getByTestId('story-nav-manuscript')).toBeInTheDocument()
   })
 
   it('shows the search item as the first entry', () => {
@@ -45,25 +42,10 @@ describe('StoryNavDrawer', () => {
         activeSection="overview"
         onNavigate={vi.fn()}
         onBackToStories={vi.fn()}
-        llmWritingEnabled={true}
       />,
     )
     const items = screen.getAllByRole('button').filter((el) => el.dataset.testid?.startsWith('story-nav-'))
     expect(items[0]).toHaveAttribute('data-testid', 'story-nav-search')
-  })
-
-  it('hides the manuscript item when llmWritingEnabled is false', () => {
-    render(
-      <StoryNavDrawer
-        open={true}
-        onClose={vi.fn()}
-        activeSection="overview"
-        onNavigate={vi.fn()}
-        onBackToStories={vi.fn()}
-        llmWritingEnabled={false}
-      />,
-    )
-    expect(screen.queryByTestId('story-nav-manuscript')).not.toBeInTheDocument()
   })
 
   it('highlights the active section', () => {
@@ -74,7 +56,6 @@ describe('StoryNavDrawer', () => {
         activeSection="notes"
         onNavigate={vi.fn()}
         onBackToStories={vi.fn()}
-        llmWritingEnabled={true}
       />,
     )
     expect(screen.getByTestId('story-nav-notes')).toHaveAttribute('aria-pressed', 'true')
@@ -91,7 +72,6 @@ describe('StoryNavDrawer', () => {
         activeSection="overview"
         onNavigate={onNavigate}
         onBackToStories={vi.fn()}
-        llmWritingEnabled={true}
       />,
     )
 
@@ -110,7 +90,6 @@ describe('StoryNavDrawer', () => {
         activeSection="overview"
         onNavigate={vi.fn()}
         onBackToStories={onBackToStories}
-        llmWritingEnabled={true}
       />,
     )
 
@@ -127,7 +106,6 @@ describe('StoryNavDrawer', () => {
         activeSection="overview"
         onNavigate={vi.fn()}
         onBackToStories={vi.fn()}
-        llmWritingEnabled={true}
       />,
     )
     expect(screen.getByTestId('language-switcher')).toBeInTheDocument()
@@ -143,7 +121,6 @@ describe('StoryNavDrawer', () => {
         activeSection="overview"
         onNavigate={vi.fn()}
         onBackToStories={vi.fn()}
-        llmWritingEnabled={true}
       />,
     )
 

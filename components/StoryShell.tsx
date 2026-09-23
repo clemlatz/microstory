@@ -7,7 +7,7 @@ import { useStoryNavOpen } from '@/lib/useStoryNavOpen'
 import type { Story } from '@/lib/types'
 
 /**
- * The shared app shell for every story surface other than the manuscript
+ * The shared app shell for every story surface
  * (`StoryPageClient`'s own `overview`/`characters`/`notes`/`documentation`
  * render, and each entity's dedicated edit page —
  * `CharacterEditPage`/`NoteEditPage`/`DocumentationEditPage`/
@@ -17,9 +17,6 @@ import type { Story } from '@/lib/types'
  * own routes, not nested under `StoryPageClient`'s local section state — gets
  * the exact same title bar/drawer, rather than each re-implementing (or
  * omitting) it.
- *
- * The manuscript view is the one exception: it keeps `ChatWindow`'s own
- * separate header instead of this shell (see `StoryPageClient`).
  *
  * `activeSection` and `onNavigate` are owned by the caller: `StoryPageClient`
  * passes its local section state directly (no navigation, just a state
@@ -52,7 +49,6 @@ import type { Story } from '@/lib/types'
  */
 export function StoryShell({
   story,
-  llmWritingEnabled,
   activeSection,
   onNavigate,
   onBackToStories,
@@ -63,7 +59,6 @@ export function StoryShell({
   children,
 }: {
   story: Story
-  llmWritingEnabled: boolean
   activeSection: StorySection
   onNavigate: (section: StorySection) => void
   onBackToStories?: () => void
@@ -97,7 +92,6 @@ export function StoryShell({
           activeSection={activeSection}
           onNavigate={handleNavigate}
           onBackToStories={onBackToStories ?? (() => router.push('/stories'))}
-          llmWritingEnabled={llmWritingEnabled}
         />
         <div className="min-w-0 flex-1">{children}</div>
       </div>

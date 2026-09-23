@@ -15,23 +15,11 @@ import { createStory } from '../lib/storiesRepository'
 import { createCharacter } from '../lib/charactersRepository'
 import { createNote } from '../lib/notesRepository'
 import { createDocumentationEntry } from '../lib/documentationRepository'
-import { appendMessage } from '../lib/messagesRepository'
-import { randomUUID } from 'node:crypto'
-import type { Message } from '../lib/types'
 
 const dbPath = resolveDbPath()
 if (dbPath !== ':memory:' && fs.existsSync(dbPath)) {
   fs.rmSync(dbPath)
   console.log(`Deleted existing database at ${dbPath}`)
-}
-
-function userMessage(content: string, timestamp: number): Message {
-  return { id: randomUUID(), role: 'user', content, timestamp }
-}
-
-function assistantMessage(chat: string, story: string, timestamp: number): Message {
-  const content = `[CHAT]${chat}[/CHAT]\n[TEXTE]${story}[/TEXTE]`
-  return { id: randomUUID(), role: 'assistant', content, timestamp }
 }
 
 const story = createStory('The Clockmaker of Rivenhollow')
@@ -98,27 +86,4 @@ for (const input of documentationEntries) {
   console.log(`  + documentation: ${entry.title}`)
 }
 
-const now = Date.now()
-const turns: [string, string, string][] = [
-  [
-    'Start the story with Corwin arriving in Rivenhollow at dusk, asking around about the clock tower.',
-    "Corwin, always after a good lead, is already asking around town about the clock tower.",
-    'The fog rolled into Rivenhollow before the sun had properly set, curling around the lamp posts like it owned them. Corwin Vale pulled his collar up and stepped into the only tavern with its lights still on. "The clock tower," he said to the barkeep, dropping a coin on the counter. "Who keeps the key?"',
-  ],
-  [
-    'Introduce Adaline refusing to talk to him, then have Old Bram mention the previous owner.',
-    "Adaline shuts him down fast, but Old Bram is more talkative once the merchant pays for his drink.",
-    'Adaline Marrow did not so much answer questions as end conversations. "The tower is not for tourists," she said, and turned back to her workbench without another word. It was Old Bram, three tables over, who leaned in once Corwin bought him a second drink. "The last one who wound that clock past her limit," he said, "we buried what was left of him behind the chapel."',
-  ],
-]
-
-let timestamp = now - turns.length * 60_000
-for (const [prompt, chat, storyText] of turns) {
-  appendMessage(userMessage(prompt, timestamp), story.id)
-  timestamp += 30_000
-  appendMessage(assistantMessage(chat, storyText, timestamp), story.id)
-  timestamp += 30_000
-}
-
-console.log(`  + ${turns.length} conversation turn(s) seeded`)
 console.log('Done.')

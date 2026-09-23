@@ -10,8 +10,7 @@ import { LogoutButton } from './LogoutButton'
  * Owned by `StoryPageClient` rather than `StoryHomeView` itself, since it
  * must span the whole window rather than just the content pane to the right
  * of the sidebar — a plain child of `StoryHomeView`'s own scrollable
- * container could never reach past that pane's left edge. Not shown over
- * the manuscript/`ChatWindow` view, which keeps its own separate header.
+ * container could never reach past that pane's left edge.
  *
  * `z-[60]` sits above the drawer's mobile overlay (`aside` at `z-50`, its
  * backdrop at `z-40`) so the toggle button — and the bar itself — stay

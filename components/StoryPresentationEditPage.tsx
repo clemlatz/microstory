@@ -36,7 +36,7 @@ const AUTOSAVE_DELAY_MS = 800
  * presentation itself has no such guard — an empty presentation is a
  * valid, savable state.
  */
-export function StoryPresentationEditPage({ story, llmWritingEnabled }: { story: Story; llmWritingEnabled: boolean }) {
+export function StoryPresentationEditPage({ story }: { story: Story }) {
   const { t } = useLocale()
   const router = useRouter()
 
@@ -95,7 +95,6 @@ export function StoryPresentationEditPage({ story, llmWritingEnabled }: { story:
   return (
     <StoryShell
       story={story}
-      llmWritingEnabled={llmWritingEnabled}
       activeSection="overview"
       entryTitle={title}
       onEntryTitleChange={setTitle}

@@ -10,17 +10,6 @@ describe('db', () => {
     vi.unstubAllEnvs()
   })
 
-  it('creates the messages table', async () => {
-    const { getDb } = await import('./db')
-    const db = getDb()
-
-    const tables = db
-      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='messages'")
-      .all()
-
-    expect(tables).toHaveLength(1)
-  })
-
   it('creates the characters table', async () => {
     const { getDb } = await import('./db')
     const db = getDb()
@@ -76,10 +65,8 @@ describe('getDb', () => {
       expect.arrayContaining(['id', 'title', 'created_at', 'updated_at']),
     )
 
-    for (const table of ['messages', 'characters', 'conversation_summaries']) {
-      const columns = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[]
-      expect(columns.map((c) => c.name)).toContain('story_id')
-    }
+    const columns = db.prepare('PRAGMA table_info(characters)').all() as { name: string }[]
+    expect(columns.map((c) => c.name)).toContain('story_id')
   })
 
   it('is idempotent — calling getDb twice does not throw on the ALTER TABLE', async () => {

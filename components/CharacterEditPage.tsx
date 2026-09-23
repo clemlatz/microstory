@@ -49,11 +49,9 @@ const AUTOSAVE_DELAY_MS = 800
 export function CharacterEditPage({
   story,
   character,
-  llmWritingEnabled,
 }: {
   story: Story
   character: Character
-  llmWritingEnabled: boolean
 }) {
   const { t } = useLocale()
   const router = useRouter()
@@ -112,7 +110,6 @@ export function CharacterEditPage({
   return (
     <StoryShell
       story={story}
-      llmWritingEnabled={llmWritingEnabled}
       activeSection="characters"
       entryTitle={name}
       onEntryTitleChange={setName}

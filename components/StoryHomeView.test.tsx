@@ -35,7 +35,6 @@ const story: Story = {
   presentation: '',
   createdAt: 1000,
   updatedAt: 2000,
-  lastPassagePreview: null,
 }
 
 describe('StoryHomeView', () => {

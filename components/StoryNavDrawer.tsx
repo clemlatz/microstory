@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
-export type StorySection = 'search' | 'overview' | 'characters' | 'notes' | 'documentation' | 'manuscript'
+export type StorySection = 'search' | 'overview' | 'characters' | 'notes' | 'documentation'
 
 type NavItem = {
   section: StorySection
@@ -68,12 +68,6 @@ const DocumentationIcon = (
   </NavIcon>
 )
 
-const ManuscriptIcon = (
-  <NavIcon>
-    <path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L8 19l-4 1Z" />
-  </NavIcon>
-)
-
 /**
  * Left-hand, Notion-style navigation for a story (issue #13, turned into a
  * persistent desktop sidebar by a later revision): below the `md` (768px)
@@ -93,13 +87,8 @@ const ManuscriptIcon = (
  * it's open or closed and toggles it either way.
  *
  * Replaces the ad hoc navigation that used to live in `StoryHomeView`
- * (`stories-back-button`, `open-manuscript-button`) and `ChatWindow`
- * (`story-overview-toggle`, `stories-toggle`) — every one of those callers
- * now opens this instead.
- *
- * The "Manuscrit" item is omitted entirely when LLM-assisted writing is
- * disabled (`llmWritingEnabled`, issue #83) — mirroring how `StoryHomeView`
- * used to hide its own "Manuscrit" button in that case.
+ * (`stories-back-button`) — every one of those callers now opens this
+ * instead.
  */
 export function StoryNavDrawer({
   open,
@@ -107,14 +96,12 @@ export function StoryNavDrawer({
   activeSection,
   onNavigate,
   onBackToStories,
-  llmWritingEnabled,
 }: {
   open: boolean
   onClose: () => void
   activeSection: StorySection
   onNavigate: (section: StorySection) => void
   onBackToStories: () => void
-  llmWritingEnabled: boolean
 }) {
   const { t } = useLocale()
 
@@ -131,16 +118,6 @@ export function StoryNavDrawer({
       testId: 'story-nav-documentation',
       icon: DocumentationIcon,
     },
-    ...(llmWritingEnabled
-      ? [
-          {
-            section: 'manuscript' as const,
-            label: t('storyNav.manuscript'),
-            testId: 'story-nav-manuscript',
-            icon: ManuscriptIcon,
-          },
-        ]
-      : []),
   ]
 
   return (

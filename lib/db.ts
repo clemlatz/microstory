@@ -25,14 +25,6 @@ export function getDb(): Database.Database {
 
   db = new Database(dbPath)
   db.exec(`
-    CREATE TABLE IF NOT EXISTS messages (
-      id TEXT PRIMARY KEY,
-      role TEXT NOT NULL,
-      content TEXT NOT NULL,
-      timestamp INTEGER NOT NULL
-    )
-  `)
-  db.exec(`
     CREATE TABLE IF NOT EXISTS characters (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -47,16 +39,6 @@ export function getDb(): Database.Database {
       value TEXT NOT NULL
     )
   `)
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS conversation_summaries (
-      id TEXT PRIMARY KEY,
-      content TEXT NOT NULL,
-      cutoff_message_id TEXT NOT NULL,
-      created_at INTEGER NOT NULL,
-      type TEXT NOT NULL
-    )
-  `)
-
   db.exec(`
     CREATE TABLE IF NOT EXISTS stories (
       id TEXT PRIMARY KEY,
@@ -136,16 +118,10 @@ export function getDb(): Database.Database {
     )
   `)
 
-  addColumnIfMissing(db, 'messages', 'story_id', 'TEXT')
   addColumnIfMissing(db, 'characters', 'story_id', 'TEXT')
-  addColumnIfMissing(db, 'conversation_summaries', 'story_id', 'TEXT')
   addColumnIfMissing(db, 'stories', 'presentation', "TEXT NOT NULL DEFAULT ''")
 
-  db.exec('CREATE INDEX IF NOT EXISTS idx_messages_story_id ON messages(story_id)')
   db.exec('CREATE INDEX IF NOT EXISTS idx_characters_story_id ON characters(story_id)')
-  db.exec(
-    'CREATE INDEX IF NOT EXISTS idx_conversation_summaries_story_id ON conversation_summaries(story_id)',
-  )
   db.exec('CREATE INDEX IF NOT EXISTS idx_notes_story_id ON notes(story_id)')
   db.exec('CREATE INDEX IF NOT EXISTS idx_documentation_story_id ON documentation(story_id)')
   db.exec(

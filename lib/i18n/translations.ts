@@ -34,57 +34,13 @@ const en = {
   'common.genericError': 'Something went wrong. Please try again later.',
   'common.unknownError': 'Unknown error',
 
-  'chatWindow.fallbackError': 'Sorry, something went wrong. Please try again later.',
-  'chatWindow.errorPrefix': 'Error: {message}',
-  'chatWindow.summarizeErrorPrefix': 'Summary failed: {message}',
-  'chatWindow.closeAria': 'Close',
-  'chatWindow.configAria': 'Configuration',
   'chatWindow.navAria': 'Navigation',
-  'chatWindow.historyAria': 'Manuscript history',
-  'chatWindow.resetTitle': 'Reset the conversation?',
-  'chatWindow.resetConfirm': 'Reset',
-  'chatWindow.thinking': 'Thinking…',
-  'chatWindow.writing': 'Writing…',
-  'chatWindow.summarizing': 'Summarizing…',
-  'chatWindow.send': 'Send',
-  'chatWindow.stop': 'Stop',
-  'chatWindow.continuePlaceholder': 'Continue, or tell it what to change…',
 
-  'messageInput.placeholder': 'Write your message…',
-  'messageInput.send': 'Send',
-  'messageInput.stop': 'Stop',
-  'messageInput.cancel': 'Cancel',
 
   'confirmDialog.confirm': 'Confirm',
   'confirmDialog.cancel': 'Cancel',
 
-  'writerPrompt.title': 'Writer prompt',
-  'writerPrompt.description':
-    'Give the model a role or style (e.g. "you are a crime novelist"). It applies to the next messages.',
-  'writerPrompt.placeholder': 'You are a crime novelist...',
-  'writerPrompt.saved': 'Prompt saved.',
-  'writerPrompt.wordLimitTitle': 'Generated text length',
-  'writerPrompt.wordLimitDescription':
-    'Maximum number of words the model should write in the fiction text each turn (a best-effort instruction, not a guaranteed limit).',
-  'writerPrompt.wordLimitSaved': 'Limit saved.',
-  'writerPrompt.verbatimTitle': 'Immediate context window',
-  'writerPrompt.verbatimDescription':
-    'Number of recent words (full messages) sent as-is to the model each turn, to keep the style and pace of the latest lines.',
-  'writerPrompt.verbatimSaved': 'Window saved.',
-  'writerPrompt.autoSummaryTitle': 'Automatic summary threshold',
-  'writerPrompt.autoSummaryDescription':
-    "Number of pending words (beyond the immediate context window) that triggers, in the background, automatic condensation into the story's summary.",
-  'writerPrompt.autoSummarySaved': 'Threshold saved.',
 
-  'llmStatus.modelTitle': 'Model',
-  'llmStatus.statusTitle': 'Status',
-  'llmStatus.loaded': 'Loaded',
-  'llmStatus.loading': 'Loading…',
-  'llmStatus.unavailable': 'Unavailable',
-  'llmStatus.repetitionTitle': 'Repetition penalty',
-  'llmStatus.repetitionDescription':
-    'Discourages the model from looping on the same words/phrasing ({min} = disabled, {max} = usual maximum).',
-  'llmStatus.repetitionSaved': 'Penalty saved.',
 
   'characters.title': 'Characters',
   'characters.empty': 'No characters yet.',
@@ -113,23 +69,7 @@ const en = {
   'search.noResults': 'No results.',
   'search.error': 'Search failed.',
 
-  'history.loading': 'Loading history…',
-  'history.empty': 'Nothing to show yet — history will fill in as the conversation goes.',
-  'history.summaryLabel': 'Summary ({type}) — sent on next turn',
-  'history.typeManual': 'manual',
-  'history.typeAuto': 'automatic',
-  'history.promptLabel': 'Prompt',
-  'history.saving': 'Saving…',
-  'history.resetButton': 'Clear',
-  'history.summarizeButton': 'Summarize',
-  'history.viewAria': 'Manuscript history',
 
-  'storyView.empty': 'Generated text will appear here as the conversation goes.',
-  'storyView.promptLabel': 'Prompt',
-  'storyView.summaryLabel': 'Summary',
-  'storyView.thinking': 'Thinking…',
-  'storyView.summarizing': 'Summarizing…',
-  'storyView.editPrompt': 'Edit',
 
   'login.registerIntro':
     'First use: register a passkey (biometrics, security key…) to protect access to the app.',
@@ -162,7 +102,6 @@ const en = {
   'storyNav.characters': 'Characters',
   'storyNav.notes': 'Notes',
   'storyNav.documentation': 'Documentation',
-  'storyNav.manuscript': 'Manuscript',
   'storyNav.myStories': '← My stories',
 
   'presentation.title': 'Presentation',
@@ -172,9 +111,7 @@ const en = {
 
   'language.label': 'Language',
 
-  'contextGauge.tooltip': '{pending} / {threshold} words before automatic summary',
 
-  'configPanel.writingTab': 'Writing',
 } as const
 
 export type TranslationKey = keyof typeof en
@@ -193,57 +130,13 @@ const fr: Record<TranslationKey, string> = {
   'common.genericError': 'Une erreur est survenue. Réessayez plus tard.',
   'common.unknownError': 'Erreur inconnue',
 
-  'chatWindow.fallbackError': 'Désolé, une erreur est survenue. Réessayez plus tard.',
-  'chatWindow.errorPrefix': 'Erreur : {message}',
-  'chatWindow.summarizeErrorPrefix': 'Résumé impossible : {message}',
-  'chatWindow.closeAria': 'Fermer',
-  'chatWindow.configAria': 'Configuration',
   'chatWindow.navAria': 'Navigation',
-  'chatWindow.historyAria': 'Historique du manuscrit',
-  'chatWindow.resetTitle': 'Réinitialiser la conversation ?',
-  'chatWindow.resetConfirm': 'Réinitialiser',
-  'chatWindow.thinking': 'En train de réfléchir…',
-  'chatWindow.writing': "En train d'écrire…",
-  'chatWindow.summarizing': 'En train de résumer…',
-  'chatWindow.send': 'Envoyer',
-  'chatWindow.stop': 'Stop',
-  'chatWindow.continuePlaceholder': 'Continuez, ou dites-lui quoi changer…',
 
-  'messageInput.placeholder': 'Écrivez votre message…',
-  'messageInput.send': 'Envoyer',
-  'messageInput.stop': 'Stop',
-  'messageInput.cancel': 'Annuler',
 
   'confirmDialog.confirm': 'Confirmer',
   'confirmDialog.cancel': 'Annuler',
 
-  'writerPrompt.title': "Prompt d'écriture",
-  'writerPrompt.description':
-    'Donnez un rôle ou un style au modèle (ex. « tu es un auteur de roman policier »). Il s’applique aux prochains messages.',
-  'writerPrompt.placeholder': 'Tu es un auteur de roman policier...',
-  'writerPrompt.saved': 'Prompt enregistré.',
-  'writerPrompt.wordLimitTitle': 'Longueur du texte généré',
-  'writerPrompt.wordLimitDescription':
-    'Nombre maximum de mots que le modèle doit écrire dans le texte de fiction à chaque tour (indication, pas une limite garantie).',
-  'writerPrompt.wordLimitSaved': 'Limite enregistrée.',
-  'writerPrompt.verbatimTitle': 'Fenêtre de contexte immédiat',
-  'writerPrompt.verbatimDescription':
-    'Nombre de mots récents (messages complets) envoyés tels quels au modèle à chaque tour, pour garder le style et le rythme des dernières lignes.',
-  'writerPrompt.verbatimSaved': 'Fenêtre enregistrée.',
-  'writerPrompt.autoSummaryTitle': 'Seuil de résumé automatique',
-  'writerPrompt.autoSummaryDescription':
-    "Nombre de mots en attente (au-delà de la fenêtre de contexte immédiat) qui déclenche, en arrière-plan, la condensation automatique dans le résumé de l'histoire.",
-  'writerPrompt.autoSummarySaved': 'Seuil enregistré.',
 
-  'llmStatus.modelTitle': 'Modèle',
-  'llmStatus.statusTitle': 'Statut',
-  'llmStatus.loaded': 'Chargé',
-  'llmStatus.loading': 'En cours de chargement…',
-  'llmStatus.unavailable': 'Indisponible',
-  'llmStatus.repetitionTitle': 'Pénalité de répétition',
-  'llmStatus.repetitionDescription':
-    'Décourage le modèle de reboucler sur les mêmes mots/tournures ({min} = désactivée, {max} = maximum usuel).',
-  'llmStatus.repetitionSaved': 'Pénalité enregistrée.',
 
   'characters.title': 'Personnages',
   'characters.empty': 'Aucun personnage pour l’instant.',
@@ -273,23 +166,7 @@ const fr: Record<TranslationKey, string> = {
   'search.noResults': 'Aucun résultat.',
   'search.error': 'La recherche a échoué.',
 
-  'history.loading': "Chargement de l'historique…",
-  'history.empty': "Rien à afficher pour l'instant — l'historique se remplira au fil de la conversation.",
-  'history.summaryLabel': 'Résumé ({type}) — envoyé au prochain tour',
-  'history.typeManual': 'manuel',
-  'history.typeAuto': 'automatique',
-  'history.promptLabel': 'Prompt',
-  'history.saving': 'Enregistrement…',
-  'history.resetButton': 'Effacer',
-  'history.summarizeButton': 'Résumer',
-  'history.viewAria': 'Historique du manuscrit',
 
-  'storyView.empty': 'Le texte généré apparaîtra ici au fil de la conversation.',
-  'storyView.promptLabel': 'Prompt',
-  'storyView.summaryLabel': 'Résumé',
-  'storyView.thinking': 'En train de réfléchir…',
-  'storyView.summarizing': 'En train de résumer…',
-  'storyView.editPrompt': 'Modifier',
 
   'login.registerIntro':
     'Première utilisation : enregistrez un passkey (biométrie, clé de sécurité…) pour protéger l’accès à l’application.',
@@ -322,7 +199,6 @@ const fr: Record<TranslationKey, string> = {
   'storyNav.characters': 'Personnages',
   'storyNav.notes': 'Notes',
   'storyNav.documentation': 'Documentation',
-  'storyNav.manuscript': 'Manuscrit',
   'storyNav.myStories': '← Mes histoires',
 
   'presentation.title': 'Présentation',
@@ -332,9 +208,7 @@ const fr: Record<TranslationKey, string> = {
 
   'language.label': 'Langue',
 
-  'contextGauge.tooltip': '{pending} / {threshold} mots avant résumé automatique',
 
-  'configPanel.writingTab': 'Écriture',
 }
 
 export const translations: Record<Locale, Record<TranslationKey, string>> = { en, fr }

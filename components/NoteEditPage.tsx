@@ -26,11 +26,9 @@ const AUTOSAVE_DELAY_MS = 800
 export function NoteEditPage({
   story,
   note,
-  llmWritingEnabled,
 }: {
   story: Story
   note: Note
-  llmWritingEnabled: boolean
 }) {
   const { t } = useLocale()
   const router = useRouter()
@@ -89,7 +87,6 @@ export function NoteEditPage({
   return (
     <StoryShell
       story={story}
-      llmWritingEnabled={llmWritingEnabled}
       activeSection="notes"
       entryTitle={title}
       onEntryTitleChange={setTitle}

@@ -15,7 +15,6 @@ const story: Story = {
   presentation: '',
   createdAt: 1000,
   updatedAt: 2000,
-  lastPassagePreview: null,
 }
 
 describe('StoryShell', () => {
@@ -26,7 +25,7 @@ describe('StoryShell', () => {
 
   it('shows the title bar and the passed-in children', () => {
     render(
-      <StoryShell story={story} llmWritingEnabled={true} activeSection="characters" onNavigate={vi.fn()}>
+      <StoryShell story={story} activeSection="characters" onNavigate={vi.fn()}>
         <p data-testid="content">content</p>
       </StoryShell>,
     )
@@ -38,7 +37,6 @@ describe('StoryShell', () => {
     render(
       <StoryShell
         story={story}
-        llmWritingEnabled={true}
         activeSection="characters"
         onNavigate={vi.fn()}
         entryTitle="Adaline Marrow"
@@ -55,7 +53,6 @@ describe('StoryShell', () => {
     render(
       <StoryShell
         story={story}
-        llmWritingEnabled={true}
         activeSection="characters"
         onNavigate={vi.fn()}
         entryTitle="Adaline Marrow"
@@ -76,7 +73,7 @@ describe('StoryShell', () => {
   it('highlights the section passed as activeSection', async () => {
     const user = userEvent.setup()
     render(
-      <StoryShell story={story} llmWritingEnabled={true} activeSection="notes" onNavigate={vi.fn()}>
+      <StoryShell story={story} activeSection="notes" onNavigate={vi.fn()}>
         <p>content</p>
       </StoryShell>,
     )
@@ -88,7 +85,7 @@ describe('StoryShell', () => {
     const user = userEvent.setup()
     const onNavigate = vi.fn()
     render(
-      <StoryShell story={story} llmWritingEnabled={true} activeSection="overview" onNavigate={onNavigate}>
+      <StoryShell story={story} activeSection="overview" onNavigate={onNavigate}>
         <p>content</p>
       </StoryShell>,
     )
@@ -100,7 +97,7 @@ describe('StoryShell', () => {
   it('pushes to /stories by default when "My stories" is clicked', async () => {
     const user = userEvent.setup()
     render(
-      <StoryShell story={story} llmWritingEnabled={true} activeSection="overview" onNavigate={vi.fn()}>
+      <StoryShell story={story} activeSection="overview" onNavigate={vi.fn()}>
         <p>content</p>
       </StoryShell>,
     )
@@ -115,7 +112,6 @@ describe('StoryShell', () => {
     render(
       <StoryShell
         story={story}
-        llmWritingEnabled={true}
         activeSection="overview"
         onNavigate={vi.fn()}
         onBackToStories={onBackToStories}

@@ -14,7 +14,6 @@ describe('storiesRepository', () => {
     const created = createStory('Le dernier hiver')
     expect(created.title).toBe('Le dernier hiver')
     expect(created.presentation).toBe('')
-    expect(created.lastPassagePreview).toBeNull()
 
     const fetched = getStoryById(created.id)
     expect(fetched).toEqual(created)
@@ -62,34 +61,27 @@ describe('storiesRepository', () => {
     expect(updateStoryPresentation('missing', 'x')).toBeNull()
   })
 
-  it('deleteStory removes the story and its messages/characters/summaries', async () => {
+  it('deleteStory removes the story and its characters', async () => {
     const { createStory, deleteStory, getStoryById } = await import('./storiesRepository')
-    const { appendMessage } = await import('./messagesRepository')
     const { createCharacter } = await import('./charactersRepository')
 
     const story = createStory('To delete')
-    appendMessage({ id: 'm1', role: 'user', content: 'hi', timestamp: 1 }, story.id)
     createCharacter({ name: 'Alice', description: 'A hero' }, story.id)
 
     deleteStory(story.id)
 
     expect(getStoryById(story.id)).toBeNull()
-    const { getAllMessages } = await import('./messagesRepository')
-    expect(getAllMessages(story.id)).toEqual([])
     const { getAllCharacters } = await import('./charactersRepository')
     expect(getAllCharacters(story.id)).toEqual([])
   })
 
   describe('ensureDefaultStory', () => {
-    it('migrates pre-multi-story data into a new default story', async () => {
+    it('migrates pre-multi-story characters into a new default story', async () => {
       const { getDb } = await import('./db')
       const db = getDb()
 
-      // Seed rows simulating the old single-story schema: messages/characters
-      // with story_id IS NULL, and bare (unscoped) settings keys.
-      db.prepare(
-        'INSERT INTO messages (id, role, content, timestamp, story_id) VALUES (@id, @role, @content, @timestamp, NULL)',
-      ).run({ id: 'm1', role: 'user', content: 'Bonjour', timestamp: 1000 })
+      // Seed a row simulating the old single-story schema: a character with
+      // story_id IS NULL.
       db.prepare(
         'INSERT INTO characters (id, name, description, created_at, updated_at, story_id) VALUES (@id, @name, @description, @createdAt, @updatedAt, NULL)',
       ).run({
@@ -99,27 +91,6 @@ describe('storiesRepository', () => {
         createdAt: 1000,
         updatedAt: 1000,
       })
-      db.prepare(
-        'INSERT INTO conversation_summaries (id, content, cutoff_message_id, created_at, type, story_id) VALUES (@id, @content, @cutoffMessageId, @createdAt, @type, NULL)',
-      ).run({
-        id: 's1',
-        content: 'Ancien résumé',
-        cutoffMessageId: 'm0',
-        createdAt: 500,
-        type: 'manual',
-      })
-      db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run(
-        'writerPrompt',
-        'Tu es un auteur de roman policier.',
-      )
-      db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run(
-        'conversationSummary',
-        'Résumé courant',
-      )
-      db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run(
-        'conversationSummaryCutoffId',
-        'm1',
-      )
 
       const { ensureDefaultStory, getAllStories } = await import('./storiesRepository')
       ensureDefaultStory()
@@ -129,29 +100,12 @@ describe('storiesRepository', () => {
       const storyId = stories[0].id
       expect(stories[0].title).toBe('Histoire 1')
 
-      const { getAllMessages } = await import('./messagesRepository')
-      expect(getAllMessages(storyId)).toEqual([
-        { id: 'm1', role: 'user', content: 'Bonjour', timestamp: 1000 },
-      ])
-
       const { getAllCharacters } = await import('./charactersRepository')
       const characters = getAllCharacters(storyId)
       expect(characters).toHaveLength(1)
       expect(characters[0]).toMatchObject({ name: 'Alice', description: 'A hero' })
 
-      const { getAllConversationSummaries } = await import('./conversationSummariesRepository')
-      const summaries = getAllConversationSummaries(storyId)
-      expect(summaries).toHaveLength(1)
-      expect(summaries[0].content).toBe('Ancien résumé')
-
-      const { getWriterPrompt, getConversationSummary, getCurrentStoryId } = await import(
-        './settingsRepository'
-      )
-      expect(getWriterPrompt(storyId)).toBe('Tu es un auteur de roman policier.')
-      expect(getConversationSummary(storyId)).toEqual({
-        summary: 'Résumé courant',
-        cutoffId: 'm1',
-      })
+      const { getCurrentStoryId } = await import('./settingsRepository')
       expect(getCurrentStoryId()).toBe(storyId)
 
       // a second call is a no-op: no second story created, nothing touched

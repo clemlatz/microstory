@@ -1,10 +1,3 @@
-export type Message = {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: number
-}
-
 export type Character = {
   id: string
   name: string
@@ -13,30 +6,12 @@ export type Character = {
   updatedAt: number
 }
 
-/**
- * One historical entry in the `conversation_summaries` table (see
- * lib/conversationSummariesRepository.ts) — every summary ever generated
- * and persisted as the compaction summary (automatic, in
- * lib/conversationCompaction.ts, or manual, via "Utiliser comme contexte"),
- * kept around (unlike `settings.conversationSummary`, which only holds the
- * current one) so the history view (issue #36) can show past summaries at
- * their position in the conversation.
- */
-export type ConversationSummaryRecord = {
-  id: string
-  content: string
-  cutoffMessageId: string
-  createdAt: number
-  type: 'auto' | 'manual'
-}
-
 export type Story = {
   id: string
   title: string
   presentation: string
   createdAt: number
   updatedAt: number
-  lastPassagePreview: string | null
 }
 
 /**

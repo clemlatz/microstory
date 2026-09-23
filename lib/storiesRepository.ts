@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto'
 import { getDb } from './db'
-import { parseChanneledContent } from './channeledContent'
 import type { Story } from './types'
 
 type StoryRow = {
@@ -11,25 +10,6 @@ type StoryRow = {
   updated_at: number
 }
 
-const PREVIEW_LENGTH = 120
-
-function lastPassagePreview(storyId: string): string | null {
-  const db = getDb()
-  const row = db
-    .prepare(
-      `SELECT content FROM messages
-       WHERE story_id = ? AND role = 'assistant'
-       ORDER BY timestamp DESC LIMIT 1`,
-    )
-    .get(storyId) as { content: string } | undefined
-  if (!row) return null
-
-  const story = parseChanneledContent(row.content).story.trim()
-  if (!story) return null
-
-  return story.length > PREVIEW_LENGTH ? `${story.slice(0, PREVIEW_LENGTH)}…` : story
-}
-
 function toStory(row: StoryRow): Story {
   return {
     id: row.id,
@@ -37,7 +17,6 @@ function toStory(row: StoryRow): Story {
     presentation: row.presentation,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    lastPassagePreview: lastPassagePreview(row.id),
   }
 }
 
@@ -66,7 +45,7 @@ export function createStory(title: string): Story {
     'INSERT INTO stories (id, title, created_at, updated_at) VALUES (@id, @title, @createdAt, @updatedAt)',
   ).run({ id, title, createdAt: now, updatedAt: now })
 
-  return { id, title, presentation: '', createdAt: now, updatedAt: now, lastPassagePreview: null }
+  return { id, title, presentation: '', createdAt: now, updatedAt: now }
 }
 
 export function renameStory(id: string, title: string): Story | null {
@@ -92,10 +71,8 @@ export function updateStoryPresentation(id: string, presentation: string): Story
 export function deleteStory(id: string): void {
   const db = getDb()
   const transaction = db.transaction((storyId: string) => {
-    db.prepare('DELETE FROM messages WHERE story_id = ?').run(storyId)
     db.prepare('DELETE FROM character_versions WHERE story_id = ?').run(storyId)
     db.prepare('DELETE FROM characters WHERE story_id = ?').run(storyId)
-    db.prepare('DELETE FROM conversation_summaries WHERE story_id = ?').run(storyId)
     db.prepare("DELETE FROM settings WHERE key LIKE ? ESCAPE '\\'").run(
       `${storyId.replace(/[%_\\]/g, '\\$&')}:%`,
     )
@@ -118,9 +95,8 @@ export function storyExists(id: string): boolean {
 
 /**
  * One-shot migration: if no story exists yet but pre-multi-story data does
- * (messages/characters/settings with no story_id, or unprefixed
- * writerPrompt/conversationSummary keys), create a default story and
- * reattach everything to it. No-ops once at least one story exists.
+ * (characters with no story_id), create a default story and reattach them
+ * to it. No-ops once at least one story exists.
  */
 export function ensureDefaultStory(): void {
   const db = getDb()
@@ -128,21 +104,8 @@ export function ensureDefaultStory(): void {
   if (storyCount > 0) return
 
   const hasLegacyData =
-    (db.prepare('SELECT COUNT(*) AS n FROM messages WHERE story_id IS NULL').get() as { n: number }).n >
-      0 ||
     (db.prepare('SELECT COUNT(*) AS n FROM characters WHERE story_id IS NULL').get() as { n: number })
-      .n > 0 ||
-    (
-      db
-        .prepare('SELECT COUNT(*) AS n FROM conversation_summaries WHERE story_id IS NULL')
-        .get() as { n: number }
-    ).n > 0 ||
-    (db.prepare("SELECT COUNT(*) AS n FROM settings WHERE key = 'writerPrompt'").get() as {
-      n: number
-    }).n > 0 ||
-    (db.prepare("SELECT COUNT(*) AS n FROM settings WHERE key = 'conversationSummary'").get() as {
-      n: number
-    }).n > 0
+      .n > 0
   if (!hasLegacyData) return
 
   const transaction = db.transaction(() => {
@@ -152,20 +115,7 @@ export function ensureDefaultStory(): void {
       'INSERT INTO stories (id, title, created_at, updated_at) VALUES (@id, @title, @createdAt, @updatedAt)',
     ).run({ id, title: 'Histoire 1', createdAt: now, updatedAt: now })
 
-    db.prepare('UPDATE messages SET story_id = ? WHERE story_id IS NULL').run(id)
     db.prepare('UPDATE characters SET story_id = ? WHERE story_id IS NULL').run(id)
-    db.prepare('UPDATE conversation_summaries SET story_id = ? WHERE story_id IS NULL').run(id)
-
-    for (const legacyKey of ['writerPrompt', 'conversationSummary', 'conversationSummaryCutoffId']) {
-      const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(legacyKey) as
-        | { value: string }
-        | undefined
-      if (!row) continue
-      db.prepare(
-        'INSERT INTO settings (key, value) VALUES (@key, @value) ON CONFLICT(key) DO UPDATE SET value = @value',
-      ).run({ key: `${id}:${legacyKey}`, value: row.value })
-      db.prepare('DELETE FROM settings WHERE key = ?').run(legacyKey)
-    }
 
     db.prepare(
       "INSERT INTO settings (key, value) VALUES ('currentStoryId', @id) ON CONFLICT(key) DO UPDATE SET value = @id",

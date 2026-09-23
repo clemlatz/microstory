@@ -27,11 +27,9 @@ const AUTOSAVE_DELAY_MS = 800
 export function DocumentationEditPage({
   story,
   entry,
-  llmWritingEnabled,
 }: {
   story: Story
   entry: DocumentationEntry
-  llmWritingEnabled: boolean
 }) {
   const { t } = useLocale()
   const router = useRouter()
@@ -95,7 +93,6 @@ export function DocumentationEditPage({
   return (
     <StoryShell
       story={story}
-      llmWritingEnabled={llmWritingEnabled}
       activeSection="documentation"
       entryTitle={title}
       onEntryTitleChange={setTitle}

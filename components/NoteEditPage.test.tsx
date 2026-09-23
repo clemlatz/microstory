@@ -57,7 +57,6 @@ const story: Story = {
   presentation: '',
   createdAt: 1000,
   updatedAt: 2000,
-  lastPassagePreview: null,
 }
 
 const WAIT_FOR_AUTOSAVE = { timeout: 2000 }
@@ -71,7 +70,7 @@ describe('NoteEditPage', () => {
   })
 
   it('shows the note title and content, with no save button', async () => {
-    render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
+    render(<NoteEditPage story={story} note={idea} />)
 
     expect(screen.getByTestId('story-title')).toHaveValue('Règle du monde')
     expect(await screen.findByTestId('note-content-editor-stub')).toHaveValue('La magie coûte cher')
@@ -79,14 +78,14 @@ describe('NoteEditPage', () => {
   })
 
   it('shows the note title in the title bar instead of the story title', async () => {
-    render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
+    render(<NoteEditPage story={story} note={idea} />)
 
     expect(screen.getByTestId('story-title')).toHaveValue('Règle du monde')
   })
 
   it('autosaves a title change after the debounce delay', async () => {
     const user = userEvent.setup()
-    render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
+    render(<NoteEditPage story={story} note={idea} />)
 
     await user.clear(screen.getByTestId('story-title'))
     await user.type(screen.getByTestId('story-title'), 'Règle révisée')
@@ -103,7 +102,7 @@ describe('NoteEditPage', () => {
 
   it('autosaves a content change after the debounce delay', async () => {
     const user = userEvent.setup()
-    render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
+    render(<NoteEditPage story={story} note={idea} />)
 
     await user.clear(await screen.findByTestId('note-content-editor-stub'))
     await user.type(screen.getByTestId('note-content-editor-stub'), 'La magie a un prix')
@@ -118,7 +117,7 @@ describe('NoteEditPage', () => {
 
   it('flushes a pending save immediately when navigating back via the drawer', async () => {
     const user = userEvent.setup()
-    render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
+    render(<NoteEditPage story={story} note={idea} />)
 
     await user.type(screen.getByTestId('story-title'), ' révisée')
     await user.click(screen.getByTestId('story-nav-toggle'))
@@ -133,7 +132,7 @@ describe('NoteEditPage', () => {
 
   it('navigates back without saving when nothing changed', async () => {
     const user = userEvent.setup()
-    render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
+    render(<NoteEditPage story={story} note={idea} />)
 
     await user.click(screen.getByTestId('story-nav-toggle'))
     await user.click(screen.getByTestId('story-nav-my-stories'))
@@ -144,7 +143,7 @@ describe('NoteEditPage', () => {
 
   it('does not autosave while the title is empty', async () => {
     const user = userEvent.setup()
-    render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
+    render(<NoteEditPage story={story} note={idea} />)
 
     await user.clear(screen.getByTestId('story-title'))
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -154,7 +153,7 @@ describe('NoteEditPage', () => {
 
   it('does not autosave while the content is empty', async () => {
     const user = userEvent.setup()
-    render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
+    render(<NoteEditPage story={story} note={idea} />)
 
     await user.clear(await screen.findByTestId('note-content-editor-stub'))
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -165,7 +164,7 @@ describe('NoteEditPage', () => {
   it('shows an error message when autosaving fails', async () => {
     mockedUpdateNote.mockRejectedValue(new Error('boom'))
     const user = userEvent.setup()
-    render(<NoteEditPage story={story} note={idea} llmWritingEnabled={true} />)
+    render(<NoteEditPage story={story} note={idea} />)
 
     await user.type(screen.getByTestId('story-title'), ' révisée')
 
