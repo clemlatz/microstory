@@ -88,6 +88,7 @@ export function NoteEditPage({
     <StoryShell
       story={story}
       activeSection="notes"
+      entry={{ kind: 'note', id: note.id }}
       entryTitle={title}
       onEntryTitleChange={setTitle}
       entryTitlePlaceholder={t('notes.titlePlaceholder')}

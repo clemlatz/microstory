@@ -103,6 +103,7 @@ const en = {
   'storyNav.notes': 'Notes',
   'storyNav.documentation': 'Documentation',
   'storyNav.myStories': '← My stories',
+  'storyNav.recent': 'Recently viewed',
 
   'presentation.title': 'Presentation',
   'presentation.empty': 'No presentation yet.',
@@ -200,6 +201,7 @@ const fr: Record<TranslationKey, string> = {
   'storyNav.notes': 'Notes',
   'storyNav.documentation': 'Documentation',
   'storyNav.myStories': '← Mes histoires',
+  'storyNav.recent': 'Récemment consultés',
 
   'presentation.title': 'Présentation',
   'presentation.empty': 'Aucune présentation pour l’instant.',

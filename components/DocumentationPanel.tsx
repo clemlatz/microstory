@@ -1,5 +1,6 @@
 'use client'
 
+import { forgetRecentEntity } from '@/lib/recentEntities'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchDocumentation, createDocumentationEntry, deleteDocumentationEntry } from '@/lib/documentationApi'
@@ -71,6 +72,7 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
   async function handleDelete(id: string) {
     try {
       await deleteDocumentationEntry(storyId, id)
+      forgetRecentEntity(storyId, 'documentation', id)
       setEntries((prev) => prev.filter((entry) => entry.id !== id))
     } catch (err) {
       console.error('Failed to delete documentation entry', err)

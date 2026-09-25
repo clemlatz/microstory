@@ -1,5 +1,6 @@
 'use client'
 
+import { forgetRecentEntity } from '@/lib/recentEntities'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchNotes, createNote, deleteNote } from '@/lib/notesApi'
@@ -66,6 +67,7 @@ export function NotesPanel({ storyId }: { storyId: string }) {
   async function handleDelete(id: string) {
     try {
       await deleteNote(storyId, id)
+      forgetRecentEntity(storyId, 'note', id)
       setNotes((prev) => prev.filter((note) => note.id !== id))
     } catch (err) {
       console.error('Failed to delete note', err)

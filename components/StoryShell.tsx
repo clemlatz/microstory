@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { StoryTitleBar } from './StoryTitleBar'
 import { StoryNavDrawer, type StorySection } from './StoryNavDrawer'
 import { useStoryNavOpen } from '@/lib/useStoryNavOpen'
+import { useRecordRecentEntity, type RecentEntityKind } from '@/lib/recentEntities'
 import type { Story } from '@/lib/types'
 
 /**
@@ -46,6 +47,10 @@ import type { Story } from '@/lib/types'
  * every entry-edit page (which already tracks its own `isSaving` state for
  * autosaving), left `undefined` by `StoryPageClient` (the overview itself,
  * which has nothing to autosave).
+ *
+ * `entry` (the entity's kind and id) is passed by the character/note/
+ * documentation edit pages so that opening one records it — under its
+ * current `entryTitle` — in the drawer's "recently viewed" list.
  */
 export function StoryShell({
   story,
@@ -53,6 +58,7 @@ export function StoryShell({
   onNavigate,
   onBackToStories,
   entryTitle,
+  entry,
   onEntryTitleChange,
   entryTitlePlaceholder,
   isSaving,
@@ -63,6 +69,7 @@ export function StoryShell({
   onNavigate: (section: StorySection) => void
   onBackToStories?: () => void
   entryTitle?: string
+  entry?: { kind: RecentEntityKind; id: string }
   onEntryTitleChange?: (value: string) => void
   entryTitlePlaceholder?: string
   isSaving?: boolean
@@ -70,6 +77,7 @@ export function StoryShell({
 }) {
   const router = useRouter()
   const { isNavOpen, isDesktop, toggleNav, closeNav } = useStoryNavOpen()
+  useRecordRecentEntity(story.id, entry && { ...entry, title: entryTitle ?? '' })
 
   function handleNavigate(section: StorySection) {
     onNavigate(section)
@@ -88,6 +96,7 @@ export function StoryShell({
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <StoryNavDrawer
           open={isNavOpen}
+          storyId={story.id}
           onClose={closeNav}
           activeSection={activeSection}
           onNavigate={handleNavigate}

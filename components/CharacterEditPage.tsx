@@ -111,6 +111,7 @@ export function CharacterEditPage({
     <StoryShell
       story={story}
       activeSection="characters"
+      entry={{ kind: 'character', id: character.id }}
       entryTitle={name}
       onEntryTitleChange={setName}
       entryTitlePlaceholder={t('characters.namePlaceholder')}

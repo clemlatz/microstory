@@ -1,5 +1,6 @@
 'use client'
 
+import { forgetRecentEntity } from '@/lib/recentEntities'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchCharacters, createCharacter, deleteCharacter } from '@/lib/charactersApi'
@@ -66,6 +67,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
   async function handleDelete(id: string) {
     try {
       await deleteCharacter(storyId, id)
+      forgetRecentEntity(storyId, 'character', id)
       setCharacters((prev) => prev.filter((character) => character.id !== id))
     } catch (err) {
       console.error('Failed to delete character', err)

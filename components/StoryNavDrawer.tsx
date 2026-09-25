@@ -1,7 +1,9 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import Link from 'next/link'
 import { useLocale } from '@/lib/i18n/LocaleContext'
+import { useRecentEntities, type RecentEntityKind } from '@/lib/recentEntities'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
 export type StorySection = 'search' | 'overview' | 'characters' | 'notes' | 'documentation'
@@ -68,6 +70,12 @@ const DocumentationIcon = (
   </NavIcon>
 )
 
+const RECENT_ENTITY_ROUTES: Record<RecentEntityKind, { path: string; icon: ReactNode }> = {
+  character: { path: 'character', icon: CharactersIcon },
+  note: { path: 'note', icon: NotesIcon },
+  documentation: { path: 'documentation', icon: DocumentationIcon },
+}
+
 /**
  * Left-hand, Notion-style navigation for a story (issue #13, turned into a
  * persistent desktop sidebar by a later revision): below the `md` (768px)
@@ -92,18 +100,21 @@ const DocumentationIcon = (
  */
 export function StoryNavDrawer({
   open,
+  storyId,
   onClose,
   activeSection,
   onNavigate,
   onBackToStories,
 }: {
   open: boolean
+  storyId?: string
   onClose: () => void
   activeSection: StorySection
   onNavigate: (section: StorySection) => void
   onBackToStories: () => void
 }) {
   const { t } = useLocale()
+  const recentEntities = useRecentEntities(storyId)
 
   if (!open) return null
 
@@ -149,6 +160,27 @@ export function StoryNavDrawer({
               {item.label}
             </button>
           ))}
+          {storyId && recentEntities.length > 0 && (
+            <div data-testid="story-nav-recent" className="mt-4">
+              <h2 className="px-3 pb-1 text-xs font-medium uppercase tracking-wide text-[var(--reader-muted)]">
+                {t('storyNav.recent')}
+              </h2>
+              <ul>
+                {recentEntities.map((entity) => (
+                  <li key={`${entity.kind}-${entity.id}`}>
+                    <Link
+                      data-testid="story-nav-recent-item"
+                      href={`/story/${storyId}/${RECENT_ENTITY_ROUTES[entity.kind].path}/${entity.id}`}
+                      className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
+                    >
+                      {RECENT_ENTITY_ROUTES[entity.kind].icon}
+                      <span className="min-w-0 truncate">{entity.title}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </nav>
         <div className="shrink-0 border-t border-[var(--reader-rule)] p-2">
           <button

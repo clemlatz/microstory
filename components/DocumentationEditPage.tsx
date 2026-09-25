@@ -94,6 +94,7 @@ export function DocumentationEditPage({
     <StoryShell
       story={story}
       activeSection="documentation"
+      entry={{ kind: 'documentation', id: entry.id }}
       entryTitle={title}
       onEntryTitleChange={setTitle}
       entryTitlePlaceholder={t('documentation.titlePlaceholder')}
