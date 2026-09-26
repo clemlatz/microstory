@@ -1,5 +1,6 @@
 'use client'
 
+import { sortAlphabetically } from '@/lib/sortAlphabetically'
 import { forgetRecentEntity } from '@/lib/recentEntities'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -41,7 +42,7 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
 
   useEffect(() => {
     fetchDocumentation(storyId)
-      .then((loaded) => setEntries(loaded))
+      .then((loaded) => setEntries(sortAlphabetically(loaded, (item) => item.title)))
       .catch((err) => {
         console.error('Failed to load documentation', err)
         setError(errorMessage(err))

@@ -1,5 +1,6 @@
 'use client'
 
+import { sortAlphabetically } from '@/lib/sortAlphabetically'
 import { forgetRecentEntity } from '@/lib/recentEntities'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -36,7 +37,7 @@ export function NotesPanel({ storyId }: { storyId: string }) {
 
   useEffect(() => {
     fetchNotes(storyId)
-      .then((loaded) => setNotes(loaded))
+      .then((loaded) => setNotes(sortAlphabetically(loaded, (item) => item.title)))
       .catch((err) => {
         console.error('Failed to load notes', err)
         setError(errorMessage(err))

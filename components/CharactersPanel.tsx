@@ -1,5 +1,6 @@
 'use client'
 
+import { sortAlphabetically } from '@/lib/sortAlphabetically'
 import { forgetRecentEntity } from '@/lib/recentEntities'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -36,7 +37,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
 
   useEffect(() => {
     fetchCharacters(storyId)
-      .then((loaded) => setCharacters(loaded))
+      .then((loaded) => setCharacters(sortAlphabetically(loaded, (item) => item.name)))
       .catch((err) => {
         console.error('Failed to load characters', err)
         setError(errorMessage(err))

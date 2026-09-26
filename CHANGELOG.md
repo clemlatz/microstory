@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The character, note and documentation lists are now sorted alphabetically by name/title (ignoring case and accents, numbers compared naturally) instead of by creation date.
 - The navigation drawer now lists, below its sections, the 10 most recently viewed characters, notes and documentation entries of the current story (most recent first, deleted entries dropped). The history is remembered per story in this browser's `localStorage`.
 - The app can now be added to the home screen as an installable, app-like experience (a web manifest with `display: standalone`, plus the iOS meta tags), so it opens without the browser's own address bar and toolbar.
 - Editing a character now opens a dedicated, Notion-style page (`/story/[id]/character/[characterId]`) with large fields, instead of an inline form on the story home view. The character list still shows an excerpt and the delete action stays there.
