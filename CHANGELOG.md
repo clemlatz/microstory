@@ -1,23 +1,38 @@
 # Changelog
 
-## Unreleased
+## 2026-09-27
+
+- Added a backup download button to the story title bar: downloads a zip archive (`GET /api/stories/[id]/export`) containing the story's presentation, characters, notes and documentation, each as a markdown file.
+- Character, note and documentation list entries, search results, and story titles on the stories list are now real links: Cmd/Ctrl-clicking one opens it in a new tab, and a plain click still navigates in place as before.
+- The navigation drawer's Search/Overview/Characters/Notes/Documentation section items are now real links too (each to `/story/[id]?section=...`), so Cmd/Ctrl-clicking one also opens that section in a new tab.
+
+## 2026-09-26
 
 - The character, note and documentation lists are now sorted alphabetically by name/title (ignoring case and accents, numbers compared naturally) instead of by creation date.
+
+## 2026-09-25
+
 - The navigation drawer now lists, below its sections, the 10 most recently viewed characters, notes and documentation entries of the current story (most recent first, deleted entries dropped). The history is remembered per story in this browser's `localStorage`.
-- The app can now be added to the home screen as an installable, app-like experience (a web manifest with `display: standalone`, plus the iOS meta tags), so it opens without the browser's own address bar and toolbar.
-- Editing a character now opens a dedicated, Notion-style page (`/story/[id]/character/[characterId]`) with large fields, instead of an inline form on the story home view. The character list still shows an excerpt and the delete action stays there.
-- The character description field on that page is now a BlockNote rich-text block editor (Notion-style formatting) instead of a plain textarea. The description is still stored as a single markdown string.
-- The character edit page now uses the name field itself as the page title (no separate heading or field labels), with the save button aligned next to it, and the description editor filling the rest of the viewport. The cancel button was removed — the back link above serves the same purpose.
-- The description editor no longer has its own bordered box or background — it blends into the page background, Notion-style.
-- Fixed the description editor's background still showing white/dark-gray instead of the page's own background, and its text being indented relative to the title. The background override now targets the editor's `.bn-editor` element directly rather than a CSS variable declared on a separate, portal-rendered BlockNote element that was never actually reached.
-- The character edit page now autosaves: the save button is gone, and edits to the name or description are persisted automatically a moment after you stop typing (a pending save is flushed immediately when navigating back, so the last edit is never lost).
-- Notes get the same dedicated, Notion-style, autosaving edit page (`/story/[id]/note/[noteId]`) as characters: a BlockNote content editor blended into the page background, the title field doubling as the page heading, and the note list on the story home view reduced to a short excerpt with edit/delete actions.
-- Creating a character or note now only asks for a name/title: the story home form was reduced to that single field, creates the character/note with an empty description/content, and redirects immediately to its edit page to fill in the rest (autosaved as you type, same as editing).
-- The character/note creation form is now a single inline row (input + button), with the "Add a character"/"Add a note" heading removed.
-- Editing a character or note now backs up its previous name/description or title/content into a `character_versions`/`note_versions` table before overwriting it, so past versions are preserved in the database. Not yet exposed through any UI or API — a pure backup layer for now (#4).
-- That backup is now grouped by editing session rather than created on every autosave tick: edits to the same character/note within a 5-minute window of the last backed-up version are folded into it instead of creating a near-duplicate version each time.
-- Free-form notes are now readable and writable via MCP (`get_notes`, `create_note`, `update_note`), matching the existing character tools — no deletion, same defensive reasoning (#5).
-- A story can now have a presentation text (synopsis/pitch/context): shown as a preview on the story home view, with a dedicated Notion-style edit page (`/story/[id]/presentation`, autosaving, same BlockNote editor as characters/notes), and readable/writable via MCP (`get_story_presentation`, `update_story_presentation`) (#1).
+
+## 2026-09-23
+
+- Removed the manuscript/LLM writing feature entirely: the chat/manuscript UI, the channel-tagged chat/generated-text split, conversation compaction and summarization (manual and automatic), the writer prompt and its story word limit/repetition penalty settings, the manuscript history view, and the LLM status panel are all gone, along with their API routes and the `messages`/`conversation_summaries` tables. Microstory no longer calls an LLM itself — it's now a pure knowledge base (characters, notes, documentation, story presentation) read and written by an external LLM via MCP.
+
+## 2026-09-18
+
+- Leaving an entry (a character, note or documentation edit page) and coming back to its list now restores the list's scroll position instead of jumping back to the top.
+
+## 2026-09-16
+
+- Search now has its own dedicated page ("Search"), the very first entry in the story navigation drawer, instead of sitting above the story overview's other content — the overview no longer shows a search field (#21).
+
+## 2026-09-14
+
+- The whole note/documentation card in the story overview's Notes/Documentation lists is now clickable to open its edit page, and the separate "Edit" button was removed — aligning with how the Characters list already behaves. The delete button and, for Documentation, the URL link still stop the click from also triggering that navigation (#19).
+- The "Saving…"/"Saved" text status on character, note, documentation and story presentation edit pages was replaced with a discreet icon next to the title in the title bar (a pulsing dot while saving, a checkmark once saved), freeing up space in the page body. The icon stays accessible via an `aria-label` reflecting the current state (#20).
+
+## 2026-09-13
+
 - Added a "Documentation" entity for factual reference material (research, sources) kept findable to preserve the story world's credibility — distinct from Notes' free-form personal framing, and never sent to the LLM as prompt context. Same story home view section, dedicated autosaving edit page, and versioned backups as Characters/Notes, plus MCP tools (`get_documentation`, `create_documentation`, `update_documentation`) so an external LLM can archive research findings there (#11).
 - Added a search field to the story home view: type to filter across Characters, Notes and Documentation at once, with results grouped by type and a click on any result opening it directly on its edit page (#12).
 - Replaced the story home view's ad hoc navigation (back-to-stories link, "Manuscrit" button) with a left-hand, Notion-style navigation drawer listing Overview, Characters, Notes, Documentation and Manuscript, opened from a toggle button and highlighting the currently active section — the story home view now shows exactly one section at a time instead of stacking all of them on one page; the search field stays visible above the active section regardless of which one is showing (#13).
@@ -34,11 +49,20 @@
 - In development, the login page now shows a single "Log in" button that signs in instantly, skipping the WebAuthn ceremony — useful for devices/emulators with no platform authenticator (e.g. Chrome DevTools' mobile device toolbar). Only active when `NODE_ENV === 'development'`; the underlying route 404s otherwise.
 - Fixed the story navigation drawer's first item being partially hidden under the title bar on mobile: the title bar now has a fixed height and the drawer's mobile overlay starts right below it instead of underneath it (#14).
 - On a character/note/documentation edit page, the title bar now shows that entry's own title (live as it's typed) instead of the story's title, and the redundant in-page "← My stories" link is gone — navigating back now goes entirely through the nav drawer (#16).
-- The whole note/documentation card in the story overview's Notes/Documentation lists is now clickable to open its edit page, and the separate "Edit" button was removed — aligning with how the Characters list already behaves. The delete button and, for Documentation, the URL link still stop the click from also triggering that navigation (#19).
-- The "Saving…"/"Saved" text status on character, note, documentation and story presentation edit pages was replaced with a discreet icon next to the title in the title bar (a pulsing dot while saving, a checkmark once saved), freeing up space in the page body. The icon stays accessible via an `aria-label` reflecting the current state (#20).
-- Search now has its own dedicated page ("Search"), the very first entry in the story navigation drawer, instead of sitting above the story overview's other content — the overview no longer shows a search field (#21).
-- Leaving an entry (a character, note or documentation edit page) and coming back to its list now restores the list's scroll position instead of jumping back to the top.
-- Removed the manuscript/LLM writing feature entirely: the chat/manuscript UI, the channel-tagged chat/generated-text split, conversation compaction and summarization (manual and automatic), the writer prompt and its story word limit/repetition penalty settings, the manuscript history view, and the LLM status panel are all gone, along with their API routes and the `messages`/`conversation_summaries` tables. Microstory no longer calls an LLM itself — it's now a pure knowledge base (characters, notes, documentation, story presentation) read and written by an external LLM via MCP.
-- Added a backup download button to the story title bar: downloads a zip archive (`GET /api/stories/[id]/export`) containing the story's presentation, characters, notes and documentation, each as a markdown file.
-- Character, note and documentation list entries, search results, and story titles on the stories list are now real links: Cmd/Ctrl-clicking one opens it in a new tab, and a plain click still navigates in place as before.
-- The navigation drawer's Search/Overview/Characters/Notes/Documentation section items are now real links too (each to `/story/[id]?section=...`), so Cmd/Ctrl-clicking one also opens that section in a new tab.
+
+## 2026-09-12
+
+- The app can now be added to the home screen as an installable, app-like experience (a web manifest with `display: standalone`, plus the iOS meta tags), so it opens without the browser's own address bar and toolbar.
+- Editing a character now opens a dedicated, Notion-style page (`/story/[id]/character/[characterId]`) with large fields, instead of an inline form on the story home view. The character list still shows an excerpt and the delete action stays there.
+- The character description field on that page is now a BlockNote rich-text block editor (Notion-style formatting) instead of a plain textarea. The description is still stored as a single markdown string.
+- The character edit page now uses the name field itself as the page title (no separate heading or field labels), with the save button aligned next to it, and the description editor filling the rest of the viewport. The cancel button was removed — the back link above serves the same purpose.
+- The description editor no longer has its own bordered box or background — it blends into the page background, Notion-style.
+- Fixed the description editor's background still showing white/dark-gray instead of the page's own background, and its text being indented relative to the title. The background override now targets the editor's `.bn-editor` element directly rather than a CSS variable declared on a separate, portal-rendered BlockNote element that was never actually reached.
+- The character edit page now autosaves: the save button is gone, and edits to the name or description are persisted automatically a moment after you stop typing (a pending save is flushed immediately when navigating back, so the last edit is never lost).
+- Notes get the same dedicated, Notion-style, autosaving edit page (`/story/[id]/note/[noteId]`) as characters: a BlockNote content editor blended into the page background, the title field doubling as the page heading, and the note list on the story home view reduced to a short excerpt with edit/delete actions.
+- Creating a character or note now only asks for a name/title: the story home form was reduced to that single field, creates the character/note with an empty description/content, and redirects immediately to its edit page to fill in the rest (autosaved as you type, same as editing).
+- The character/note creation form is now a single inline row (input + button), with the "Add a character"/"Add a note" heading removed.
+- Editing a character or note now backs up its previous name/description or title/content into a `character_versions`/`note_versions` table before overwriting it, so past versions are preserved in the database. Not yet exposed through any UI or API — a pure backup layer for now (#4).
+- That backup is now grouped by editing session rather than created on every autosave tick: edits to the same character/note within a 5-minute window of the last backed-up version are folded into it instead of creating a near-duplicate version each time.
+- Free-form notes are now readable and writable via MCP (`get_notes`, `create_note`, `update_note`), matching the existing character tools — no deletion, same defensive reasoning (#5).
+- A story can now have a presentation text (synopsis/pitch/context): shown as a preview on the story home view, with a dedicated Notion-style edit page (`/story/[id]/presentation`, autosaving, same BlockNote editor as characters/notes), and readable/writable via MCP (`get_story_presentation`, `update_story_presentation`) (#1).
