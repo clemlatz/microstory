@@ -86,6 +86,8 @@ const en = {
 
   'logout.ariaLabel': 'Log out',
 
+  'storyTitleBar.exportAria': 'Download a backup',
+
   'stories.title': 'My stories',
   'stories.newButton': 'New story',
   'stories.titlePlaceholder': 'Story title',
@@ -183,6 +185,8 @@ const fr: Record<TranslationKey, string> = {
   'login.devLoggingIn': 'Connexion…',
 
   'logout.ariaLabel': 'Se déconnecter',
+
+  'storyTitleBar.exportAria': 'Télécharger une sauvegarde',
 
   'stories.title': 'Mes histoires',
   'stories.newButton': 'Nouvelle histoire',

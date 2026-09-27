@@ -92,6 +92,7 @@ export function StoryShell({
         onTitleChange={entryTitle !== undefined ? onEntryTitleChange : undefined}
         titlePlaceholder={entryTitlePlaceholder}
         isSaving={isSaving}
+        storyId={story.id}
       />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <StoryNavDrawer

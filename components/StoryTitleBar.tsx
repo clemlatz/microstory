@@ -44,12 +44,14 @@ export function StoryTitleBar({
   onTitleChange,
   titlePlaceholder,
   isSaving,
+  storyId,
 }: {
   title: string
   onOpenNav: () => void
   onTitleChange?: (value: string) => void
   titlePlaceholder?: string
   isSaving?: boolean
+  storyId?: string
 }) {
   const { t } = useLocale()
 
@@ -122,6 +124,31 @@ export function StoryTitleBar({
             </svg>
           )}
         </span>
+      )}
+      {storyId && (
+        <a
+          data-testid="story-export-link"
+          href={`/api/stories/${storyId}/export`}
+          aria-label={t('storyTitleBar.exportAria')}
+          title={t('storyTitleBar.exportAria')}
+          className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg p-3 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+            aria-hidden="true"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <path d="M7 10l5 5 5-5" />
+            <path d="M12 15V3" />
+          </svg>
+        </a>
       )}
       <LogoutButton className="shrink-0 rounded-lg p-3 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50" />
     </div>
