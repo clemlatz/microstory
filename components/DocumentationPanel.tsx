@@ -101,18 +101,24 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
       ) : (
         <ul className="flex flex-col" data-testid="documentation-list">
           {entries.map((entry) => (
-            <li
-              key={entry.id}
-              data-testid="documentation-item"
-              className="cursor-pointer border-b border-[var(--reader-rule)] py-2.5"
-              onClick={() => router.push(`/story/${storyId}/documentation/${entry.id}`)}
-            >
+            <li key={entry.id} className="border-b border-[var(--reader-rule)]">
               <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-[15px] font-medium text-[var(--reader-ink)]">{entry.title}</p>
-                  <p className="font-reader-body line-clamp-3 text-[13px] leading-relaxed break-words whitespace-pre-wrap text-[var(--reader-muted)]">
-                    {entry.content}
-                  </p>
+                <div className="min-w-0 flex-1 pb-2.5">
+                  <a
+                    href={`/story/${storyId}/documentation/${entry.id}`}
+                    data-testid="documentation-item"
+                    className="block cursor-pointer pt-2.5"
+                    onClick={(event) => {
+                      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+                      event.preventDefault()
+                      router.push(`/story/${storyId}/documentation/${entry.id}`)
+                    }}
+                  >
+                    <p className="text-[15px] font-medium text-[var(--reader-ink)]">{entry.title}</p>
+                    <p className="font-reader-body line-clamp-3 text-[13px] leading-relaxed break-words whitespace-pre-wrap text-[var(--reader-muted)]">
+                      {entry.content}
+                    </p>
+                  </a>
                   {entry.url && (
                     <a
                       data-testid="documentation-url-link"
@@ -120,22 +126,18 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs break-all text-[var(--reader-accent)] hover:underline"
-                      onClick={(event) => event.stopPropagation()}
                     >
                       {entry.url}
                     </a>
                   )}
                 </div>
-                <div className="flex shrink-0 items-center gap-1 text-xs">
+                <div className="flex shrink-0 items-center gap-1 py-2.5 text-xs">
                   <button
                     type="button"
                     aria-label={t('common.delete')}
                     data-testid="documentation-delete-button"
                     className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-[var(--reader-danger)] hover:bg-[var(--reader-input-bg)]"
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      setDeleteTargetId(entry.id)
-                    }}
+                    onClick={() => setDeleteTargetId(entry.id)}
                   >
                     <TrashIcon />
                   </button>

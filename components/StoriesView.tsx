@@ -182,13 +182,18 @@ export function StoriesView() {
                 ) : (
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <button
-                        type="button"
-                        onClick={() => router.push(`/story/${story.id}`)}
-                        className="text-left font-serif text-lg text-stone-900 hover:underline dark:text-stone-100"
+                      <a
+                        href={`/story/${story.id}`}
+                        onClick={(event) => {
+                          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)
+                            return
+                          event.preventDefault()
+                          router.push(`/story/${story.id}`)
+                        }}
+                        className="font-serif text-lg text-stone-900 hover:underline dark:text-stone-100"
                       >
                         {story.title}
-                      </button>
+                      </a>
                       <time className="block font-sans text-xs text-stone-400 dark:text-stone-500">
                         {new Date(story.updatedAt).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}
                       </time>

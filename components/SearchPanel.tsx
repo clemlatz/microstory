@@ -120,19 +120,22 @@ export function SearchPanel({
                 <ul className="flex flex-col gap-1">
                   {grouped[type]!.map((result) => (
                     <li key={result.id}>
-                      <button
-                        type="button"
+                      <a
+                        href={`/story/${storyId}/${EDIT_PATH_BY_TYPE[result.type]}/${result.id}`}
                         data-testid="search-result-item"
-                        className="w-full rounded-md p-2 text-left hover:bg-[var(--reader-input-bg)]"
-                        onClick={() =>
+                        className="block w-full rounded-md p-2 hover:bg-[var(--reader-input-bg)]"
+                        onClick={(event) => {
+                          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)
+                            return
+                          event.preventDefault()
                           router.push(`/story/${storyId}/${EDIT_PATH_BY_TYPE[result.type]}/${result.id}`)
-                        }
+                        }}
                       >
                         <p className="text-[15px] font-medium text-[var(--reader-ink)]">{result.title}</p>
                         <p className="font-reader-body line-clamp-2 text-[13px] break-words text-[var(--reader-muted)]">
                           {result.snippet}
                         </p>
-                      </button>
+                      </a>
                     </li>
                   ))}
                 </ul>

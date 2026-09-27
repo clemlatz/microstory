@@ -93,29 +93,30 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
       ) : (
         <ul className="flex flex-col" data-testid="character-list">
           {characters.map((character) => (
-            <li
-              key={character.id}
-              data-testid="character-item"
-              className="cursor-pointer border-b border-[var(--reader-rule)] py-2.5"
-              onClick={() => router.push(`/story/${storyId}/character/${character.id}`)}
-            >
+            <li key={character.id} className="border-b border-[var(--reader-rule)]">
               <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
+                <a
+                  href={`/story/${storyId}/character/${character.id}`}
+                  data-testid="character-item"
+                  className="min-w-0 flex-1 cursor-pointer py-2.5"
+                  onClick={(event) => {
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+                    event.preventDefault()
+                    router.push(`/story/${storyId}/character/${character.id}`)
+                  }}
+                >
                   <p className="text-[15px] font-medium text-[var(--reader-ink)]">{character.name}</p>
                   <p className="font-reader-body line-clamp-3 text-[13px] leading-relaxed break-words text-[var(--reader-muted)]">
                     {character.description}
                   </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-1 text-xs">
+                </a>
+                <div className="flex shrink-0 items-center gap-1 py-2.5 text-xs">
                   <button
                     type="button"
                     aria-label={t('common.delete')}
                     data-testid="character-delete-button"
                     className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-[var(--reader-danger)] hover:bg-[var(--reader-input-bg)]"
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      setDeleteTargetId(character.id)
-                    }}
+                    onClick={() => setDeleteTargetId(character.id)}
                   >
                     <TrashIcon />
                   </button>

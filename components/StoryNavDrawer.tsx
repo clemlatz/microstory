@@ -144,12 +144,23 @@ export function StoryNavDrawer({
       >
         <nav className="min-h-0 flex-1 overflow-y-auto p-2 pt-4">
           {items.map((item) => (
-            <button
+            <a
               key={item.section}
               data-testid={item.testId}
-              type="button"
+              href={`/story/${storyId}?section=${item.section}`}
+              role="button"
               aria-pressed={item.section === activeSection}
-              onClick={() => onNavigate(item.section)}
+              onClick={(event) => {
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+                event.preventDefault()
+                onNavigate(item.section)
+              }}
+              onKeyDown={(event) => {
+                if (event.key === ' ') {
+                  event.preventDefault()
+                  event.currentTarget.click()
+                }
+              }}
               className={
                 item.section === activeSection
                   ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-sm font-medium text-[var(--reader-ink)]'
@@ -158,7 +169,7 @@ export function StoryNavDrawer({
             >
               {item.icon}
               {item.label}
-            </button>
+            </a>
           ))}
           {storyId && recentEntities.length > 0 && (
             <div data-testid="story-nav-recent" className="mt-4">

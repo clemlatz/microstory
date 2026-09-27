@@ -93,29 +93,30 @@ export function NotesPanel({ storyId }: { storyId: string }) {
       ) : (
         <ul className="flex flex-col" data-testid="note-list">
           {notes.map((note) => (
-            <li
-              key={note.id}
-              data-testid="note-item"
-              className="cursor-pointer border-b border-[var(--reader-rule)] py-2.5"
-              onClick={() => router.push(`/story/${storyId}/note/${note.id}`)}
-            >
+            <li key={note.id} className="border-b border-[var(--reader-rule)]">
               <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
+                <a
+                  href={`/story/${storyId}/note/${note.id}`}
+                  data-testid="note-item"
+                  className="min-w-0 flex-1 cursor-pointer py-2.5"
+                  onClick={(event) => {
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+                    event.preventDefault()
+                    router.push(`/story/${storyId}/note/${note.id}`)
+                  }}
+                >
                   <p className="text-[15px] font-medium text-[var(--reader-ink)]">{note.title}</p>
                   <p className="font-reader-body line-clamp-3 text-[13px] leading-relaxed break-words whitespace-pre-wrap text-[var(--reader-muted)]">
                     {note.content}
                   </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-1 text-xs">
+                </a>
+                <div className="flex shrink-0 items-center gap-1 py-2.5 text-xs">
                   <button
                     type="button"
                     aria-label={t('common.delete')}
                     data-testid="note-delete-button"
                     className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-[var(--reader-danger)] hover:bg-[var(--reader-input-bg)]"
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      setDeleteTargetId(note.id)
-                    }}
+                    onClick={() => setDeleteTargetId(note.id)}
                   >
                     <TrashIcon />
                   </button>
