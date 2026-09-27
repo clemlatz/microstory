@@ -11,7 +11,7 @@
     "seed": "tsx scripts/seed-db.mts"
   },
   "dependencies": {
-    "@blocknote/core": "^0.54.2",
+    "@blocknote/core": "^0.55.0",
     "@blocknote/mantine": "^0.54.2",
     "@blocknote/react": "^0.54.2",
     "@mantine/core": "^9.6.1",
