@@ -39,7 +39,7 @@ export function DocumentationEditPage({
   const [url, setUrl] = useState(entry.url ?? '')
   const [content, setContent] = useState(entry.content)
   const [error, setError] = useState<string | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<'unsaved' | 'saving' | 'saved'>('saved')
 
   const isFirstRender = useRef(true)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -49,7 +49,7 @@ export function DocumentationEditPage({
     const trimmedContent = nextContent.trim()
     if (!trimmedTitle || !trimmedContent) return
 
-    setIsSaving(true)
+    setSaveStatus('saving')
     try {
       await updateDocumentationEntry(storyId, entry.id, {
         title: trimmedTitle,
@@ -57,11 +57,11 @@ export function DocumentationEditPage({
         url: nextUrl.trim(),
       })
       setError(null)
+      setSaveStatus('saved')
     } catch (err) {
       console.error('Failed to save documentation entry', err)
       setError(err instanceof Error && err.message ? err.message : t('common.genericError'))
-    } finally {
-      setIsSaving(false)
+      setSaveStatus('unsaved')
     }
   }
 
@@ -71,6 +71,7 @@ export function DocumentationEditPage({
       return
     }
 
+    setSaveStatus('unsaved')
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null
       persist(title, url, content)
@@ -98,7 +99,7 @@ export function DocumentationEditPage({
       entryTitle={title}
       onEntryTitleChange={setTitle}
       entryTitlePlaceholder={t('documentation.titlePlaceholder')}
-      isSaving={isSaving}
+      saveStatus={saveStatus}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)

@@ -60,7 +60,7 @@ export function CharacterEditPage({
   const [name, setName] = useState(character.name)
   const [description, setDescription] = useState(character.description)
   const [error, setError] = useState<string | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<'unsaved' | 'saving' | 'saved'>('saved')
 
   const isFirstRender = useRef(true)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -70,15 +70,15 @@ export function CharacterEditPage({
     const trimmedDescription = nextDescription.trim()
     if (!trimmedName || !trimmedDescription) return
 
-    setIsSaving(true)
+    setSaveStatus('saving')
     try {
       await updateCharacter(storyId, character.id, { name: trimmedName, description: trimmedDescription })
       setError(null)
+      setSaveStatus('saved')
     } catch (err) {
       console.error('Failed to save character', err)
       setError(err instanceof Error && err.message ? err.message : t('common.genericError'))
-    } finally {
-      setIsSaving(false)
+      setSaveStatus('unsaved')
     }
   }
 
@@ -88,6 +88,7 @@ export function CharacterEditPage({
       return
     }
 
+    setSaveStatus('unsaved')
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null
       persist(name, description)
@@ -115,7 +116,7 @@ export function CharacterEditPage({
       entryTitle={name}
       onEntryTitleChange={setName}
       entryTitlePlaceholder={t('characters.namePlaceholder')}
-      isSaving={isSaving}
+      saveStatus={saveStatus}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)

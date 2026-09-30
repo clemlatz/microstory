@@ -41,18 +41,23 @@ describe('StoryTitleBar', () => {
     expect(onTitleChange).toHaveBeenCalledWith('Adaline Marrow!')
   })
 
-  it('does not show a save-status icon when isSaving is not provided', () => {
+  it('does not show a save-status icon when saveStatus is not provided', () => {
     render(<StoryTitleBar title="Le Voyage de Nour" onOpenNav={vi.fn()} />)
     expect(screen.queryByTestId('story-save-status')).not.toBeInTheDocument()
   })
 
-  it('shows an accessible "saving" status when isSaving is true', () => {
-    render(<StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} isSaving={true} />)
+  it('shows an accessible "unsaved" status when saveStatus is "unsaved"', () => {
+    render(<StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} saveStatus="unsaved" />)
+    expect(screen.getByTestId('story-save-status')).toHaveAccessibleName('Unsaved changes')
+  })
+
+  it('shows an accessible "saving" status when saveStatus is "saving"', () => {
+    render(<StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} saveStatus="saving" />)
     expect(screen.getByTestId('story-save-status')).toHaveAccessibleName('Saving…')
   })
 
-  it('shows an accessible "saved" status when isSaving is false', () => {
-    render(<StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} isSaving={false} />)
+  it('shows an accessible "saved" status when saveStatus is "saved"', () => {
+    render(<StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} saveStatus="saved" />)
     expect(screen.getByTestId('story-save-status')).toHaveAccessibleName('Saved')
   })
 

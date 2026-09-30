@@ -29,28 +29,30 @@ import { LogoutButton } from './LogoutButton'
  * Omitted by callers whose title isn't editable here (the story overview
  * itself, reached via `StoryPageClient`), which keeps the plain `<h1>`.
  *
- * `isSaving` (issue #20) renders a discreet save-status icon (a small dot)
- * right after the title — a pulsing muted dot while `isSaving` is true, a
- * plain checkmark once it settles to `false` — replacing the "Saving…"/
+ * `saveStatus` (issue #20, extended to a three-state value) renders a
+ * discreet save-status icon right after the title: a static solid dot
+ * while `'unsaved'` (a change was made but hasn't been sent yet), a
+ * pulsing dot while `'saving'` (the request is in flight), and a plain
+ * checkmark once it settles to `'saved'` — replacing the "Saving…"/
  * "Saved" text block each entry-edit page used to show in its own body.
- * Only rendered when `isSaving` is not `undefined` (i.e. only by callers
- * that autosave — every `onTitleChange` caller so far), and always carries
- * an `aria-label` reflecting the same two states so the status stays
- * accessible despite showing no text.
+ * Only rendered when `saveStatus` is not `undefined` (i.e. only by
+ * callers that autosave — every `onTitleChange` caller so far), and
+ * always carries an `aria-label` reflecting the current state so the
+ * status stays accessible despite showing no text.
  */
 export function StoryTitleBar({
   title,
   onOpenNav,
   onTitleChange,
   titlePlaceholder,
-  isSaving,
+  saveStatus,
   storyId,
 }: {
   title: string
   onOpenNav: () => void
   onTitleChange?: (value: string) => void
   titlePlaceholder?: string
-  isSaving?: boolean
+  saveStatus?: 'unsaved' | 'saving' | 'saved'
   storyId?: string
 }) {
   const { t } = useLocale()
@@ -95,20 +97,15 @@ export function StoryTitleBar({
           {title}
         </h1>
       )}
-      {isSaving !== undefined && (
+      {saveStatus !== undefined && (
         <span
           data-testid="story-save-status"
           role="status"
-          aria-label={isSaving ? t('common.saving') : t('common.saved')}
-          title={isSaving ? t('common.saving') : t('common.saved')}
+          aria-label={t(`common.${saveStatus}`)}
+          title={t(`common.${saveStatus}`)}
           className="shrink-0"
         >
-          {isSaving ? (
-            <span
-              className="block h-2 w-2 animate-pulse rounded-full bg-[var(--reader-muted)]"
-              aria-hidden="true"
-            />
-          ) : (
+          {saveStatus === 'saved' ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -122,6 +119,11 @@ export function StoryTitleBar({
             >
               <path d="M20 6 9 17l-5-5" />
             </svg>
+          ) : (
+            <span
+              className={`block h-2 w-2 rounded-full bg-[var(--reader-muted)] ${saveStatus === 'saving' ? 'animate-pulse' : ''}`}
+              aria-hidden="true"
+            />
           )}
         </span>
       )}

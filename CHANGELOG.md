@@ -2,6 +2,7 @@
 
 ## 2026-09-27
 
+- The save-status icon next to a title bar's title now shows a distinct "unsaved changes" state as soon as you edit a character, note, documentation entry or story presentation, instead of only switching between "saving" and "saved" once the autosave request has actually started.
 - Added a backup download button to the story title bar: downloads a zip archive (`GET /api/stories/[id]/export`) containing the story's presentation, characters, notes and documentation, each as a markdown file.
 - Character, note and documentation list entries, search results, and story titles on the stories list are now real links: Cmd/Ctrl-clicking one opens it in a new tab, and a plain click still navigates in place as before.
 - The navigation drawer's Search/Overview/Characters/Notes/Documentation section items are now real links too (each to `/story/[id]?section=...`), so Cmd/Ctrl-clicking one also opens that section in a new tab.

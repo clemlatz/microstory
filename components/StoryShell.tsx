@@ -42,11 +42,11 @@ import type { Story } from '@/lib/types'
  * the title appears and the only place it's edited. `entryTitlePlaceholder`
  * is the input's placeholder when the title is empty, forwarded as-is.
  *
- * `isSaving` (issue #20) is forwarded straight through to `StoryTitleBar`
- * so its discreet save-status icon shows next to the title — passed by
- * every entry-edit page (which already tracks its own `isSaving` state for
- * autosaving), left `undefined` by `StoryPageClient` (the overview itself,
- * which has nothing to autosave).
+ * `saveStatus` (issue #20) is forwarded straight through to
+ * `StoryTitleBar` so its discreet save-status icon shows next to the
+ * title — passed by every entry-edit page (which already tracks its own
+ * `saveStatus` state for autosaving), left `undefined` by
+ * `StoryPageClient` (the overview itself, which has nothing to autosave).
  *
  * `entry` (the entity's kind and id) is passed by the character/note/
  * documentation edit pages so that opening one records it — under its
@@ -61,7 +61,7 @@ export function StoryShell({
   entry,
   onEntryTitleChange,
   entryTitlePlaceholder,
-  isSaving,
+  saveStatus,
   children,
 }: {
   story: Story
@@ -72,7 +72,7 @@ export function StoryShell({
   entry?: { kind: RecentEntityKind; id: string }
   onEntryTitleChange?: (value: string) => void
   entryTitlePlaceholder?: string
-  isSaving?: boolean
+  saveStatus?: 'unsaved' | 'saving' | 'saved'
   children: React.ReactNode
 }) {
   const router = useRouter()
@@ -91,7 +91,7 @@ export function StoryShell({
         onOpenNav={toggleNav}
         onTitleChange={entryTitle !== undefined ? onEntryTitleChange : undefined}
         titlePlaceholder={entryTitlePlaceholder}
-        isSaving={isSaving}
+        saveStatus={saveStatus}
         storyId={story.id}
       />
       <div className="flex min-h-0 flex-1 overflow-hidden">

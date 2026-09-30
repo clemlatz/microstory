@@ -37,7 +37,7 @@ export function NoteEditPage({
   const [title, setTitle] = useState(note.title)
   const [content, setContent] = useState(note.content)
   const [error, setError] = useState<string | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<'unsaved' | 'saving' | 'saved'>('saved')
 
   const isFirstRender = useRef(true)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -47,15 +47,15 @@ export function NoteEditPage({
     const trimmedContent = nextContent.trim()
     if (!trimmedTitle || !trimmedContent) return
 
-    setIsSaving(true)
+    setSaveStatus('saving')
     try {
       await updateNote(storyId, note.id, { title: trimmedTitle, content: trimmedContent })
       setError(null)
+      setSaveStatus('saved')
     } catch (err) {
       console.error('Failed to save note', err)
       setError(err instanceof Error && err.message ? err.message : t('common.genericError'))
-    } finally {
-      setIsSaving(false)
+      setSaveStatus('unsaved')
     }
   }
 
@@ -65,6 +65,7 @@ export function NoteEditPage({
       return
     }
 
+    setSaveStatus('unsaved')
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null
       persist(title, content)
@@ -92,7 +93,7 @@ export function NoteEditPage({
       entryTitle={title}
       onEntryTitleChange={setTitle}
       entryTitlePlaceholder={t('notes.titlePlaceholder')}
-      isSaving={isSaving}
+      saveStatus={saveStatus}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)

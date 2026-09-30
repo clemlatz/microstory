@@ -43,7 +43,7 @@ export function StoryPresentationEditPage({ story }: { story: Story }) {
   const [title, setTitle] = useState(story.title)
   const [presentation, setPresentation] = useState(story.presentation)
   const [error, setError] = useState<string | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<'unsaved' | 'saving' | 'saved'>('saved')
 
   const isFirstRender = useRef(true)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -52,18 +52,18 @@ export function StoryPresentationEditPage({ story }: { story: Story }) {
     const trimmedTitle = nextTitle.trim()
     if (!trimmedTitle) return
 
-    setIsSaving(true)
+    setSaveStatus('saving')
     try {
       await Promise.all([
         renameStory(story.id, trimmedTitle),
         updateStoryPresentation(story.id, nextPresentation.trim()),
       ])
       setError(null)
+      setSaveStatus('saved')
     } catch (err) {
       console.error('Failed to save the story', err)
       setError(err instanceof Error && err.message ? err.message : t('common.genericError'))
-    } finally {
-      setIsSaving(false)
+      setSaveStatus('unsaved')
     }
   }
 
@@ -73,6 +73,7 @@ export function StoryPresentationEditPage({ story }: { story: Story }) {
       return
     }
 
+    setSaveStatus('unsaved')
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null
       persist(title, presentation)
@@ -98,7 +99,7 @@ export function StoryPresentationEditPage({ story }: { story: Story }) {
       activeSection="overview"
       entryTitle={title}
       onEntryTitleChange={setTitle}
-      isSaving={isSaving}
+      saveStatus={saveStatus}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${story.id}?section=${section}`)
