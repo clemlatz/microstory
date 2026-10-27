@@ -46,6 +46,26 @@
   }
 }
 
+/*
+ * The header and the navigation drawer have their own surface: rgb(240,238,233)
+ * in light mode, rgb(18,18,18) in dark mode. Only the tokens whose resting
+ * value would blend into that surface (hover/active tint and hairlines) are
+ * re-declared; text tokens keep the theme's normal values.
+ */
+.surface-bar {
+  --reader-bg: #f0eee9;
+  --reader-input-bg: #e4e1d8;
+  --reader-rule: #dcd8cd;
+}
+
+@media (prefers-color-scheme: dark) {
+  .surface-bar {
+    --reader-bg: #121212;
+    --reader-input-bg: #262220;
+    --reader-rule: #2e2a26;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

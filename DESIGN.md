@@ -2,6 +2,8 @@
 name: Microstory
 description: A calm, precise, self-hosted knowledge base for a writer's universe, read and edited like a lab notebook.
 colors:
+  bar: "#f0eee9"
+  bar-dark: "#121212"
   canvas: "#faf9f5"
   ink: "#211f1b"
   body: "#453f38"
@@ -86,7 +88,7 @@ components:
     typography: "{typography.item-name}"
     padding: "10px 0"
   title-bar:
-    backgroundColor: "{colors.canvas}"
+    backgroundColor: "{colors.bar}"
     textColor: "{colors.ink}"
     height: "56px"
     padding: "0 24px"
@@ -120,7 +122,8 @@ A restrained paper-and-ink palette: warm-tinted neutrals carry almost everything
 - **Rust Marker** (oklch(0.55 0.12 40) light, oklch(0.72 0.12 40) dark): the only accent. Used for the primary button fill and nothing decorative. Text on it is Paper White (#ffffff light) or Night Paper (#1b1917 dark).
 
 ### Neutral
-- **Warm Paper** (#faf9f5; dark #1b1917): the page canvas and the title bar.
+- **Bar Tint** (#f0eee9, rgb 240,238,233; dark #121212, rgb 18,18,18): the top bar and the navigation drawer. Text keeps the theme's normal tokens; only the hover/active tint and the hairlines are re-declared on these surfaces (the `.surface-bar` class) so they stay visible against the bar.
+- **Warm Paper** (#faf9f5; dark #1b1917): the page canvas.
 - **Notebook Ink** (#211f1b; dark #f3f0ea): titles and entry names.
 - **Body Ink** (#453f38; dark #cbc5bb): running text in the editor and excerpts.
 - **Margin Gray** (#675f57; dark #918a80): secondary text, labels, icon buttons at rest.
@@ -178,8 +181,8 @@ Flat by default. Depth is conveyed by hairline rules and tonal fills (Field Tint
 - **Section header:** uppercase Label with the count right-aligned, underlined by a Ruled Line.
 
 ### Navigation
-- **Top bar:** 56px, full window width, Warm Paper at 90% with a Ruled Line bottom border. Left: drawer toggle. Center: title (editable on entry pages). Right: an empty spacer that mirrors the toggle so the title stays centered. Save status sits right after the title.
-- **Drawer:** persistent sidebar on desktop; overlay with scrim on narrow viewports. The top bar stays above it. The footer holds the account and utility actions as labelled rows: my stories, download a backup, sign out, then the language selector.
+- **Top bar:** 56px, full window width, Bar Tint at 90% with a Ruled Line bottom border. Left: drawer toggle. Center: title (editable on entry pages). Right: an empty spacer that mirrors the toggle so the title stays centered. Save status sits right after the title.
+- **Drawer:** Bar Tint surface; persistent sidebar on desktop; overlay with scrim on narrow viewports. The top bar stays above it. The footer holds the account and utility actions as labelled rows: my stories, download a backup, sign out, then the language selector.
 
 ### Save Status
 A tiny indicator after the title: a static dot for unsaved, a pulsing dot for saving, a checkmark for saved. Always carries an `aria-label`. It never appears as text.

@@ -53,7 +53,7 @@ export function StoryTitleBar({
   const { t } = useLocale()
 
   return (
-    <div className="relative z-[60] flex h-14 w-full shrink-0 items-center gap-3 border-b border-[var(--reader-rule)] bg-[var(--reader-bg)]/90 px-4 font-reader-label backdrop-blur-sm sm:px-6">
+    <div className="surface-bar relative z-[60] flex h-14 w-full shrink-0 items-center gap-3 border-b border-[var(--reader-rule)] bg-[var(--reader-bg)]/90 px-4 font-reader-label backdrop-blur-sm sm:px-6">
       <button
         data-testid="story-nav-toggle"
         type="button"
