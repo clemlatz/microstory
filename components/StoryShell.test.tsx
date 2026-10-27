@@ -124,4 +124,64 @@ describe('StoryShell', () => {
     expect(onBackToStories).toHaveBeenCalledTimes(1)
     expect(mockRouterPush).not.toHaveBeenCalled()
   })
+
+  describe('deleting the displayed entry', () => {
+    function renderEntry(onDeleteEntry: () => Promise<boolean>) {
+      render(
+        <StoryShell
+          story={story}
+          activeSection="notes"
+          onNavigate={vi.fn()}
+          entry={{ kind: 'note', id: 'n1' }}
+          entryTitle="A note"
+          onDeleteEntry={onDeleteEntry}
+          deleteConfirmTitle="Delete this note?"
+        >
+          <p>content</p>
+        </StoryShell>,
+      )
+    }
+
+    it('asks for confirmation, then deletes and goes back to the section', async () => {
+      const onDeleteEntry = vi.fn().mockResolvedValue(true)
+      renderEntry(onDeleteEntry)
+
+      await userEvent.click(screen.getByTestId('story-delete-button'))
+      expect(onDeleteEntry).not.toHaveBeenCalled()
+      expect(screen.getByTestId('confirm-dialog')).toBeInTheDocument()
+
+      await userEvent.click(screen.getByTestId('confirm-dialog-confirm'))
+      expect(onDeleteEntry).toHaveBeenCalledTimes(1)
+      expect(mockRouterPush).toHaveBeenCalledWith('/story/story-1?section=notes')
+    })
+
+    it('does nothing when the confirmation is cancelled', async () => {
+      const onDeleteEntry = vi.fn().mockResolvedValue(true)
+      renderEntry(onDeleteEntry)
+
+      await userEvent.click(screen.getByTestId('story-delete-button'))
+      await userEvent.click(screen.getByTestId('confirm-dialog-cancel'))
+
+      expect(onDeleteEntry).not.toHaveBeenCalled()
+      expect(mockRouterPush).not.toHaveBeenCalled()
+    })
+
+    it('stays on the page when the delete fails', async () => {
+      renderEntry(vi.fn().mockResolvedValue(false))
+
+      await userEvent.click(screen.getByTestId('story-delete-button'))
+      await userEvent.click(screen.getByTestId('confirm-dialog-confirm'))
+
+      expect(mockRouterPush).not.toHaveBeenCalled()
+    })
+
+    it('shows no delete button without onDeleteEntry', () => {
+      render(
+        <StoryShell story={story} activeSection="notes" onNavigate={vi.fn()}>
+          <p>content</p>
+        </StoryShell>,
+      )
+      expect(screen.queryByTestId('story-delete-button')).not.toBeInTheDocument()
+    })
+  })
 })

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { updateDocumentationEntry } from '@/lib/documentationApi'
+import { deleteDocumentationEntry, updateDocumentationEntry } from '@/lib/documentationApi'
 import { StoryShell } from './StoryShell'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { DocumentationEntry, Story } from '@/lib/types'
@@ -91,6 +91,22 @@ export function DocumentationEditPage({
     }
   }
 
+  async function handleDelete(): Promise<boolean> {
+    // An autosave still waiting on its debounce timer would hit a deleted row.
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+      debounceRef.current = null
+    }
+    try {
+      await deleteDocumentationEntry(storyId, entry.id)
+      return true
+    } catch (err) {
+      console.error('Failed to delete documentation entry', err)
+      setError(err instanceof Error && err.message ? err.message : t('common.genericError'))
+      return false
+    }
+  }
+
   return (
     <StoryShell
       story={story}
@@ -100,6 +116,8 @@ export function DocumentationEditPage({
       onEntryTitleChange={setTitle}
       entryTitlePlaceholder={t('documentation.titlePlaceholder')}
       saveStatus={saveStatus}
+      onDeleteEntry={handleDelete}
+      deleteConfirmTitle={t('documentation.deleteTitle')}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)

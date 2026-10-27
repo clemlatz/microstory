@@ -181,7 +181,7 @@ Flat by default. Depth is conveyed by hairline rules and tonal fills (Field Tint
 - **Section header:** uppercase Label with the count right-aligned, underlined by a Ruled Line.
 
 ### Navigation
-- **Top bar:** 56px, full window width, Bar Tint at 90% with a Ruled Line bottom border. Left: drawer toggle. Center: title (editable on entry pages). Right: an empty spacer that mirrors the toggle so the title stays centered. Save status sits right after the title.
+- **Top bar:** 56px, full window width, Bar Tint at 90% with a Ruled Line bottom border. Left: drawer toggle. Center: title (editable on entry pages). Right: on an entry page, a 44px trash button in Correction Red (opens the confirmation dialog); elsewhere an empty spacer that mirrors the toggle so the title stays centered. Save status sits right after the title.
 - **Drawer:** Bar Tint surface; persistent sidebar on desktop; full-width overlay on narrow viewports. It slides horizontally in 200ms (ease-out) when opened or closed; the one exception to "motion conveys state only" is that this slide also moves the content area on desktop, where the sidebar width collapses with it. The top bar stays above it. Items use Notebook Ink at rest (never Margin Gray); the active item is marked by a tonal background and medium weight. While a character, note or documentation entry is open, its line in "Recently viewed" is the active item and its section is not (Notion-style). Item text is 18px below the `md` breakpoint (the only place outside the four-size scale, for tap comfort) and 14px above it. The footer holds the account and utility actions as labelled rows: my stories, download a backup, sign out, then the language selector.
 
 ### Save Status

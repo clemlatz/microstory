@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { updateCharacter } from '@/lib/charactersApi'
+import { deleteCharacter, updateCharacter } from '@/lib/charactersApi'
 import { StoryShell } from './StoryShell'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { Character, Story } from '@/lib/types'
@@ -108,6 +108,22 @@ export function CharacterEditPage({
     }
   }
 
+  async function handleDelete(): Promise<boolean> {
+    // An autosave still waiting on its debounce timer would hit a deleted row.
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+      debounceRef.current = null
+    }
+    try {
+      await deleteCharacter(storyId, character.id)
+      return true
+    } catch (err) {
+      console.error('Failed to delete character', err)
+      setError(err instanceof Error && err.message ? err.message : t('common.genericError'))
+      return false
+    }
+  }
+
   return (
     <StoryShell
       story={story}
@@ -117,6 +133,8 @@ export function CharacterEditPage({
       onEntryTitleChange={setName}
       entryTitlePlaceholder={t('characters.namePlaceholder')}
       saveStatus={saveStatus}
+      onDeleteEntry={handleDelete}
+      deleteConfirmTitle={t('characters.deleteTitle')}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)

@@ -1,10 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useLocale } from '@/lib/i18n/LocaleContext'
 import { StoryTitleBar } from './StoryTitleBar'
 import { StoryNavDrawer, type StorySection } from './StoryNavDrawer'
 import { useStoryNavOpen } from '@/lib/useStoryNavOpen'
-import { useRecordRecentEntity, type RecentEntityKind } from '@/lib/recentEntities'
+import { forgetRecentEntity, useRecordRecentEntity, type RecentEntityKind } from '@/lib/recentEntities'
+import { ConfirmDialog } from './ConfirmDialog'
 import type { Story } from '@/lib/types'
 
 /**
@@ -62,6 +65,8 @@ export function StoryShell({
   onEntryTitleChange,
   entryTitlePlaceholder,
   saveStatus,
+  onDeleteEntry,
+  deleteConfirmTitle,
   children,
 }: {
   story: Story
@@ -73,15 +78,34 @@ export function StoryShell({
   onEntryTitleChange?: (value: string) => void
   entryTitlePlaceholder?: string
   saveStatus?: 'unsaved' | 'saving' | 'saved'
+  /**
+   * Deletes the displayed entry; resolves `true` on success. Passing it adds a
+   * delete button to the title bar, with a confirmation dialog titled
+   * `deleteConfirmTitle`. After a successful delete the entry is dropped from
+   * the recent list and the page goes back to its section.
+   */
+  onDeleteEntry?: () => Promise<boolean>
+  deleteConfirmTitle?: string
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const { t } = useLocale()
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
   const { isNavOpen, isDesktop, toggleNav, closeNav } = useStoryNavOpen()
   useRecordRecentEntity(story.id, entry && { ...entry, title: entryTitle ?? '' })
 
   function handleNavigate(section: StorySection) {
     onNavigate(section)
     if (!isDesktop) closeNav()
+  }
+
+  async function handleConfirmDelete() {
+    setIsConfirmingDelete(false)
+    if (!onDeleteEntry || !entry) return
+    if (await onDeleteEntry()) {
+      forgetRecentEntity(story.id, entry.kind, entry.id)
+      router.push(`/story/${story.id}?section=${activeSection}`)
+    }
   }
 
   function handleNavigateToEntry() {
@@ -96,6 +120,7 @@ export function StoryShell({
         onTitleChange={entryTitle !== undefined ? onEntryTitleChange : undefined}
         titlePlaceholder={entryTitlePlaceholder}
         saveStatus={saveStatus}
+        onDelete={onDeleteEntry && entry ? () => setIsConfirmingDelete(true) : undefined}
       />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <StoryNavDrawer
@@ -110,6 +135,13 @@ export function StoryShell({
         />
         <div className="min-w-0 flex-1">{children}</div>
       </div>
+      <ConfirmDialog
+        open={isConfirmingDelete}
+        title={deleteConfirmTitle ?? ''}
+        confirmLabel={t('common.delete')}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsConfirmingDelete(false)}
+      />
     </div>
   )
 }

@@ -81,4 +81,18 @@ describe('StoryTitleBar', () => {
       expect(renderEditable().className).not.toContain(pendingClass)
     })
   })
+
+  describe('delete button', () => {
+    it('is not shown without onDelete', () => {
+      render(<StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} />)
+      expect(screen.queryByTestId('story-delete-button')).not.toBeInTheDocument()
+    })
+
+    it('calls onDelete when clicked', async () => {
+      const onDelete = vi.fn()
+      render(<StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} onDelete={onDelete} />)
+      await userEvent.click(screen.getByTestId('story-delete-button'))
+      expect(onDelete).toHaveBeenCalledTimes(1)
+    })
+  })
 })

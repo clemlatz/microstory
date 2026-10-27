@@ -1,6 +1,7 @@
 'use client'
 
 import { useLocale } from '@/lib/i18n/LocaleContext'
+import { TrashIcon } from './TrashIcon'
 
 /**
  * The story overview's top bar: a full-window-width strip pinned above
@@ -17,6 +18,9 @@ import { useLocale } from '@/lib/i18n/LocaleContext'
  * screen.
  *
  * The export and sign-out controls live at the bottom of `StoryNavDrawer`.
+ *
+ * `onDelete` adds a trash button on the right, for an entry page (it
+ * replaces the spacer that otherwise keeps the title centered).
  *
  * `onTitleChange` (issue #18) makes the title itself editable in place —
  * an `<input>` rather than a plain `<h1>` — for a standalone entry page
@@ -39,12 +43,14 @@ export function StoryTitleBar({
   onTitleChange,
   titlePlaceholder,
   saveStatus,
+  onDelete,
 }: {
   title: string
   onOpenNav: () => void
   onTitleChange?: (value: string) => void
   titlePlaceholder?: string
   saveStatus?: 'unsaved' | 'saving' | 'saved'
+  onDelete?: () => void
 }) {
   const { t } = useLocale()
 
@@ -98,8 +104,21 @@ export function StoryTitleBar({
           {t(`common.${saveStatus}`)}
         </span>
       )}
-      {/* Mirrors the toggle button's width so the title stays centered. */}
-      <span className="w-11 shrink-0" aria-hidden="true" />
+      {onDelete ? (
+        <button
+          data-testid="story-delete-button"
+          type="button"
+          aria-label={t('common.delete')}
+          title={t('common.delete')}
+          onClick={onDelete}
+          className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-[var(--reader-danger)] hover:bg-[var(--reader-input-bg)]"
+        >
+          <TrashIcon />
+        </button>
+      ) : (
+        // Mirrors the toggle button's width so the title stays centered.
+        <span className="w-11 shrink-0" aria-hidden="true" />
+      )}
     </div>
   )
 }

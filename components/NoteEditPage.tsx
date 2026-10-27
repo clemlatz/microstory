@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { updateNote } from '@/lib/notesApi'
+import { deleteNote, updateNote } from '@/lib/notesApi'
 import { StoryShell } from './StoryShell'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { Note, Story } from '@/lib/types'
@@ -85,6 +85,22 @@ export function NoteEditPage({
     }
   }
 
+  async function handleDelete(): Promise<boolean> {
+    // An autosave still waiting on its debounce timer would hit a deleted row.
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+      debounceRef.current = null
+    }
+    try {
+      await deleteNote(storyId, note.id)
+      return true
+    } catch (err) {
+      console.error('Failed to delete note', err)
+      setError(err instanceof Error && err.message ? err.message : t('common.genericError'))
+      return false
+    }
+  }
+
   return (
     <StoryShell
       story={story}
@@ -94,6 +110,8 @@ export function NoteEditPage({
       onEntryTitleChange={setTitle}
       entryTitlePlaceholder={t('notes.titlePlaceholder')}
       saveStatus={saveStatus}
+      onDeleteEntry={handleDelete}
+      deleteConfirmTitle={t('notes.deleteTitle')}
       onNavigate={(section) => {
         flushPendingSave()
         router.push(`/story/${storyId}?section=${section}`)
