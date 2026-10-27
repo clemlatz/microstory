@@ -19,7 +19,7 @@ describe('StoryNavDrawer', () => {
         onBackToStories={vi.fn()}
       />,
     )
-    expect(screen.queryByTestId('story-nav-drawer')).not.toBeInTheDocument()
+    expect(screen.getByTestId('story-nav-drawer')).toHaveAttribute('inert')
   })
 
   it('lists every section', () => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import { useRecentEntities, type RecentEntityKind } from '@/lib/recentEntities'
@@ -127,6 +127,15 @@ export function StoryNavDrawer({
   const { t } = useLocale()
   const recentEntities = useRecentEntities(storyId)
   const asideRef = useRef<HTMLElement>(null)
+
+  // The drawer stays mounted so it can slide in and out. Transitions are only
+  // enabled after the first client frame: on desktop the open state is
+  // reconciled right after hydration, and that correction must not animate.
+  const [canAnimate, setCanAnimate] = useState(false)
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setCanAnimate(true))
+    return () => cancelAnimationFrame(frame)
+  }, [])
   // Callers pass an inline handler; a ref keeps the effect below from
   // re-running (and re-stealing focus) on every render.
   const onCloseRef = useRef(onClose)
@@ -171,13 +180,31 @@ export function StoryNavDrawer({
     }
   }, [open])
 
-  if (!open) return null
-
   const items: NavItem[] = [
-    { section: 'search', label: t('storyNav.search'), testId: 'story-nav-search', icon: SearchIcon },
-    { section: 'overview', label: t('storyNav.overview'), testId: 'story-nav-overview', icon: OverviewIcon },
-    { section: 'characters', label: t('storyNav.characters'), testId: 'story-nav-characters', icon: CharactersIcon },
-    { section: 'notes', label: t('storyNav.notes'), testId: 'story-nav-notes', icon: NotesIcon },
+    {
+      section: 'search',
+      label: t('storyNav.search'),
+      testId: 'story-nav-search',
+      icon: SearchIcon,
+    },
+    {
+      section: 'overview',
+      label: t('storyNav.overview'),
+      testId: 'story-nav-overview',
+      icon: OverviewIcon,
+    },
+    {
+      section: 'characters',
+      label: t('storyNav.characters'),
+      testId: 'story-nav-characters',
+      icon: CharactersIcon,
+    },
+    {
+      section: 'notes',
+      label: t('storyNav.notes'),
+      testId: 'story-nav-notes',
+      icon: NotesIcon,
+    },
     {
       section: 'documentation',
       label: t('storyNav.documentation'),
@@ -188,99 +215,102 @@ export function StoryNavDrawer({
 
   return (
     <>
-      <div
-        data-testid="story-nav-backdrop"
-        className="fixed inset-0 z-40 bg-black/30 md:hidden"
-        onClick={onClose}
-      />
+      {open && (
+        <div data-testid="story-nav-backdrop" className="fixed inset-0 z-40 bg-black/30 md:hidden" onClick={onClose} />
+      )}
       <aside
         ref={asideRef}
+        inert={!open}
         data-testid="story-nav-drawer"
-        className="surface-bar fixed top-14 bottom-0 left-0 z-50 flex w-full flex-col border-r border-[var(--reader-rule)] bg-[var(--reader-bg)] font-reader-label shadow-xl md:static md:top-auto md:bottom-auto md:z-auto md:w-64 md:shrink-0 md:shadow-none"
+        className={`surface-bar fixed top-14 bottom-0 left-0 z-50 flex w-full overflow-hidden border-r border-[var(--reader-rule)] bg-[var(--reader-bg)] font-reader-label shadow-xl md:static md:top-auto md:bottom-auto md:z-auto md:shrink-0 md:shadow-none ${
+          canAnimate ? 'transition-[transform,visibility,width] duration-200 ease-out' : ''
+        } ${open ? 'visible translate-x-0 md:w-64' : 'invisible -translate-x-full md:w-0 md:border-r-0'}`}
       >
-        <nav aria-label={t('storyNav.title')} className="min-h-0 flex-1 overflow-y-auto p-2 pt-4">
-          {items.map((item) => (
-            <a
-              key={item.section}
-              data-testid={item.testId}
-              href={`/story/${storyId}?section=${item.section}`}
-              aria-current={!activeEntry && item.section === activeSection ? 'page' : undefined}
-              onClick={(event) => {
-                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
-                event.preventDefault()
-                onNavigate(item.section)
-              }}
-              className={
-                !activeEntry && item.section === activeSection
-                  ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-lg md:text-sm font-medium text-[var(--reader-ink)]'
-                  : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]'
-              }
+        <div className="flex w-full min-w-0 flex-col md:w-64 md:shrink-0">
+          <nav aria-label={t('storyNav.title')} className="min-h-0 flex-1 overflow-y-auto p-2 pt-4">
+            {items.map((item) => (
+              <a
+                key={item.section}
+                data-testid={item.testId}
+                href={`/story/${storyId}?section=${item.section}`}
+                aria-current={!activeEntry && item.section === activeSection ? 'page' : undefined}
+                onClick={(event) => {
+                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+                  event.preventDefault()
+                  onNavigate(item.section)
+                }}
+                className={
+                  !activeEntry && item.section === activeSection
+                    ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-lg md:text-sm font-medium text-[var(--reader-ink)]'
+                    : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]'
+                }
+              >
+                {item.icon}
+                {item.label}
+              </a>
+            ))}
+            {storyId && recentEntities.length > 0 && (
+              <div data-testid="story-nav-recent" className="mt-4">
+                <h2 className="px-3 pb-1 text-xs font-medium uppercase tracking-wide text-[var(--reader-muted)]">
+                  {t('storyNav.recent')}
+                </h2>
+                <ul>
+                  {recentEntities.map((entity) => {
+                    const isActive = activeEntry?.kind === entity.kind && activeEntry.id === entity.id
+                    return (
+                      <li key={`${entity.kind}-${entity.id}`}>
+                        <Link
+                          data-testid="story-nav-recent-item"
+                          href={`/story/${storyId}/${RECENT_ENTITY_ROUTES[entity.kind].path}/${entity.id}`}
+                          aria-current={isActive ? 'page' : undefined}
+                          onClick={onNavigateToEntry}
+                          className={
+                            isActive
+                              ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-lg font-medium text-[var(--reader-ink)] md:text-sm'
+                              : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)] md:text-sm'
+                          }
+                        >
+                          {RECENT_ENTITY_ROUTES[entity.kind].icon}
+                          <span className="min-w-0 truncate">{entity.title}</span>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            )}
+          </nav>
+          <div className="shrink-0 border-t border-[var(--reader-rule)] p-2">
+            <button
+              data-testid="story-nav-my-stories"
+              type="button"
+              onClick={onBackToStories}
+              className="flex min-h-11 w-full items-center rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]"
             >
-              {item.icon}
-              {item.label}
-            </a>
-          ))}
-          {storyId && recentEntities.length > 0 && (
-            <div data-testid="story-nav-recent" className="mt-4">
-              <h2 className="px-3 pb-1 text-xs font-medium uppercase tracking-wide text-[var(--reader-muted)]">
-                {t('storyNav.recent')}
-              </h2>
-              <ul>
-                {recentEntities.map((entity) => {
-                  const isActive = activeEntry?.kind === entity.kind && activeEntry.id === entity.id
-                  return (
-                    <li key={`${entity.kind}-${entity.id}`}>
-                      <Link
-                        data-testid="story-nav-recent-item"
-                        href={`/story/${storyId}/${RECENT_ENTITY_ROUTES[entity.kind].path}/${entity.id}`}
-                        aria-current={isActive ? 'page' : undefined}
-                        onClick={onNavigateToEntry}
-                        className={
-                          isActive
-                            ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-lg font-medium text-[var(--reader-ink)] md:text-sm'
-                            : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)] md:text-sm'
-                        }
-                      >
-                        {RECENT_ENTITY_ROUTES[entity.kind].icon}
-                        <span className="min-w-0 truncate">{entity.title}</span>
-                      </Link>
-                    </li>
-                  )
-                })}
-              </ul>
+              {t('storyNav.myStories')}
+            </button>
+            {storyId && (
+              <a
+                data-testid="story-export-link"
+                href={`/api/stories/${storyId}/export`}
+                className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]"
+              >
+                <NavIcon>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <path d="M7 10l5 5 5-5" />
+                  <path d="M12 15V3" />
+                </NavIcon>
+                {t('storyNav.export')}
+              </a>
+            )}
+            <LogoutButton
+              showLabel
+              className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50"
+            />
+            <div className="mt-1 flex items-center justify-between gap-2 px-3 py-2">
+              <span className="text-lg text-[var(--reader-ink)] md:text-sm">{t('language.label')}</span>
+              <LanguageSwitcher className="min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2 text-base text-[var(--reader-ink)]" />
             </div>
-          )}
-        </nav>
-        <div className="shrink-0 border-t border-[var(--reader-rule)] p-2">
-          <button
-            data-testid="story-nav-my-stories"
-            type="button"
-            onClick={onBackToStories}
-            className="flex min-h-11 w-full items-center rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]"
-          >
-            {t('storyNav.myStories')}
-          </button>
-          {storyId && (
-            <a
-              data-testid="story-export-link"
-              href={`/api/stories/${storyId}/export`}
-              className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]"
-            >
-              <NavIcon>
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <path d="M7 10l5 5 5-5" />
-                <path d="M12 15V3" />
-              </NavIcon>
-              {t('storyNav.export')}
-            </a>
-          )}
-          <LogoutButton
-            showLabel
-            className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50"
-          />
-          <div className="mt-1 flex items-center justify-between gap-2 px-3 py-2">
-            <span className="text-lg text-[var(--reader-ink)] md:text-sm">{t('language.label')}</span>
-            <LanguageSwitcher className="min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2 text-base text-[var(--reader-ink)]" />
           </div>
         </div>
       </aside>

@@ -118,7 +118,7 @@ describe('StoryPageClient', () => {
 
       await user.click(screen.getByTestId('story-nav-toggle'))
 
-      expect(screen.queryByTestId('story-nav-drawer')).not.toBeInTheDocument()
+      expect(screen.getByTestId('story-nav-drawer')).toHaveAttribute('inert')
     })
 
     it('remembers the sidebar being hidden across remounts (e.g. a reload)', async () => {
@@ -127,11 +127,11 @@ describe('StoryPageClient', () => {
       await waitFor(() => expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument())
 
       await user.click(screen.getByTestId('story-nav-toggle'))
-      expect(screen.queryByTestId('story-nav-drawer')).not.toBeInTheDocument()
+      expect(screen.getByTestId('story-nav-drawer')).toHaveAttribute('inert')
       unmount()
 
       render(<StoryPageClient story={story} />)
-      expect(screen.queryByTestId('story-nav-drawer')).not.toBeInTheDocument()
+      expect(screen.getByTestId('story-nav-drawer')).toHaveAttribute('inert')
     })
 
     it('remembers the sidebar being shown again after it was hidden, across remounts', async () => {

@@ -2,6 +2,7 @@
 
 ## 2026-10-27
 
+- The navigation drawer now slides in and out horizontally (200ms) when opened or closed, on mobile and desktop; the first render and `prefers-reduced-motion` do not animate.
 - On narrow screens, the navigation drawer now fills the full width of the page instead of stopping at 320px.
 - On narrow screens, selecting an entry in the navigation drawer's "Recently viewed" list now closes the drawer, like selecting a section already did.
 - The navigation drawer's "Recently viewed" list no longer reorders when you open an entry that is already in it: it stays where it is, and only an entry that wasn't in the list yet appears at the top.
