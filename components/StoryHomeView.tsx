@@ -61,9 +61,9 @@ export function StoryHomeView({
             {section === "overview" && (
               <div>
                 <div className="mb-2 flex items-center justify-between gap-2 border-b border-[var(--reader-rule)] pb-2">
-                  <h3 className="text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase">
+                  <h2 className="text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase">
                     {t("presentation.title")}
-                  </h3>
+                  </h2>
                   <button
                     type="button"
                     data-testid="story-presentation-edit-button"

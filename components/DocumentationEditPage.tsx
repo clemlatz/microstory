@@ -109,19 +109,20 @@ export function DocumentationEditPage({
         router.push('/stories')
       }}
     >
-      <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#fdfbf6] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
+      <div className="flex h-full flex-1 flex-col overflow-hidden bg-[var(--reader-bg)] text-[var(--reader-ink)]">
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto flex w-full max-w-[700px] flex-col px-6 py-6 sm:px-10">
             <input
               data-testid="documentation-page-url-input"
-              className="mb-4 border-none bg-transparent font-sans text-sm text-stone-500 outline-none placeholder:text-stone-300 dark:text-stone-400 dark:placeholder:text-stone-600"
+              className="mb-4 border-none bg-transparent font-reader-label text-sm text-[var(--reader-muted)] placeholder:text-[var(--reader-faint)]"
+              aria-label={t('documentation.urlPlaceholder')}
               placeholder={t('documentation.urlPlaceholder')}
               value={url}
               onChange={(event) => setUrl(event.target.value)}
             />
 
             {error && (
-              <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">
+              <p role="alert" className="mb-4 text-sm text-[var(--reader-danger)]">
                 {error}
               </p>
             )}

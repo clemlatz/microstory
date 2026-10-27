@@ -96,7 +96,8 @@ export function SearchPanel({
         data-testid="search-input"
         type="search"
         className="min-h-11 w-full rounded-md border-none bg-[var(--reader-input-bg)] px-3 py-2 text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
-        placeholder={t('search.placeholder')}
+        aria-label={t('search.placeholder')}
+            placeholder={t('search.placeholder')}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
       />
@@ -114,16 +115,16 @@ export function SearchPanel({
           ) : (
             GROUP_ORDER.filter((type) => grouped[type]?.length).map((type) => (
               <div key={type}>
-                <h4 className="mb-1 text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase">
+                <h2 className="mb-1 text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase">
                   {t(`search.${type === 'character' ? 'characters' : type === 'note' ? 'notes' : 'documentation'}`)}
-                </h4>
+                </h2>
                 <ul className="flex flex-col gap-1">
                   {grouped[type]!.map((result) => (
                     <li key={result.id}>
                       <a
                         href={`/story/${storyId}/${EDIT_PATH_BY_TYPE[result.type]}/${result.id}`}
                         data-testid="search-result-item"
-                        className="block w-full rounded-md p-2 hover:bg-[var(--reader-input-bg)]"
+                        className="block min-h-11 w-full rounded-md px-2 py-2.5 hover:bg-[var(--reader-input-bg)]"
                         onClick={(event) => {
                           if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)
                             return

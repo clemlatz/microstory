@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "A writing knowledge base for your stories",
     start_url: "/",
     display: "standalone",
-    background_color: "#fdfbf6",
-    theme_color: "#fdfbf6",
+    background_color: "#faf9f5",
+    theme_color: "#faf9f5",
     icons: [
       {
         src: "/icon.png",

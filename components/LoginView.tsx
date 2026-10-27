@@ -99,10 +99,10 @@ export function LoginView() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-[#fdfbf6] px-6 text-stone-900 dark:bg-stone-950 dark:text-stone-100">
+    <div className="flex min-h-dvh items-center justify-center bg-[var(--reader-bg)] px-6 text-[var(--reader-ink)]">
       <div className="w-full max-w-sm text-center">
         <img src="/logo-lotus.png" alt="" className="mx-auto mb-6 h-10 w-auto opacity-90" />
-        <h1 className="mb-2 font-serif text-2xl">Microstory</h1>
+        <h1 className="mb-2 font-reader-body text-2xl font-semibold tracking-tight">Microstory</h1>
 
         {isDev ? (
           <button
@@ -110,15 +110,15 @@ export function LoginView() {
             type="button"
             disabled={isBusy}
             onClick={handleDevLogin}
-            className="w-full rounded-lg bg-stone-900 px-4 py-2.5 font-sans text-sm font-medium text-white hover:bg-stone-700 disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-white"
+            className="min-h-11 w-full rounded-md bg-[var(--reader-accent)] px-4 py-2.5 font-reader-label text-sm font-medium text-[var(--reader-accent-ink)] hover:opacity-90 disabled:opacity-50"
           >
             {isBusy ? t('login.devLoggingIn') : t('login.devButton')}
           </button>
         ) : status === 'checking' ? (
-          <p className="font-sans text-sm text-stone-400 italic dark:text-stone-500">{t('common.loading')}</p>
+          <p className="font-reader-label text-sm text-[var(--reader-faint)] italic">{t('common.loading')}</p>
         ) : status === 'register' ? (
           <>
-            <p className="mb-6 font-sans text-sm text-stone-500 dark:text-stone-400">
+            <p className="mb-6 font-reader-label text-sm text-[var(--reader-muted)]">
               {t('login.registerIntro')}
             </p>
             <button
@@ -126,14 +126,14 @@ export function LoginView() {
               type="button"
               disabled={isBusy}
               onClick={handleRegister}
-              className="w-full rounded-lg bg-stone-900 px-4 py-2.5 font-sans text-sm font-medium text-white hover:bg-stone-700 disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-white"
+              className="min-h-11 w-full rounded-md bg-[var(--reader-accent)] px-4 py-2.5 font-reader-label text-sm font-medium text-[var(--reader-accent-ink)] hover:opacity-90 disabled:opacity-50"
             >
               {isBusy ? t('login.registering') : t('login.registerButton')}
             </button>
           </>
         ) : (
           <>
-            <p className="mb-6 font-sans text-sm text-stone-500 dark:text-stone-400">
+            <p className="mb-6 font-reader-label text-sm text-[var(--reader-muted)]">
               {t('login.loginIntro')}
             </p>
             <button
@@ -141,7 +141,7 @@ export function LoginView() {
               type="button"
               disabled={isBusy}
               onClick={handleLogin}
-              className="w-full rounded-lg bg-stone-900 px-4 py-2.5 font-sans text-sm font-medium text-white hover:bg-stone-700 disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-white"
+              className="min-h-11 w-full rounded-md bg-[var(--reader-accent)] px-4 py-2.5 font-reader-label text-sm font-medium text-[var(--reader-accent-ink)] hover:opacity-90 disabled:opacity-50"
             >
               {isBusy ? t('login.authenticating') : t('login.loginButton')}
             </button>
@@ -152,7 +152,7 @@ export function LoginView() {
           <p
             role="alert"
             data-testid="login-error"
-            className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 font-sans text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
+            className="mt-4 rounded-md bg-[var(--reader-input-bg)] px-3 py-2 font-reader-label text-sm text-[var(--reader-danger)]"
           >
             {error}
           </p>

@@ -81,10 +81,10 @@ export function NotesPanel({ storyId }: { storyId: string }) {
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-baseline justify-between gap-2 border-b border-[var(--reader-rule)] pb-2">
-        <h3 className="text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase">
+        <h2 className="text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase">
           {t('notes.title')}
-        </h3>
-        {notes.length > 0 && <span className="text-[11px] text-[var(--reader-faint)]">{notes.length}</span>}
+        </h2>
+        {notes.length > 0 && <span className="text-xs text-[var(--reader-faint)]">{notes.length}</span>}
       </div>
       {isLoading ? (
         <p className="text-sm text-[var(--reader-muted)]">{t('common.loading')}</p>
@@ -132,6 +132,7 @@ export function NotesPanel({ storyId }: { storyId: string }) {
           <input
             data-testid="note-title-input"
             className="min-w-0 flex-1 min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-sm text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
+            aria-label={t('notes.titlePlaceholder')}
             placeholder={t('notes.titlePlaceholder')}
             value={title}
             onChange={(event) => setTitle(event.target.value)}

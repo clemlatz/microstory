@@ -10,7 +10,7 @@
   --reader-bg: #faf9f5;
   --reader-ink: #211f1b;
   --reader-body: #453f38;
-  --reader-muted: #7a7269;
+  --reader-muted: #675f57;
   --reader-faint: #6e6760;
   --reader-danger: oklch(0.5 0.15 30);
   --reader-rule: #e8e4db;
@@ -24,7 +24,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-serif: var(--font-newsreader);
   --font-reader-body: var(--font-source-serif-4);
   --font-reader-label: var(--font-source-sans-3);
 }
@@ -50,7 +49,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-source-sans-3), system-ui, sans-serif;
 }
 
 /*
@@ -72,4 +71,25 @@ body {
 .story-presentation-editor .bn-editor {
   padding-inline: 0;
   background-color: transparent;
+}
+
+/*
+ * Keyboard focus indicator for every control. Declared unlayered on purpose:
+ * unlayered rules beat Tailwind's layered utilities, so a stray `outline-none`
+ * on an input can no longer remove the focus ring (WCAG 2.4.7).
+ */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--reader-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
