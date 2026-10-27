@@ -104,6 +104,7 @@ export function StoryNavDrawer({
   storyId,
   onClose,
   activeSection,
+  activeEntry,
   onNavigate,
   onBackToStories,
 }: {
@@ -111,6 +112,12 @@ export function StoryNavDrawer({
   storyId?: string
   onClose: () => void
   activeSection: StorySection
+  /**
+   * The character/note/documentation entry currently displayed, if any. While
+   * one is open it is the highlighted item (in "Recently viewed") and no
+   * section is, whichever way the entry was reached.
+   */
+  activeEntry?: { kind: RecentEntityKind; id: string }
   onNavigate: (section: StorySection) => void
   onBackToStories: () => void
 }) {
@@ -194,14 +201,14 @@ export function StoryNavDrawer({
               key={item.section}
               data-testid={item.testId}
               href={`/story/${storyId}?section=${item.section}`}
-              aria-current={item.section === activeSection ? 'page' : undefined}
+              aria-current={!activeEntry && item.section === activeSection ? 'page' : undefined}
               onClick={(event) => {
                 if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
                 event.preventDefault()
                 onNavigate(item.section)
               }}
               className={
-                item.section === activeSection
+                !activeEntry && item.section === activeSection
                   ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-lg md:text-sm font-medium text-[var(--reader-ink)]'
                   : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]'
               }
@@ -216,18 +223,26 @@ export function StoryNavDrawer({
                 {t('storyNav.recent')}
               </h2>
               <ul>
-                {recentEntities.map((entity) => (
-                  <li key={`${entity.kind}-${entity.id}`}>
-                    <Link
-                      data-testid="story-nav-recent-item"
-                      href={`/story/${storyId}/${RECENT_ENTITY_ROUTES[entity.kind].path}/${entity.id}`}
-                      className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]"
-                    >
-                      {RECENT_ENTITY_ROUTES[entity.kind].icon}
-                      <span className="min-w-0 truncate">{entity.title}</span>
-                    </Link>
-                  </li>
-                ))}
+                {recentEntities.map((entity) => {
+                  const isActive = activeEntry?.kind === entity.kind && activeEntry.id === entity.id
+                  return (
+                    <li key={`${entity.kind}-${entity.id}`}>
+                      <Link
+                        data-testid="story-nav-recent-item"
+                        href={`/story/${storyId}/${RECENT_ENTITY_ROUTES[entity.kind].path}/${entity.id}`}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={
+                          isActive
+                            ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-lg font-medium text-[var(--reader-ink)] md:text-sm'
+                            : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)] md:text-sm'
+                        }
+                      >
+                        {RECENT_ENTITY_ROUTES[entity.kind].icon}
+                        <span className="min-w-0 truncate">{entity.title}</span>
+                      </Link>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           )}

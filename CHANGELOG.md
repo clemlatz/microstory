@@ -2,6 +2,7 @@
 
 ## 2026-10-27
 
+- Like Notion's sidebar, when a character, note or documentation entry is open, its line in the navigation drawer's "Recently viewed" list is highlighted (however you got there), and its section (Characters, Notes, Documentation) is no longer highlighted.
 - Improved dark-mode contrast of secondary text (list excerpts, section labels, dates, placeholders): about 9.5:1 on the page background instead of 5:1.
 - Unselected items in the navigation drawer are no longer greyed out: they use the full text color, and the selected one is distinguished by its background tint and heavier weight.
 - Navigation drawer items are 18px on narrow screens (14px from the `md` breakpoint up), for easier tapping and reading on mobile.

@@ -99,6 +99,7 @@ export function StoryShell({
           storyId={story.id}
           onClose={closeNav}
           activeSection={activeSection}
+          activeEntry={entry}
           onNavigate={handleNavigate}
           onBackToStories={onBackToStories ?? (() => router.push('/stories'))}
         />

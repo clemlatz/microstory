@@ -154,6 +154,42 @@ describe('StoryNavDrawer', () => {
     expect(links[1]).toHaveAttribute('href', '/story/s1/note/n1')
   })
 
+  it('highlights the displayed entry in the recent list instead of its section', () => {
+    window.localStorage.clear()
+    recordRecentEntity('s1', { kind: 'note', id: 'n1', title: 'Old note' })
+    recordRecentEntity('s1', { kind: 'character', id: 'c1', title: 'Alice' })
+    render(
+      <StoryNavDrawer
+        open={true}
+        storyId="s1"
+        onClose={vi.fn()}
+        activeSection="characters"
+        activeEntry={{ kind: 'character', id: 'c1' }}
+        onNavigate={vi.fn()}
+        onBackToStories={vi.fn()}
+      />,
+    )
+    const [alice, oldNote] = screen.getAllByTestId('story-nav-recent-item')
+    expect(alice).toHaveAttribute('aria-current', 'page')
+    expect(oldNote).not.toHaveAttribute('aria-current')
+    expect(screen.getByTestId('story-nav-characters')).not.toHaveAttribute('aria-current')
+  })
+
+  it('highlights the section when no entry is displayed', () => {
+    window.localStorage.clear()
+    render(
+      <StoryNavDrawer
+        open={true}
+        storyId="s1"
+        onClose={vi.fn()}
+        activeSection="characters"
+        onNavigate={vi.fn()}
+        onBackToStories={vi.fn()}
+      />,
+    )
+    expect(screen.getByTestId('story-nav-characters')).toHaveAttribute('aria-current', 'page')
+  })
+
   it('shows no recent section when nothing was viewed', () => {
     window.localStorage.clear()
     render(
