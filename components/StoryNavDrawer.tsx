@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import { useRecentEntities, type RecentEntityKind } from '@/lib/recentEntities'
@@ -115,6 +115,50 @@ export function StoryNavDrawer({
 }) {
   const { t } = useLocale()
   const recentEntities = useRecentEntities(storyId)
+  const asideRef = useRef<HTMLElement>(null)
+  // Callers pass an inline handler; a ref keeps the effect below from
+  // re-running (and re-stealing focus) on every render.
+  const onCloseRef = useRef(onClose)
+  useEffect(() => {
+    onCloseRef.current = onClose
+  })
+
+  // Below the `md` breakpoint the drawer is a modal overlay, so it needs modal
+  // keyboard behaviour: focus moves in on open, Escape closes, Tab stays
+  // inside, and focus returns to the opener on close (WCAG 2.1.2, 2.4.3). At
+  // `md` and above it is a persistent sidebar and none of this applies.
+  useEffect(() => {
+    if (!open || window.matchMedia('(min-width: 768px)').matches) return
+    const opener = document.activeElement as HTMLElement | null
+    const focusableSelector = 'a[href], button:not([disabled]), select:not([disabled])'
+    asideRef.current?.querySelector<HTMLElement>(focusableSelector)?.focus()
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onCloseRef.current()
+        return
+      }
+      if (event.key !== 'Tab' || !asideRef.current) return
+      const focusable = asideRef.current.querySelectorAll<HTMLElement>(focusableSelector)
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      opener?.focus?.()
+    }
+  }, [open])
 
   if (!open) return null
 
@@ -139,10 +183,11 @@ export function StoryNavDrawer({
         onClick={onClose}
       />
       <aside
+        ref={asideRef}
         data-testid="story-nav-drawer"
         className="fixed top-14 bottom-0 left-0 z-50 flex w-full max-w-xs flex-col border-r border-[var(--reader-rule)] bg-[var(--reader-bg)] font-reader-label shadow-xl md:static md:top-auto md:bottom-auto md:z-auto md:w-64 md:max-w-none md:shrink-0 md:shadow-none"
       >
-        <nav className="min-h-0 flex-1 overflow-y-auto p-2 pt-4">
+        <nav aria-label={t('storyNav.title')} className="min-h-0 flex-1 overflow-y-auto p-2 pt-4">
           {items.map((item) => (
             <a
               key={item.section}

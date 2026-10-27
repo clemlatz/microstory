@@ -164,4 +164,38 @@ describe('StoryNavDrawer', () => {
     )
     expect(screen.queryByTestId('story-nav-recent')).not.toBeInTheDocument()
   })
+
+  describe('mobile overlay keyboard behaviour', () => {
+    function renderOpen(onClose = vi.fn()) {
+      render(
+        <StoryNavDrawer
+          open={true}
+          storyId="s1"
+          onClose={onClose}
+          activeSection="overview"
+          onNavigate={vi.fn()}
+          onBackToStories={vi.fn()}
+        />,
+      )
+      return onClose
+    }
+
+    it('focuses the first item when opened', () => {
+      renderOpen()
+      expect(screen.getByTestId('story-nav-search')).toHaveFocus()
+    })
+
+    it('closes on Escape', async () => {
+      const onClose = renderOpen()
+      await userEvent.keyboard('{Escape}')
+      expect(onClose).toHaveBeenCalledTimes(1)
+    })
+
+    it('wraps Tab from the last control back to the first', async () => {
+      renderOpen()
+      screen.getByTestId('language-switcher').focus()
+      await userEvent.tab()
+      expect(screen.getByTestId('story-nav-search')).toHaveFocus()
+    })
+  })
 })
