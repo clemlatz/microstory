@@ -203,7 +203,7 @@ export function StoryNavDrawer({
               className={
                 item.section === activeSection
                   ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-base md:text-sm font-medium text-[var(--reader-ink)]'
-                  : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-base md:text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]'
+                  : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-base md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]'
               }
             >
               {item.icon}
@@ -221,7 +221,7 @@ export function StoryNavDrawer({
                     <Link
                       data-testid="story-nav-recent-item"
                       href={`/story/${storyId}/${RECENT_ENTITY_ROUTES[entity.kind].path}/${entity.id}`}
-                      className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-base md:text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
+                      className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-base md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]"
                     >
                       {RECENT_ENTITY_ROUTES[entity.kind].icon}
                       <span className="min-w-0 truncate">{entity.title}</span>
@@ -237,7 +237,7 @@ export function StoryNavDrawer({
             data-testid="story-nav-my-stories"
             type="button"
             onClick={onBackToStories}
-            className="flex min-h-11 w-full items-center rounded-md px-3 text-left text-base md:text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
+            className="flex min-h-11 w-full items-center rounded-md px-3 text-left text-base md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]"
           >
             {t('storyNav.myStories')}
           </button>
@@ -245,7 +245,7 @@ export function StoryNavDrawer({
             <a
               data-testid="story-export-link"
               href={`/api/stories/${storyId}/export`}
-              className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-base md:text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
+              className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-base md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]"
             >
               <NavIcon>
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -257,11 +257,11 @@ export function StoryNavDrawer({
           )}
           <LogoutButton
             showLabel
-            className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-base md:text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50"
+            className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-base md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50"
           />
           <div className="mt-1 flex items-center justify-between gap-2 px-3 py-2">
-            <span className="text-base text-[var(--reader-muted)] md:text-sm">{t('language.label')}</span>
-            <LanguageSwitcher className="min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2 text-base text-[var(--reader-muted)]" />
+            <span className="text-base text-[var(--reader-ink)] md:text-sm">{t('language.label')}</span>
+            <LanguageSwitcher className="min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2 text-base text-[var(--reader-ink)]" />
           </div>
         </div>
       </aside>

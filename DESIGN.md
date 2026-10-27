@@ -182,7 +182,7 @@ Flat by default. Depth is conveyed by hairline rules and tonal fills (Field Tint
 
 ### Navigation
 - **Top bar:** 56px, full window width, Bar Tint at 90% with a Ruled Line bottom border. Left: drawer toggle. Center: title (editable on entry pages). Right: an empty spacer that mirrors the toggle so the title stays centered. Save status sits right after the title.
-- **Drawer:** Bar Tint surface; persistent sidebar on desktop; overlay with scrim on narrow viewports. The top bar stays above it. Item text is 16px below the `md` breakpoint and 14px above it. The footer holds the account and utility actions as labelled rows: my stories, download a backup, sign out, then the language selector.
+- **Drawer:** Bar Tint surface; persistent sidebar on desktop; overlay with scrim on narrow viewports. The top bar stays above it. Items use Notebook Ink at rest (never Margin Gray); the active section is marked by a tonal background and medium weight. Item text is 16px below the `md` breakpoint and 14px above it. The footer holds the account and utility actions as labelled rows: my stories, download a backup, sign out, then the language selector.
 
 ### Save Status
 A tiny indicator after the title: a static dot for unsaved, a pulsing dot for saving, a checkmark for saved. Always carries an `aria-label`. It never appears as text.
