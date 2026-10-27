@@ -4,6 +4,10 @@ import userEvent from '@testing-library/user-event'
 import { StoryNavDrawer } from './StoryNavDrawer'
 import { recordRecentEntity } from '@/lib/recentEntities'
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}))
+
 describe('StoryNavDrawer', () => {
   it('renders nothing when closed', () => {
     render(
@@ -197,5 +201,45 @@ describe('StoryNavDrawer', () => {
       await userEvent.tab()
       expect(screen.getByTestId('story-nav-search')).toHaveFocus()
     })
+  })
+
+  it('shows a backup download link pointing at the story export route', () => {
+    render(
+      <StoryNavDrawer
+        open={true}
+        storyId="story-1"
+        onClose={vi.fn()}
+        activeSection="overview"
+        onNavigate={vi.fn()}
+        onBackToStories={vi.fn()}
+      />,
+    )
+    expect(screen.getByTestId('story-export-link')).toHaveAttribute('href', '/api/stories/story-1/export')
+  })
+
+  it('does not show a backup download link without a storyId', () => {
+    render(
+      <StoryNavDrawer
+        open={true}
+        onClose={vi.fn()}
+        activeSection="overview"
+        onNavigate={vi.fn()}
+        onBackToStories={vi.fn()}
+      />,
+    )
+    expect(screen.queryByTestId('story-export-link')).not.toBeInTheDocument()
+  })
+
+  it('shows a labelled logout button', () => {
+    render(
+      <StoryNavDrawer
+        open={true}
+        onClose={vi.fn()}
+        activeSection="overview"
+        onNavigate={vi.fn()}
+        onBackToStories={vi.fn()}
+      />,
+    )
+    expect(screen.getByTestId('logout-button')).toHaveTextContent('Log out')
   })
 })

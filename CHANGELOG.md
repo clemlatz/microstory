@@ -2,6 +2,7 @@
 
 ## 2026-10-27
 
+- Moved the backup download and sign-out controls from the story title bar into the bottom of the navigation drawer, as labelled items next to "My stories" and the language selector.
 - Text fields and the language selector are now 16px, so iOS Safari no longer zooms the page in when you tap them.
 - Simplified the type scale to four sizes (12, 14, 16 and 24px): list entry names and reading text are now 16px, excerpts 14px, and the one-off 13px/15px/18px sizes are gone.
 - The navigation drawer's section items are now plain links marked with `aria-current="page"` for the active section, instead of links pretending to be toggle buttons (`role="button"` + `aria-pressed`), so screen readers announce them as navigation.

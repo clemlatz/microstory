@@ -1,7 +1,6 @@
 'use client'
 
 import { useLocale } from '@/lib/i18n/LocaleContext'
-import { LogoutButton } from './LogoutButton'
 
 /**
  * The story overview's top bar: a full-window-width strip pinned above
@@ -17,9 +16,7 @@ import { LogoutButton } from './LogoutButton'
  * visible and reachable even while that overlay covers the rest of the
  * screen.
  *
- * Also hosts the sign-out control (`LogoutButton`, restyled to the Reader
- * palette via its `className` prop) on the right, mirroring the toggle
- * button's size so the title stays centered between them.
+ * The export and sign-out controls live at the bottom of `StoryNavDrawer`.
  *
  * `onTitleChange` (issue #18) makes the title itself editable in place —
  * an `<input>` rather than a plain `<h1>` — for a standalone entry page
@@ -46,14 +43,12 @@ export function StoryTitleBar({
   onTitleChange,
   titlePlaceholder,
   saveStatus,
-  storyId,
 }: {
   title: string
   onOpenNav: () => void
   onTitleChange?: (value: string) => void
   titlePlaceholder?: string
   saveStatus?: 'unsaved' | 'saving' | 'saved'
-  storyId?: string
 }) {
   const { t } = useLocale()
 
@@ -128,32 +123,8 @@ export function StoryTitleBar({
           )}
         </span>
       )}
-      {storyId && (
-        <a
-          data-testid="story-export-link"
-          href={`/api/stories/${storyId}/export`}
-          aria-label={t('storyTitleBar.exportAria')}
-          title={t('storyTitleBar.exportAria')}
-          className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg p-3 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.8}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-5 w-5"
-            aria-hidden="true"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <path d="M7 10l5 5 5-5" />
-            <path d="M12 15V3" />
-          </svg>
-        </a>
-      )}
-      <LogoutButton className="shrink-0 rounded-lg p-3 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50" />
+      {/* Mirrors the toggle button's width so the title stays centered. */}
+      <span className="w-11 shrink-0" aria-hidden="true" />
     </div>
   )
 }

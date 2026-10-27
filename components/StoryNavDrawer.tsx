@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import { useRecentEntities, type RecentEntityKind } from '@/lib/recentEntities'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { LogoutButton } from './LogoutButton'
 
 export type StorySection = 'search' | 'overview' | 'characters' | 'notes' | 'documentation'
 
@@ -240,6 +241,24 @@ export function StoryNavDrawer({
           >
             {t('storyNav.myStories')}
           </button>
+          {storyId && (
+            <a
+              data-testid="story-export-link"
+              href={`/api/stories/${storyId}/export`}
+              className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
+            >
+              <NavIcon>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <path d="M7 10l5 5 5-5" />
+                <path d="M12 15V3" />
+              </NavIcon>
+              {t('storyNav.export')}
+            </a>
+          )}
+          <LogoutButton
+            showLabel
+            className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50"
+          />
           <div className="mt-1 flex items-center justify-between gap-2 px-3 py-2">
             <span className="text-sm text-[var(--reader-muted)]">{t('language.label')}</span>
             <LanguageSwitcher className="min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2 text-base text-[var(--reader-muted)]" />

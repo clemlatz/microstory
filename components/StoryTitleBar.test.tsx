@@ -23,11 +23,6 @@ describe('StoryTitleBar', () => {
     expect(onOpenNav).toHaveBeenCalledTimes(1)
   })
 
-  it('shows the logout button', () => {
-    render(<StoryTitleBar title="Le Voyage de Nour" onOpenNav={vi.fn()} />)
-    expect(screen.getByTestId('logout-button')).toBeInTheDocument()
-  })
-
   it('renders the title as an editable input when onTitleChange is provided', async () => {
     const user = userEvent.setup()
     const onTitleChange = vi.fn()
@@ -59,16 +54,5 @@ describe('StoryTitleBar', () => {
   it('shows an accessible "saved" status when saveStatus is "saved"', () => {
     render(<StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} saveStatus="saved" />)
     expect(screen.getByTestId('story-save-status')).toHaveAccessibleName('Saved')
-  })
-
-  it('shows a backup download link pointing at the story export route when storyId is provided', () => {
-    render(<StoryTitleBar title="Le Voyage de Nour" onOpenNav={vi.fn()} storyId="story-1" />)
-    const link = screen.getByTestId('story-export-link')
-    expect(link).toHaveAttribute('href', '/api/stories/story-1/export')
-  })
-
-  it('does not show a backup download link when storyId is not provided', () => {
-    render(<StoryTitleBar title="Le Voyage de Nour" onOpenNav={vi.fn()} />)
-    expect(screen.queryByTestId('story-export-link')).not.toBeInTheDocument()
   })
 })

@@ -87,7 +87,6 @@ const en = {
 
   'logout.ariaLabel': 'Log out',
 
-  'storyTitleBar.exportAria': 'Download a backup',
 
   'stories.title': 'My stories',
   'stories.newButton': 'New story',
@@ -107,6 +106,7 @@ const en = {
   'storyNav.documentation': 'Documentation',
   'storyNav.myStories': '← My stories',
   'storyNav.recent': 'Recently viewed',
+  'storyNav.export': 'Download a backup',
 
   'presentation.title': 'Presentation',
   'presentation.empty': 'No presentation yet.',
@@ -188,7 +188,6 @@ const fr: Record<TranslationKey, string> = {
 
   'logout.ariaLabel': 'Se déconnecter',
 
-  'storyTitleBar.exportAria': 'Télécharger une sauvegarde',
 
   'stories.title': 'Mes histoires',
   'stories.newButton': 'Nouvelle histoire',
@@ -208,6 +207,7 @@ const fr: Record<TranslationKey, string> = {
   'storyNav.documentation': 'Documentation',
   'storyNav.myStories': '← Mes histoires',
   'storyNav.recent': 'Récemment consultés',
+  'storyNav.export': 'Télécharger une sauvegarde',
 
   'presentation.title': 'Présentation',
   'presentation.empty': 'Aucune présentation pour l’instant.',

@@ -12,8 +12,11 @@ import { useLocale } from '@/lib/i18n/LocaleContext'
  */
 export function LogoutButton({
   className = 'rounded-lg p-3 text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50',
+  showLabel = false,
 }: {
   className?: string
+  /** Renders the text next to the icon (the icon-only default is labelled via `aria-label`). */
+  showLabel?: boolean
 } = {}) {
   const router = useRouter()
   const { t } = useLocale()
@@ -35,8 +38,8 @@ export function LogoutButton({
     <button
       data-testid="logout-button"
       type="button"
-      aria-label={t('logout.ariaLabel')}
-      title={t('logout.ariaLabel')}
+      aria-label={showLabel ? undefined : t('logout.ariaLabel')}
+      title={showLabel ? undefined : t('logout.ariaLabel')}
       disabled={isLoggingOut}
       onClick={handleLogout}
       className={className}
@@ -47,7 +50,7 @@ export function LogoutButton({
         fill="none"
         stroke="currentColor"
         strokeWidth={1.8}
-        className="h-5 w-5"
+        className={showLabel ? 'h-4 w-4 shrink-0' : 'h-5 w-5'}
         aria-hidden="true"
       >
         <path
@@ -56,6 +59,7 @@ export function LogoutButton({
           d="M15.5 17.5 21 12l-5.5-5.5M21 12H9M12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6"
         />
       </svg>
+      {showLabel && t('logout.ariaLabel')}
     </button>
   )
 }
