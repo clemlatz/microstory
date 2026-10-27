@@ -17,7 +17,7 @@ colors:
   canvas-dark: "#1b1917"
   ink-dark: "#f3f0ea"
   body-dark: "#cbc5bb"
-  muted-dark: "#918a80"
+  muted-dark: "#c4beb4"
   rule-dark: "#2e2a26"
   field-dark: "#262220"
   accent-dark: "oklch(0.72 0.12 40)"
@@ -126,8 +126,8 @@ A restrained paper-and-ink palette: warm-tinted neutrals carry almost everything
 - **Warm Paper** (#faf9f5; dark #1b1917): the page canvas.
 - **Notebook Ink** (#211f1b; dark #f3f0ea): titles and entry names.
 - **Body Ink** (#453f38; dark #cbc5bb): running text in the editor and excerpts.
-- **Margin Gray** (#675f57; dark #918a80): secondary text, labels, icon buttons at rest.
-- **Faint Pencil** (#6e6760; dark #918a80): placeholders, counts, saved-state checkmark.
+- **Margin Gray** (#675f57; dark #c4beb4): secondary text, labels, icon buttons at rest.
+- **Faint Pencil** (#6e6760; dark #b0aaa0): placeholders, counts, saved-state checkmark.
 - **Ruled Line** (#e8e4db; dark #2e2a26): every divider, title bar bottom border, list separators.
 - **Field Tint** (#f0ede4; dark #262220): input backgrounds and the hover tint of ghost buttons.
 - **Correction Red** (oklch(0.5 0.15 30) light, oklch(0.72 0.14 30) dark): destructive actions and error messages only.
@@ -177,7 +177,7 @@ Flat by default. Depth is conveyed by hairline rules and tonal fills (Field Tint
 - **Error:** a short line in Correction Red with `role="alert"` beneath the form.
 
 ### List Items
-- **Style:** a row separated by a Ruled Line bottom border, no card, no background. Item name (sans, 15px) over a two-to-three-line serif excerpt in Margin Gray; per-row actions are icon buttons aligned right. The whole row is the click target (cmd/ctrl+click opens in a new tab).
+- **Style:** a row separated by a Ruled Line bottom border, no card, no background. Item name (sans, 16px) over a two-to-three-line serif excerpt in Margin Gray; per-row actions are icon buttons aligned right. The whole row is the click target (cmd/ctrl+click opens in a new tab).
 - **Section header:** uppercase Label with the count right-aligned, underlined by a Ruled Line.
 
 ### Navigation

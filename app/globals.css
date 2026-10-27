@@ -36,8 +36,8 @@
     --reader-bg: #1b1917;
     --reader-ink: #f3f0ea;
     --reader-body: #cbc5bb;
-    --reader-muted: #918a80;
-    --reader-faint: #918a80;
+    --reader-muted: #c4beb4;
+    --reader-faint: #b0aaa0;
     --reader-danger: oklch(0.72 0.14 30);
     --reader-rule: #2e2a26;
     --reader-accent: oklch(0.72 0.12 40);
