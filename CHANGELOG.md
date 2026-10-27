@@ -2,6 +2,7 @@
 
 ## 2026-10-27
 
+- Navigation drawer items are 16px on narrow screens (14px from the `md` breakpoint up), for easier tapping and reading on mobile.
 - The header and the navigation drawer now have their own surface color: rgb(240, 238, 233) in light mode and rgb(18, 18, 18) in dark mode.
 - Moved the backup download and sign-out controls from the story title bar into the bottom of the navigation drawer, as labelled items next to "My stories" and the language selector.
 - Text fields and the language selector are now 16px, so iOS Safari no longer zooms the page in when you tap them.
