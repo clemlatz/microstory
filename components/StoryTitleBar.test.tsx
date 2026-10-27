@@ -55,4 +55,30 @@ describe('StoryTitleBar', () => {
     render(<StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} saveStatus="saved" />)
     expect(screen.getByTestId('story-save-status')).toHaveAccessibleName('Saved')
   })
+
+  describe('title color', () => {
+    const pendingClass = 'text-[var(--reader-pending)]'
+    function renderEditable(saveStatus?: 'unsaved' | 'saving' | 'saved') {
+      render(
+        <StoryTitleBar title="Adaline Marrow" onOpenNav={vi.fn()} onTitleChange={vi.fn()} saveStatus={saveStatus} />,
+      )
+      return screen.getByTestId('story-title')
+    }
+
+    it('is orange while changes are unsaved', () => {
+      expect(renderEditable('unsaved').className).toContain(pendingClass)
+    })
+
+    it('stays orange while saving', () => {
+      expect(renderEditable('saving').className).toContain(pendingClass)
+    })
+
+    it('goes back to the normal color once saved', () => {
+      expect(renderEditable('saved').className).not.toContain(pendingClass)
+    })
+
+    it('uses the normal color when there is no save status', () => {
+      expect(renderEditable().className).not.toContain(pendingClass)
+    })
+  })
 })

@@ -52,6 +52,10 @@ export function StoryTitleBar({
 }) {
   const { t } = useLocale()
 
+  // Orange while the entry has changes that are not saved yet, back to the normal text color once saved.
+  const isPending = saveStatus === 'unsaved' || saveStatus === 'saving'
+  const titleColor = isPending ? 'text-[var(--reader-pending)]' : 'text-[var(--reader-ink)]'
+
   return (
     <div className="surface-bar relative z-[60] flex h-14 w-full shrink-0 items-center gap-3 border-b border-[var(--reader-rule)] bg-[var(--reader-bg)]/90 px-4 font-reader-label backdrop-blur-sm sm:px-6">
       <button
@@ -79,7 +83,7 @@ export function StoryTitleBar({
       {onTitleChange ? (
         <input
           data-testid="story-title"
-          className="min-h-11 min-w-0 flex-1 truncate border-none bg-transparent text-center font-reader-body text-base font-semibold tracking-tight text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
+          className={`min-h-11 min-w-0 flex-1 truncate border-none bg-transparent text-center font-reader-body text-base font-semibold tracking-tight transition-colors duration-150 ${titleColor} placeholder:text-[var(--reader-faint)]`}
           aria-label={titlePlaceholder ?? title}
           placeholder={titlePlaceholder}
           value={title}

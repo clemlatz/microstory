@@ -185,7 +185,7 @@ Flat by default. Depth is conveyed by hairline rules and tonal fills (Field Tint
 - **Drawer:** Bar Tint surface; persistent sidebar on desktop; full-width overlay on narrow viewports. It slides horizontally in 200ms (ease-out) when opened or closed; the one exception to "motion conveys state only" is that this slide also moves the content area on desktop, where the sidebar width collapses with it. The top bar stays above it. Items use Notebook Ink at rest (never Margin Gray); the active item is marked by a tonal background and medium weight. While a character, note or documentation entry is open, its line in "Recently viewed" is the active item and its section is not (Notion-style). Item text is 18px below the `md` breakpoint (the only place outside the four-size scale, for tap comfort) and 14px above it. The footer holds the account and utility actions as labelled rows: my stories, download a backup, sign out, then the language selector.
 
 ### Save Status
-A tiny indicator after the title: a static dot for unsaved, a pulsing dot for saving, a checkmark for saved. Always carries an `aria-label`. It never appears as text.
+While an entry has unsaved changes (or is saving), its title is Pending Orange (oklch(0.52 0.14 55) light, oklch(0.78 0.14 60) dark; at least 4.9:1 on the bar) and returns to Notebook Ink once saved. A tiny indicator after the title: a static dot for unsaved, a pulsing dot for saving, a checkmark for saved. Always carries an `aria-label`. It never appears as text.
 
 ### Editor (BlockNote)
 Gutters and background are neutralized so text starts flush with the title's left edge, Notion-style, on the Warm Paper canvas.

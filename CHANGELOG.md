@@ -2,6 +2,7 @@
 
 ## 2026-10-27
 
+- In the title bar, an entry's title turns orange as soon as it has unsaved changes (and stays orange while saving), then goes back to the normal text color once it has been saved.
 - The navigation drawer now slides in and out horizontally (200ms) when opened or closed, on mobile and desktop; the first render and `prefers-reduced-motion` do not animate.
 - On narrow screens, the navigation drawer now fills the full width of the page instead of stopping at 320px.
 - On narrow screens, selecting an entry in the navigation drawer's "Recently viewed" list now closes the drawer, like selecting a section already did.

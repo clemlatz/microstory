@@ -16,6 +16,8 @@
   --reader-rule: #e8e4db;
   --reader-accent: oklch(0.55 0.12 40);
   --reader-accent-ink: #ffffff;
+  /* Title of an entry with changes that are not saved yet (orange). */
+  --reader-pending: oklch(0.52 0.14 55);
   --reader-input-bg: #f0ede4;
 }
 
@@ -42,6 +44,7 @@
     --reader-rule: #2e2a26;
     --reader-accent: oklch(0.72 0.12 40);
     --reader-accent-ink: #1b1917;
+    --reader-pending: oklch(0.78 0.14 60);
     --reader-input-bg: #262220;
   }
 }
