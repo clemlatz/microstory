@@ -33,15 +33,15 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-label={title}
         data-testid="confirm-dialog"
-        className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-5 shadow-lg dark:border-gray-800 dark:bg-gray-950"
+        className="w-full max-w-sm rounded-lg border border-[var(--reader-rule)] bg-[var(--reader-bg)] p-5 font-reader-label shadow-lg"
         onClick={(event) => event.stopPropagation()}
       >
-        <p className="text-sm text-gray-900 dark:text-gray-100">{title}</p>
+        <p className="text-sm text-[var(--reader-ink)]">{title}</p>
         <div className="mt-4 flex justify-end gap-2">
           <button
             data-testid="confirm-dialog-cancel"
             type="button"
-            className="rounded-lg px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
+            className="min-h-11 rounded-md px-3.5 py-1.5 text-sm text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
             onClick={onCancel}
           >
             {cancelLabel ?? t('confirmDialog.cancel')}
@@ -49,7 +49,7 @@ export function ConfirmDialog({
           <button
             data-testid="confirm-dialog-confirm"
             type="button"
-            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700"
+            className="min-h-11 rounded-md bg-[var(--reader-danger)] px-3.5 py-1.5 text-sm font-medium text-[var(--reader-accent-ink)] hover:opacity-90"
             onClick={onConfirm}
           >
             {confirmLabel ?? t('confirmDialog.confirm')}
