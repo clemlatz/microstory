@@ -51,3 +51,6 @@ next-env.d.ts
 
 # private development history (design specs and implementation plans), not for public consumption
 /docs/superpowers/
+
+# Impeccable design tooling sidecar (regenerable)
+.impeccable/
