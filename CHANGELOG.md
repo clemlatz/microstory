@@ -2,6 +2,7 @@
 
 ## 2026-10-27
 
+- On narrow screens, the navigation drawer now fills the full width of the page instead of stopping at 320px.
 - On narrow screens, selecting an entry in the navigation drawer's "Recently viewed" list now closes the drawer, like selecting a section already did.
 - The navigation drawer's "Recently viewed" list no longer reorders when you open an entry that is already in it: it stays where it is, and only an entry that wasn't in the list yet appears at the top.
 - Like Notion's sidebar, when a character, note or documentation entry is open, its line in the navigation drawer's "Recently viewed" list is highlighted (however you got there), and its section (Characters, Notes, Documentation) is no longer highlighted.
