@@ -5,7 +5,7 @@ colors:
   canvas: "#faf9f5"
   ink: "#211f1b"
   body: "#453f38"
-  muted: "#7a7269"
+  muted: "#675f57"
   faint: "#6e6760"
   rule: "#e8e4db"
   field: "#f0ede4"
@@ -123,7 +123,7 @@ A restrained paper-and-ink palette: warm-tinted neutrals carry almost everything
 - **Warm Paper** (#faf9f5; dark #1b1917): the page canvas and the title bar.
 - **Notebook Ink** (#211f1b; dark #f3f0ea): titles and entry names.
 - **Body Ink** (#453f38; dark #cbc5bb): running text in the editor and excerpts.
-- **Margin Gray** (#7a7269; dark #918a80): secondary text, labels, icon buttons at rest.
+- **Margin Gray** (#675f57; dark #918a80): secondary text, labels, icon buttons at rest.
 - **Faint Pencil** (#6e6760; dark #918a80): placeholders, counts, saved-state checkmark.
 - **Ruled Line** (#e8e4db; dark #2e2a26): every divider, title bar bottom border, list separators.
 - **Field Tint** (#f0ede4; dark #262220): input backgrounds and the hover tint of ghost buttons.
@@ -132,7 +132,7 @@ A restrained paper-and-ink palette: warm-tinted neutrals carry almost everything
 ### Named Rules
 **The One Marker Rule.** Rust appears on the primary action and nowhere else. If two rust elements share a screen, one is wrong.
 
-**The No Cold Neutral Rule.** Never use Tailwind `gray-*`, `white`, or pure `#000`/`#fff` surfaces inside the app. Every neutral is one of the tokens above. (The confirm dialog still uses `gray`/`red` and should be migrated.)
+**The No Cold Neutral Rule.** Never use Tailwind `gray-*`, `white`, or pure `#000`/`#fff` surfaces inside the app. Every neutral is one of the tokens above. 
 
 ## 3. Typography
 
@@ -146,7 +146,7 @@ A restrained paper-and-ink palette: warm-tinted neutrals carry almost everything
 - **Item name** (500, 15px, 1.5): the name of an entry in a list, in the sans.
 - **Body** (400, 13px, 1.625): excerpts and editor text, in the serif. Prose lines stay within 65–75ch.
 - **UI** (400, 14px, 1.43): buttons, inputs, empty and error messages.
-- **Label** (600, 12px, 0.09em tracking, uppercase): section headings above lists; paired with an 11px count in Faint Pencil.
+- **Label** (600, 12px, 0.09em tracking, uppercase): section headings above lists; paired with a 12px count in Faint Pencil.
 
 ### Named Rules
 **The Two Voices Rule.** Serif is for content the writer owns; sans is for the tool. Never use serif on a button or sans in the editor body, and never introduce a display font.
