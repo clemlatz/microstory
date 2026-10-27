@@ -26,16 +26,12 @@ import { useLocale } from '@/lib/i18n/LocaleContext'
  * Omitted by callers whose title isn't editable here (the story overview
  * itself, reached via `StoryPageClient`), which keeps the plain `<h1>`.
  *
- * `saveStatus` (issue #20, extended to a three-state value) renders a
- * discreet save-status icon right after the title: a static solid dot
- * while `'unsaved'` (a change was made but hasn't been sent yet), a
- * pulsing dot while `'saving'` (the request is in flight), and a plain
- * checkmark once it settles to `'saved'` — replacing the "Saving…"/
- * "Saved" text block each entry-edit page used to show in its own body.
- * Only rendered when `saveStatus` is not `undefined` (i.e. only by
- * callers that autosave — every `onTitleChange` caller so far), and
- * always carries an `aria-label` reflecting the current state so the
- * status stays accessible despite showing no text.
+ * `saveStatus` (issue #20, a three-state value) is shown by the title's
+ * color alone: orange while `'unsaved'` or `'saving'`, the normal text color
+ * once `'saved'`. Because color is not enough for assistive tech, a visually
+ * hidden `role="status"` element announces the current state by name.
+ * Only rendered when `saveStatus` is not `undefined` (i.e. only by callers
+ * that autosave — every `onTitleChange` caller so far).
  */
 export function StoryTitleBar({
   title,
@@ -98,33 +94,8 @@ export function StoryTitleBar({
         </h1>
       )}
       {saveStatus !== undefined && (
-        <span
-          data-testid="story-save-status"
-          role="status"
-          aria-label={t(`common.${saveStatus}`)}
-          title={t(`common.${saveStatus}`)}
-          className="shrink-0"
-        >
-          {saveStatus === 'saved' ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-3.5 w-3.5 text-[var(--reader-faint)]"
-              aria-hidden="true"
-            >
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
-          ) : (
-            <span
-              className={`block h-2 w-2 rounded-full bg-[var(--reader-muted)] ${saveStatus === 'saving' ? 'animate-pulse' : ''}`}
-              aria-hidden="true"
-            />
-          )}
+        <span data-testid="story-save-status" role="status" aria-label={t(`common.${saveStatus}`)} className="sr-only">
+          {t(`common.${saveStatus}`)}
         </span>
       )}
       {/* Mirrors the toggle button's width so the title stays centered. */}

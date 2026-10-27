@@ -2,6 +2,7 @@
 
 ## 2026-10-27
 
+- Removed the dot/checkmark save-status icon from the title bar: the title color (orange while unsaved or saving, normal once saved) is now the only visual indicator, and the state is still announced to screen readers.
 - In the title bar, an entry's title turns orange as soon as it has unsaved changes (and stays orange while saving), then goes back to the normal text color once it has been saved.
 - The navigation drawer now slides in and out horizontally (200ms) when opened or closed, on mobile and desktop; the first render and `prefers-reduced-motion` do not animate.
 - On narrow screens, the navigation drawer now fills the full width of the page instead of stopping at 320px.
