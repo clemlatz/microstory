@@ -106,6 +106,7 @@ export function StoryNavDrawer({
   activeSection,
   activeEntry,
   onNavigate,
+  onNavigateToEntry,
   onBackToStories,
 }: {
   open: boolean
@@ -119,6 +120,8 @@ export function StoryNavDrawer({
    */
   activeEntry?: { kind: RecentEntityKind; id: string }
   onNavigate: (section: StorySection) => void
+  /** Called when a "Recently viewed" entry is selected (e.g. so a mobile overlay can close itself). */
+  onNavigateToEntry?: () => void
   onBackToStories: () => void
 }) {
   const { t } = useLocale()
@@ -231,6 +234,7 @@ export function StoryNavDrawer({
                         data-testid="story-nav-recent-item"
                         href={`/story/${storyId}/${RECENT_ENTITY_ROUTES[entity.kind].path}/${entity.id}`}
                         aria-current={isActive ? 'page' : undefined}
+                        onClick={onNavigateToEntry}
                         className={
                           isActive
                             ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-lg font-medium text-[var(--reader-ink)] md:text-sm'

@@ -84,6 +84,10 @@ export function StoryShell({
     if (!isDesktop) closeNav()
   }
 
+  function handleNavigateToEntry() {
+    if (!isDesktop) closeNav()
+  }
+
   return (
     <div className="flex h-dvh w-full flex-col overflow-hidden">
       <StoryTitleBar
@@ -101,6 +105,7 @@ export function StoryShell({
           activeSection={activeSection}
           activeEntry={entry}
           onNavigate={handleNavigate}
+          onNavigateToEntry={handleNavigateToEntry}
           onBackToStories={onBackToStories ?? (() => router.push('/stories'))}
         />
         <div className="min-w-0 flex-1">{children}</div>

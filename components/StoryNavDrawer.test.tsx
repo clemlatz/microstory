@@ -175,6 +175,25 @@ describe('StoryNavDrawer', () => {
     expect(screen.getByTestId('story-nav-characters')).not.toHaveAttribute('aria-current')
   })
 
+  it('calls onNavigateToEntry when a recent entry is selected', async () => {
+    window.localStorage.clear()
+    recordRecentEntity('s1', { kind: 'note', id: 'n1', title: 'A note' })
+    const onNavigateToEntry = vi.fn()
+    render(
+      <StoryNavDrawer
+        open={true}
+        storyId="s1"
+        onClose={vi.fn()}
+        activeSection="overview"
+        onNavigate={vi.fn()}
+        onNavigateToEntry={onNavigateToEntry}
+        onBackToStories={vi.fn()}
+      />,
+    )
+    await userEvent.click(screen.getByTestId('story-nav-recent-item'))
+    expect(onNavigateToEntry).toHaveBeenCalledTimes(1)
+  })
+
   it('highlights the section when no entry is displayed', () => {
     window.localStorage.clear()
     render(
