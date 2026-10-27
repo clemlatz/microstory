@@ -193,18 +193,11 @@ export function StoryNavDrawer({
               key={item.section}
               data-testid={item.testId}
               href={`/story/${storyId}?section=${item.section}`}
-              role="button"
-              aria-pressed={item.section === activeSection}
+              aria-current={item.section === activeSection ? 'page' : undefined}
               onClick={(event) => {
                 if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
                 event.preventDefault()
                 onNavigate(item.section)
-              }}
-              onKeyDown={(event) => {
-                if (event.key === ' ') {
-                  event.preventDefault()
-                  event.currentTarget.click()
-                }
               }}
               className={
                 item.section === activeSection

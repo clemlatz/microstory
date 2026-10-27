@@ -2,6 +2,7 @@
 
 ## 2026-10-27
 
+- The navigation drawer's section items are now plain links marked with `aria-current="page"` for the active section, instead of links pretending to be toggle buttons (`role="button"` + `aria-pressed`), so screen readers announce them as navigation.
 - On narrow screens, the navigation drawer now behaves like a proper overlay for keyboard users: focus moves into it when it opens, Escape closes it, Tab stays inside it, and focus returns to the toggle button when it closes. The navigation list also has an accessible name.
 - Accessibility and design-consistency pass: every text field now has an accessible name; the delete confirmation dialog closes on Escape, focuses its safe action, traps Tab and restores focus; a visible keyboard focus ring and `prefers-reduced-motion` support apply app-wide; secondary text is darker for AA contrast on input backgrounds; the stories list, login screen and entry edit pages now use the app's warm "Reader" palette (and 44px tap targets) instead of a separate stone/hex palette; section headings are `h2`, below the page's `h1`; the PWA manifest and `theme-color` match the app's canvas in light and dark mode; the unused Newsreader font is no longer loaded.
 - The delete confirmation dialog now uses the app's warm "Reader" palette (paper background, hairline border, danger-red confirm button) in light and dark mode, with 44px tap targets, instead of generic gray/red Tailwind colors.

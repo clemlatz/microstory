@@ -45,7 +45,7 @@ describe('StoryNavDrawer', () => {
         onBackToStories={vi.fn()}
       />,
     )
-    const items = screen.getAllByRole('button').filter((el) => el.dataset.testid?.startsWith('story-nav-'))
+    const items = screen.getAllByRole('link').filter((el) => el.dataset.testid?.startsWith('story-nav-'))
     expect(items[0]).toHaveAttribute('data-testid', 'story-nav-search')
   })
 
@@ -59,8 +59,8 @@ describe('StoryNavDrawer', () => {
         onBackToStories={vi.fn()}
       />,
     )
-    expect(screen.getByTestId('story-nav-notes')).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByTestId('story-nav-characters')).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByTestId('story-nav-notes')).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByTestId('story-nav-characters')).not.toHaveAttribute('aria-current')
   })
 
   it('calls onNavigate with the clicked section', async () => {

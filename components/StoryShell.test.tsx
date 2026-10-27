@@ -78,7 +78,7 @@ describe('StoryShell', () => {
       </StoryShell>,
     )
     await user.click(screen.getByTestId('story-nav-toggle'))
-    expect(screen.getByTestId('story-nav-notes')).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByTestId('story-nav-notes')).toHaveAttribute('aria-current', 'page')
   })
 
   it('calls onNavigate when a drawer item is clicked', async () => {
