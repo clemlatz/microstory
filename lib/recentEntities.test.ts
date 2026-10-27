@@ -14,7 +14,7 @@ describe('recentEntities', () => {
     expect(result.current.map((e) => e.id)).toEqual(['b', 'a'])
   })
 
-  it('moves a re-recorded entity to the top without duplicating it', () => {
+  it('keeps a re-recorded entity in place, refreshing its title, without duplicating it', () => {
     const { result } = renderHook(() => useRecentEntities('s1'))
     act(() => {
       recordRecentEntity('s1', { kind: 'note', id: 'a', title: 'A' })
@@ -22,8 +22,8 @@ describe('recentEntities', () => {
       recordRecentEntity('s1', { kind: 'note', id: 'a', title: 'A renamed' })
     })
     expect(result.current).toEqual([
-      { kind: 'note', id: 'a', title: 'A renamed' },
       { kind: 'note', id: 'b', title: 'B' },
+      { kind: 'note', id: 'a', title: 'A renamed' },
     ])
   })
 

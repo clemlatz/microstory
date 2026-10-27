@@ -88,14 +88,19 @@ export function forgetRecentEntity(storyId: string, kind: RecentEntityKind, id: 
   )
 }
 
-/** Puts `entity` first in the story's history, dropping any earlier copy and anything past the 10th. */
+/**
+ * Records `entity` in the story's history. An entity already in the list stays
+ * where it is (only its title is refreshed, so a rename shows up); one that
+ * wasn't there is added first, dropping anything past the 10th.
+ */
 export function recordRecentEntity(storyId: string, entity: RecentEntity) {
+  const current = getSnapshot(storyId)
+  const isKnown = current.some((e) => e.kind === entity.kind && e.id === entity.id)
   writeSnapshot(
     storyId,
-    [entity, ...getSnapshot(storyId).filter((e) => !(e.kind === entity.kind && e.id === entity.id))].slice(
-      0,
-      MAX_RECENT_ENTITIES,
-    ),
+    isKnown
+      ? current.map((e) => (e.kind === entity.kind && e.id === entity.id ? entity : e))
+      : [entity, ...current].slice(0, MAX_RECENT_ENTITIES),
   )
 }
 
