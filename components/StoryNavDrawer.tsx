@@ -6,6 +6,8 @@ import { useLocale } from '@/lib/i18n/LocaleContext'
 import { useRecentEntities, type RecentEntityKind } from '@/lib/recentEntities'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { LogoutButton } from './LogoutButton'
+import { StoryNavSection } from './StoryNavSection'
+import { setNavSectionExpanded, useExpandedNavSections } from '@/lib/navExpandedSections'
 
 export type StorySection = 'search' | 'overview' | 'characters' | 'notes' | 'documentation'
 
@@ -71,6 +73,25 @@ const DocumentationIcon = (
   </NavIcon>
 )
 
+// The three entry sections unfold in place (Notion-style) instead of opening a page.
+const SECTION_KIND: Partial<Record<StorySection, RecentEntityKind>> = {
+  characters: 'character',
+  notes: 'note',
+  documentation: 'documentation',
+}
+
+const NEW_ENTRY_LABELS = {
+  character: 'storyNav.newCharacter',
+  note: 'storyNav.newNote',
+  documentation: 'storyNav.newDocumentation',
+} as const
+
+const UNTITLED_LABELS = {
+  character: 'storyNav.untitledCharacter',
+  note: 'storyNav.untitledNote',
+  documentation: 'storyNav.untitledDocumentation',
+} as const
+
 const RECENT_ENTITY_ROUTES: Record<RecentEntityKind, { path: string; icon: ReactNode }> = {
   character: { path: 'character', icon: CharactersIcon },
   note: { path: 'note', icon: NotesIcon },
@@ -105,6 +126,7 @@ export function StoryNavDrawer({
   onClose,
   activeSection,
   activeEntry,
+  activeEntryTitle,
   onNavigate,
   onNavigateToEntry,
   onBackToStories,
@@ -119,6 +141,8 @@ export function StoryNavDrawer({
    * section is, whichever way the entry was reached.
    */
   activeEntry?: { kind: RecentEntityKind; id: string }
+  /** Live title of `activeEntry`, so a rename shows in its list before a reload. */
+  activeEntryTitle?: string
   onNavigate: (section: StorySection) => void
   /** Called when a "Recently viewed" entry is selected (e.g. so a mobile overlay can close itself). */
   onNavigateToEntry?: () => void
@@ -127,6 +151,14 @@ export function StoryNavDrawer({
   const { t } = useLocale()
   const recentEntities = useRecentEntities(storyId)
   const asideRef = useRef<HTMLElement>(null)
+  const expandedKinds = useExpandedNavSections(storyId)
+
+  // Reveal the section of the page being shown (an open entry, or a section
+  // reached through its `?section=` URL) so the current item is visible.
+  const revealedKind = activeEntry?.kind ?? SECTION_KIND[activeSection]
+  useEffect(() => {
+    if (storyId && revealedKind) setNavSectionExpanded(storyId, revealedKind, true)
+  }, [storyId, revealedKind])
 
   // The drawer stays mounted so it can slide in and out. Transitions are only
   // enabled after the first client frame: on desktop the open state is
@@ -228,27 +260,49 @@ export function StoryNavDrawer({
       >
         <div className="flex w-full min-w-0 flex-col md:w-64 md:shrink-0">
           <nav aria-label={t('storyNav.title')} className="min-h-0 flex-1 overflow-y-auto p-2 pt-4">
-            {items.map((item) => (
-              <a
-                key={item.section}
-                data-testid={item.testId}
-                href={`/story/${storyId}?section=${item.section}`}
-                aria-current={!activeEntry && item.section === activeSection ? 'page' : undefined}
-                onClick={(event) => {
-                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
-                  event.preventDefault()
-                  onNavigate(item.section)
-                }}
-                className={
-                  !activeEntry && item.section === activeSection
-                    ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-lg md:text-sm font-medium text-[var(--reader-ink)]'
-                    : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]'
-                }
-              >
-                {item.icon}
-                {item.label}
-              </a>
-            ))}
+            {items.map((item) => {
+              const kind = SECTION_KIND[item.section]
+              if (kind) {
+                return (
+                  <StoryNavSection
+                    key={item.section}
+                    storyId={storyId}
+                    kind={kind}
+                    label={item.label}
+                    icon={item.icon}
+                    testId={item.testId}
+                    newLabel={t(NEW_ENTRY_LABELS[kind])}
+                    untitledLabel={t(UNTITLED_LABELS[kind])}
+                    expanded={expandedKinds.includes(kind)}
+                    onToggle={() => storyId && setNavSectionExpanded(storyId, kind, !expandedKinds.includes(kind))}
+                    activeEntry={activeEntry}
+                    activeEntryTitle={activeEntryTitle}
+                    onNavigateToEntry={onNavigateToEntry}
+                  />
+                )
+              }
+              return (
+                <a
+                  key={item.section}
+                  data-testid={item.testId}
+                  href={`/story/${storyId}?section=${item.section}`}
+                  aria-current={!activeEntry && item.section === activeSection ? 'page' : undefined}
+                  onClick={(event) => {
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+                    event.preventDefault()
+                    onNavigate(item.section)
+                  }}
+                  className={
+                    !activeEntry && item.section === activeSection
+                      ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-lg md:text-sm font-medium text-[var(--reader-ink)]'
+                      : 'flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]'
+                  }
+                >
+                  {item.icon}
+                  {item.label}
+                </a>
+              )
+            })}
             {storyId && recentEntities.length > 0 && (
               <div data-testid="story-nav-recent" className="mt-4">
                 <h2 className="px-3 pb-1 text-xs font-medium uppercase tracking-wide text-[var(--reader-muted)]">

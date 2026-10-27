@@ -11,6 +11,9 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/lib/charactersApi', () => ({
   updateCharacter: vi.fn(),
+  deleteCharacter: vi.fn(),
+  fetchCharacters: vi.fn().mockResolvedValue([]),
+  createCharacter: vi.fn(),
 }))
 
 import { updateCharacter } from '@/lib/charactersApi'

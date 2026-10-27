@@ -2,6 +2,7 @@
 
 ## 2026-10-27
 
+- In the navigation drawer, selecting Characters, Notes or Documentation no longer opens a page listing them: the section unfolds in place (Notion-style) to show its entries, alphabetically. Selecting an entry opens it, the one currently open is highlighted, and a last "New character / note / documentation entry" row creates one with a placeholder title and opens it. Which sections are unfolded is remembered per story, and the section of the open entry is unfolded automatically.
 - Added a delete button (trash icon) on the right of the title bar when editing a character, note or documentation entry: it asks for confirmation, deletes the entry, removes it from "Recently viewed" and returns to its section.
 - Removed the dot/checkmark save-status icon from the title bar: the title color (orange while unsaved or saving, normal once saved) is now the only visual indicator, and the state is still announced to screen readers.
 - In the title bar, an entry's title turns orange as soon as it has unsaved changes (and stays orange while saving), then goes back to the normal text color once it has been saved.

@@ -73,12 +73,12 @@ describe('StoryShell', () => {
   it('highlights the section passed as activeSection', async () => {
     const user = userEvent.setup()
     render(
-      <StoryShell story={story} activeSection="notes" onNavigate={vi.fn()}>
+      <StoryShell story={story} activeSection="search" onNavigate={vi.fn()}>
         <p>content</p>
       </StoryShell>,
     )
     await user.click(screen.getByTestId('story-nav-toggle'))
-    expect(screen.getByTestId('story-nav-notes')).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByTestId('story-nav-search')).toHaveAttribute('aria-current', 'page')
   })
 
   it('calls onNavigate when a drawer item is clicked', async () => {
@@ -90,8 +90,8 @@ describe('StoryShell', () => {
       </StoryShell>,
     )
     await user.click(screen.getByTestId('story-nav-toggle'))
-    await user.click(screen.getByTestId('story-nav-notes'))
-    expect(onNavigate).toHaveBeenCalledWith('notes')
+    await user.click(screen.getByTestId('story-nav-search'))
+    expect(onNavigate).toHaveBeenCalledWith('search')
   })
 
   it('pushes to /stories by default when "My stories" is clicked', async () => {

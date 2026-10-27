@@ -11,6 +11,9 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/lib/notesApi', () => ({
   updateNote: vi.fn(),
+  deleteNote: vi.fn(),
+  fetchNotes: vi.fn().mockResolvedValue([]),
+  createNote: vi.fn(),
 }))
 
 import { updateNote } from '@/lib/notesApi'

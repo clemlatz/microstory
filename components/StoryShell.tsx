@@ -129,6 +129,7 @@ export function StoryShell({
           onClose={closeNav}
           activeSection={activeSection}
           activeEntry={entry}
+          activeEntryTitle={entryTitle}
           onNavigate={handleNavigate}
           onNavigateToEntry={handleNavigateToEntry}
           onBackToStories={onBackToStories ?? (() => router.push('/stories'))}

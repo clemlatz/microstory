@@ -69,9 +69,9 @@ describe('StoryPageClient', () => {
     render(<StoryPageClient story={story} />)
 
     await user.click(screen.getByTestId('story-nav-toggle'))
-    await user.click(screen.getByTestId('story-nav-notes'))
+    await user.click(screen.getByTestId('story-nav-search'))
 
-    await waitFor(() => expect(screen.getByText(/No notes/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByTestId('search-input')).toBeInTheDocument())
   })
 
   describe('on a desktop-width viewport', () => {
@@ -105,9 +105,9 @@ describe('StoryPageClient', () => {
       render(<StoryPageClient story={story} />)
       await waitFor(() => expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument())
 
-      await user.click(screen.getByTestId('story-nav-notes'))
+      await user.click(screen.getByTestId('story-nav-search'))
 
-      await waitFor(() => expect(screen.getByText(/No notes/)).toBeInTheDocument())
+      await waitFor(() => expect(screen.getByTestId('search-input')).toBeInTheDocument())
       expect(screen.getByTestId('story-nav-drawer')).toBeInTheDocument()
     })
 

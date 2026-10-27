@@ -11,6 +11,9 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/lib/documentationApi', () => ({
   updateDocumentationEntry: vi.fn(),
+  deleteDocumentationEntry: vi.fn(),
+  fetchDocumentation: vi.fn().mockResolvedValue([]),
+  createDocumentationEntry: vi.fn(),
 }))
 
 import { updateDocumentationEntry } from '@/lib/documentationApi'

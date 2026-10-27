@@ -1,12 +1,31 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { StoryNavDrawer } from './StoryNavDrawer'
 import { recordRecentEntity } from '@/lib/recentEntities'
+import { createCharacter, fetchCharacters } from '@/lib/charactersApi'
+import type { Character } from '@/lib/types'
 
+const mockRouterPush = vi.fn()
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push: mockRouterPush, refresh: vi.fn() }),
 }))
+
+vi.mock('@/lib/charactersApi', () => ({
+  fetchCharacters: vi.fn(),
+  createCharacter: vi.fn(),
+}))
+vi.mock('@/lib/notesApi', () => ({
+  fetchNotes: vi.fn().mockResolvedValue([]),
+  createNote: vi.fn(),
+}))
+vi.mock('@/lib/documentationApi', () => ({
+  fetchDocumentation: vi.fn().mockResolvedValue([]),
+  createDocumentationEntry: vi.fn(),
+}))
+
+const mockedFetchCharacters = vi.mocked(fetchCharacters)
+const mockedCreateCharacter = vi.mocked(createCharacter)
 
 describe('StoryNavDrawer', () => {
   it('renders nothing when closed', () => {
@@ -58,13 +77,13 @@ describe('StoryNavDrawer', () => {
       <StoryNavDrawer
         open={true}
         onClose={vi.fn()}
-        activeSection="notes"
+        activeSection="search"
         onNavigate={vi.fn()}
         onBackToStories={vi.fn()}
       />,
     )
-    expect(screen.getByTestId('story-nav-notes')).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByTestId('story-nav-characters')).not.toHaveAttribute('aria-current')
+    expect(screen.getByTestId('story-nav-search')).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByTestId('story-nav-overview')).not.toHaveAttribute('aria-current')
   })
 
   it('calls onNavigate with the clicked section', async () => {
@@ -80,9 +99,9 @@ describe('StoryNavDrawer', () => {
       />,
     )
 
-    await user.click(screen.getByTestId('story-nav-documentation'))
+    await user.click(screen.getByTestId('story-nav-search'))
 
-    expect(onNavigate).toHaveBeenCalledWith('documentation')
+    expect(onNavigate).toHaveBeenCalledWith('search')
   })
 
   it('calls onBackToStories when the "My stories" item is clicked', async () => {
@@ -172,7 +191,7 @@ describe('StoryNavDrawer', () => {
     const [alice, oldNote] = screen.getAllByTestId('story-nav-recent-item')
     expect(alice).toHaveAttribute('aria-current', 'page')
     expect(oldNote).not.toHaveAttribute('aria-current')
-    expect(screen.getByTestId('story-nav-characters')).not.toHaveAttribute('aria-current')
+    expect(screen.getByTestId('story-nav-characters')).toHaveAttribute('aria-expanded', 'true')
   })
 
   it('calls onNavigateToEntry when a recent entry is selected', async () => {
@@ -201,12 +220,12 @@ describe('StoryNavDrawer', () => {
         open={true}
         storyId="s1"
         onClose={vi.fn()}
-        activeSection="characters"
+        activeSection="overview"
         onNavigate={vi.fn()}
         onBackToStories={vi.fn()}
       />,
     )
-    expect(screen.getByTestId('story-nav-characters')).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByTestId('story-nav-overview')).toHaveAttribute('aria-current', 'page')
   })
 
   it('shows no recent section when nothing was viewed', () => {
@@ -296,5 +315,96 @@ describe('StoryNavDrawer', () => {
       />,
     )
     expect(screen.getByTestId('logout-button')).toHaveTextContent('Log out')
+  })
+
+  describe('foldable entry sections', () => {
+    const character = (id: string, name: string) => ({ id, name }) as Character
+
+    function renderDrawer(props: Partial<React.ComponentProps<typeof StoryNavDrawer>> = {}) {
+      window.localStorage.clear()
+      mockRouterPush.mockClear()
+      mockedFetchCharacters.mockResolvedValue([character('c2', 'Zed'), character('c1', 'Alice')])
+      return render(
+        <StoryNavDrawer
+          open={true}
+          storyId="s1"
+          onClose={vi.fn()}
+          activeSection="overview"
+          onNavigate={vi.fn()}
+          onBackToStories={vi.fn()}
+          {...props}
+        />,
+      )
+    }
+
+    it("unfolds the section's entries, sorted, instead of navigating", async () => {
+      const onNavigate = vi.fn()
+      renderDrawer({ onNavigate })
+      const section = screen.getByTestId('story-nav-characters')
+      expect(section).toHaveAttribute('aria-expanded', 'false')
+
+      await userEvent.click(section)
+
+      expect(section).toHaveAttribute('aria-expanded', 'true')
+      const entries = await screen.findAllByTestId('story-nav-entry')
+      expect(entries.map((e) => e.textContent)).toEqual(['Alice', 'Zed'])
+      expect(entries[0]).toHaveAttribute('href', '/story/s1/character/c1')
+      expect(onNavigate).not.toHaveBeenCalled()
+    })
+
+    it('folds the section again on a second click', async () => {
+      renderDrawer()
+      const section = screen.getByTestId('story-nav-characters')
+      await userEvent.click(section)
+      await userEvent.click(section)
+      expect(section).toHaveAttribute('aria-expanded', 'false')
+      expect(screen.queryByTestId('story-nav-entry')).not.toBeInTheDocument()
+    })
+
+    it('unfolds the section of the displayed entry and highlights it, with its live title', async () => {
+      renderDrawer({ activeEntry: { kind: 'character', id: 'c1' }, activeEntryTitle: 'Alice renamed' })
+
+      const entries = await screen.findAllByTestId('story-nav-entry')
+      expect(entries[0]).toHaveTextContent('Alice renamed')
+      expect(entries[0]).toHaveAttribute('aria-current', 'page')
+      expect(entries[1]).not.toHaveAttribute('aria-current')
+    })
+
+    it('calls onNavigateToEntry when an entry is selected', async () => {
+      const onNavigateToEntry = vi.fn()
+      renderDrawer({ onNavigateToEntry })
+      await userEvent.click(screen.getByTestId('story-nav-characters'))
+      await userEvent.click((await screen.findAllByTestId('story-nav-entry'))[0])
+      expect(onNavigateToEntry).toHaveBeenCalledTimes(1)
+    })
+
+    it('creates a new entry from the last row and opens its page', async () => {
+      renderDrawer()
+      mockedCreateCharacter.mockResolvedValue({ id: 'c9', name: 'Untitled character' } as Character)
+      await userEvent.click(screen.getByTestId('story-nav-characters'))
+
+      await userEvent.click(await screen.findByTestId('story-nav-new-entry'))
+
+      expect(mockedCreateCharacter).toHaveBeenCalledWith('s1', { name: 'Untitled character', description: '' })
+      await waitFor(() => expect(mockRouterPush).toHaveBeenCalledWith('/story/s1/character/c9'))
+    })
+
+    it('remembers which sections are unfolded across remounts', async () => {
+      const { unmount } = renderDrawer()
+      await userEvent.click(screen.getByTestId('story-nav-characters'))
+      unmount()
+
+      render(
+        <StoryNavDrawer
+          open={true}
+          storyId="s1"
+          onClose={vi.fn()}
+          activeSection="overview"
+          onNavigate={vi.fn()}
+          onBackToStories={vi.fn()}
+        />,
+      )
+      expect(screen.getByTestId('story-nav-characters')).toHaveAttribute('aria-expanded', 'true')
+    })
   })
 })
