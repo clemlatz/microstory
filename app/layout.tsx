@@ -30,7 +30,7 @@ const sourceSans3 = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: "Microstory",
-  description: "Writing assistant",
+  description: "A writing knowledge base for your stories",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

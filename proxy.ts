@@ -25,7 +25,7 @@ import { SESSION_COOKIE_NAME, isValidSession } from '@/lib/authRepository'
  * can't accidentally ship to prod.
  */
 
-const STATIC_ASSET_PATTERN = /\.(png|jpg|jpeg|svg|ico|webp|gif|css|js|map|woff2?|ttf)$/
+const STATIC_ASSET_PATTERN = /\.(png|jpg|jpeg|svg|ico|webp|gif|css|js|map|woff2?|ttf|webmanifest)$/
 
 export function isPublicPath(pathname: string): boolean {
   if (pathname === '/login') return true

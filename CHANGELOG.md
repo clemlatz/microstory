@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-27
+
+- Fixed installing Microstory as a PWA: the web app manifest is no longer behind the passkey login gate, and it now declares a 192×192 icon and a maskable icon (so Android no longer crops or letterboxes it). The manifest and page descriptions were also updated to match the app's current purpose.
+
 ## 2026-09-27
 
 - The save-status icon next to a title bar's title now shows a distinct "unsaved changes" state as soon as you edit a character, note, documentation entry or story presentation, instead of only switching between "saving" and "saved" once the autosave request has actually started.

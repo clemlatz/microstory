@@ -34,6 +34,7 @@ describe('isPublicPath', () => {
   it('treats static assets as public', () => {
     expect(isPublicPath('/logo-lotus.png')).toBe(true)
     expect(isPublicPath('/favicon.ico')).toBe(true)
+    expect(isPublicPath('/manifest.webmanifest')).toBe(true)
   })
 
   it('treats app pages and other API routes as gated', () => {
