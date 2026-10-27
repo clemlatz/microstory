@@ -2,6 +2,7 @@
 
 ## 2026-10-27
 
+- Text fields and the language selector are now 16px, so iOS Safari no longer zooms the page in when you tap them.
 - Simplified the type scale to four sizes (12, 14, 16 and 24px): list entry names and reading text are now 16px, excerpts 14px, and the one-off 13px/15px/18px sizes are gone.
 - The navigation drawer's section items are now plain links marked with `aria-current="page"` for the active section, instead of links pretending to be toggle buttons (`role="button"` + `aria-pressed`), so screen readers announce them as navigation.
 - On narrow screens, the navigation drawer now behaves like a proper overlay for keyboard users: focus moves into it when it opens, Escape closes it, Tab stays inside it, and focus returns to the toggle button when it closes. The navigation list also has an accessible name.

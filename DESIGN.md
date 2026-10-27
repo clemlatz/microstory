@@ -145,7 +145,7 @@ A restrained paper-and-ink palette: warm-tinted neutrals carry almost everything
 - **Title** (600, 16px, 1.5, -0.025em tracking): the entry or story title in the top bar, centered, truncated.
 - **Item name** (500, 16px, 1.5): the name of an entry in a list, in the sans.
 - **Body** (400, 14px, 1.625): excerpts and editor text, in the serif. Prose lines stay within 65–75ch.
-- **UI** (400, 14px, 1.43): buttons, inputs, empty and error messages.
+- **UI** (400, 14px, 1.43): buttons, empty and error messages. Form fields and selects are the exception: always 16px, to prevent iOS focus zoom.
 - **Label** (600, 12px, 0.09em tracking, uppercase): section headings above lists; paired with a 12px count in Faint Pencil.
 
 ### Named Rules
@@ -169,7 +169,7 @@ Flat by default. Depth is conveyed by hairline rules and tonal fills (Field Tint
 - **Hover / Focus:** hover is a tonal fill only, no lift, no shadow. Focus must show a visible ring.
 
 ### Inputs / Fields
-- **Style:** Field Tint fill, no border, 6px radius, 44px minimum height, 14px sans text, Faint Pencil placeholder.
+- **Style:** Field Tint fill, no border, 6px radius, 44px minimum height, 16px sans text (below 16px, iOS Safari zooms the page on focus), Faint Pencil placeholder.
 - **Title field:** the entry title in the top bar is a borderless, transparent input styled exactly like the plain title, so editing in place looks the same as reading.
 - **Error:** a short line in Correction Red with `role="alert"` beneath the form.
 

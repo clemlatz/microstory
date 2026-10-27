@@ -114,7 +114,7 @@ export function DocumentationEditPage({
           <div className="mx-auto flex w-full max-w-[700px] flex-col px-6 py-6 sm:px-10">
             <input
               data-testid="documentation-page-url-input"
-              className="mb-4 border-none bg-transparent font-reader-label text-sm text-[var(--reader-muted)] placeholder:text-[var(--reader-faint)]"
+              className="mb-4 border-none bg-transparent font-reader-label text-base text-[var(--reader-muted)] placeholder:text-[var(--reader-faint)]"
               aria-label={t('documentation.urlPlaceholder')}
               placeholder={t('documentation.urlPlaceholder')}
               value={url}

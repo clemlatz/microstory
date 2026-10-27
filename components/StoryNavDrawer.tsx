@@ -242,7 +242,7 @@ export function StoryNavDrawer({
           </button>
           <div className="mt-1 flex items-center justify-between gap-2 px-3 py-2">
             <span className="text-sm text-[var(--reader-muted)]">{t('language.label')}</span>
-            <LanguageSwitcher className="min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2 text-sm text-[var(--reader-muted)]" />
+            <LanguageSwitcher className="min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2 text-base text-[var(--reader-muted)]" />
           </div>
         </div>
       </aside>

@@ -95,7 +95,7 @@ export function SearchPanel({
       <input
         data-testid="search-input"
         type="search"
-        className="min-h-11 w-full rounded-md border-none bg-[var(--reader-input-bg)] px-3 py-2 text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
+        className="min-h-11 w-full rounded-md border-none bg-[var(--reader-input-bg)] px-3 py-2 text-base text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
         aria-label={t('search.placeholder')}
             placeholder={t('search.placeholder')}
         value={query}

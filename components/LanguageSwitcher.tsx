@@ -21,7 +21,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       onChange={(event) => setLocale(event.target.value as Locale)}
       className={
         className ??
-        'min-h-11 rounded-lg border border-[var(--reader-rule)] bg-[var(--reader-bg)] px-2 text-xs text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]'
+        'min-h-11 rounded-lg border border-[var(--reader-rule)] bg-[var(--reader-bg)] px-2 text-base text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]'
       }
     >
       <option value="en">English</option>

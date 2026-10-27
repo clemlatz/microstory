@@ -131,7 +131,7 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
         <div className="flex items-center gap-2.5">
           <input
             data-testid="character-name-input"
-            className="min-w-0 flex-1 min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-sm text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
+            className="min-w-0 flex-1 min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-base text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
             aria-label={t('characters.namePlaceholder')}
             placeholder={t('characters.namePlaceholder')}
             value={name}

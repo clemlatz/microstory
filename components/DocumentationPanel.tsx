@@ -152,7 +152,7 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
         <div className="flex items-center gap-2.5">
           <input
             data-testid="documentation-title-input"
-            className="min-w-0 flex-1 min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-sm text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
+            className="min-w-0 flex-1 min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-base text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
             aria-label={t('documentation.titlePlaceholder')}
             placeholder={t('documentation.titlePlaceholder')}
             value={title}

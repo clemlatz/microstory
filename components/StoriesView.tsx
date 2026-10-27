@@ -129,7 +129,7 @@ export function StoriesView() {
               aria-label={t('stories.titlePlaceholder')}
               placeholder={t('stories.titlePlaceholder')}
               autoFocus
-              className="min-h-11 min-w-0 flex-1 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-sm text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
+              className="min-h-11 min-w-0 flex-1 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-base text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"
             />
             <button
               data-testid="new-story-submit-button"
@@ -162,7 +162,7 @@ export function StoriesView() {
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
                       autoFocus
-                      className="min-h-11 min-w-0 flex-1 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-sm text-[var(--reader-ink)]"
+                      className="min-h-11 min-w-0 flex-1 rounded-md border-none bg-[var(--reader-input-bg)] px-2.5 py-1.5 text-base text-[var(--reader-ink)]"
                     />
                     <button
                       data-testid="story-title-save-button"
