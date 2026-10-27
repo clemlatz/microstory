@@ -105,8 +105,8 @@ export function CharactersPanel({ storyId }: { storyId: string }) {
                     router.push(`/story/${storyId}/character/${character.id}`)
                   }}
                 >
-                  <p className="text-[15px] font-medium text-[var(--reader-ink)]">{character.name}</p>
-                  <p className="font-reader-body line-clamp-3 text-[13px] leading-relaxed break-words text-[var(--reader-muted)]">
+                  <p className="text-base font-medium text-[var(--reader-ink)]">{character.name}</p>
+                  <p className="font-reader-body line-clamp-3 text-sm leading-relaxed break-words text-[var(--reader-muted)]">
                     {character.description}
                   </p>
                 </a>

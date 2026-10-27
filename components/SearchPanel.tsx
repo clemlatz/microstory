@@ -132,8 +132,8 @@ export function SearchPanel({
                           router.push(`/story/${storyId}/${EDIT_PATH_BY_TYPE[result.type]}/${result.id}`)
                         }}
                       >
-                        <p className="text-[15px] font-medium text-[var(--reader-ink)]">{result.title}</p>
-                        <p className="font-reader-body line-clamp-2 text-[13px] break-words text-[var(--reader-muted)]">
+                        <p className="text-base font-medium text-[var(--reader-ink)]">{result.title}</p>
+                        <p className="font-reader-body line-clamp-2 text-sm break-words text-[var(--reader-muted)]">
                           {result.snippet}
                         </p>
                       </a>

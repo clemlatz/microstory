@@ -143,7 +143,7 @@ export function StoriesView() {
         ) : null}
 
         {stories.length === 0 ? (
-          <p className="mt-16 text-center font-reader-body text-base text-[var(--reader-faint)] italic sm:text-lg">
+          <p className="mt-16 text-center font-reader-body text-base text-[var(--reader-faint)] italic">
             {t('stories.empty')}
           </p>
         ) : (
@@ -192,7 +192,7 @@ export function StoriesView() {
                           event.preventDefault()
                           router.push(`/story/${story.id}`)
                         }}
-                        className="flex min-h-11 items-center font-reader-body text-lg text-[var(--reader-ink)] hover:underline"
+                        className="flex min-h-11 items-center font-reader-body text-base text-[var(--reader-ink)] hover:underline"
                       >
                         {story.title}
                       </a>

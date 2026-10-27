@@ -77,7 +77,7 @@ export function StoryHomeView({
                 </div>
                 <p
                   data-testid="story-presentation-preview"
-                  className="font-reader-body text-[15px] leading-relaxed break-words whitespace-pre-line text-[var(--reader-body)]"
+                  className="font-reader-body text-base leading-relaxed break-words whitespace-pre-line text-[var(--reader-body)]"
                 >
                   {story.presentation.trim() || t("presentation.empty")}
                 </p>

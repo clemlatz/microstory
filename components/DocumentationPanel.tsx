@@ -114,8 +114,8 @@ export function DocumentationPanel({ storyId }: { storyId: string }) {
                       router.push(`/story/${storyId}/documentation/${entry.id}`)
                     }}
                   >
-                    <p className="text-[15px] font-medium text-[var(--reader-ink)]">{entry.title}</p>
-                    <p className="font-reader-body line-clamp-3 text-[13px] leading-relaxed break-words whitespace-pre-wrap text-[var(--reader-muted)]">
+                    <p className="text-base font-medium text-[var(--reader-ink)]">{entry.title}</p>
+                    <p className="font-reader-body line-clamp-3 text-sm leading-relaxed break-words whitespace-pre-wrap text-[var(--reader-muted)]">
                       {entry.content}
                     </p>
                   </a>

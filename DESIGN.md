@@ -30,12 +30,12 @@ typography:
     letterSpacing: "-0.025em"
   body:
     fontFamily: "Source Serif 4, Georgia, serif"
-    fontSize: "0.8125rem"
+    fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.625
   item-name:
     fontFamily: "Source Sans 3, system-ui, sans-serif"
-    fontSize: "0.9375rem"
+    fontSize: "1rem"
     fontWeight: 500
     lineHeight: 1.5
   ui:
@@ -143,15 +143,15 @@ A restrained paper-and-ink palette: warm-tinted neutrals carry almost everything
 
 ### Hierarchy
 - **Title** (600, 16px, 1.5, -0.025em tracking): the entry or story title in the top bar, centered, truncated.
-- **Item name** (500, 15px, 1.5): the name of an entry in a list, in the sans.
-- **Body** (400, 13px, 1.625): excerpts and editor text, in the serif. Prose lines stay within 65–75ch.
+- **Item name** (500, 16px, 1.5): the name of an entry in a list, in the sans.
+- **Body** (400, 14px, 1.625): excerpts and editor text, in the serif. Prose lines stay within 65–75ch.
 - **UI** (400, 14px, 1.43): buttons, inputs, empty and error messages.
 - **Label** (600, 12px, 0.09em tracking, uppercase): section headings above lists; paired with a 12px count in Faint Pencil.
 
 ### Named Rules
 **The Two Voices Rule.** Serif is for content the writer owns; sans is for the tool. Never use serif on a button or sans in the editor body, and never introduce a display font.
 
-**The Fixed Scale Rule.** Sizes are fixed rem/px steps, never fluid `clamp()`. The app is a tool, not a poster.
+**The Fixed Scale Rule.** Only four sizes exist: 12px (labels, counts, dates), 14px (UI, excerpts), 16px (titles, entry names, reading text) and 24px (page titles on the stories list and login). No arbitrary `text-[Npx]` values and never fluid `clamp()`. The app is a tool, not a poster.
 
 ## 4. Elevation
 
