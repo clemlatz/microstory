@@ -95,4 +95,16 @@ describe('StoryTitleBar', () => {
       expect(onDelete).toHaveBeenCalledTimes(1)
     })
   })
+
+  it('shows a history button only when onShowHistory is provided', async () => {
+    const user = userEvent.setup()
+    const onShowHistory = vi.fn()
+    const { rerender } = render(<StoryTitleBar title="Idée" onOpenNav={vi.fn()} />)
+    expect(screen.queryByTestId('story-history-button')).not.toBeInTheDocument()
+
+    rerender(<StoryTitleBar title="Idée" onOpenNav={vi.fn()} onShowHistory={onShowHistory} />)
+    await user.click(screen.getByTestId('story-history-button'))
+
+    expect(onShowHistory).toHaveBeenCalledTimes(1)
+  })
 })

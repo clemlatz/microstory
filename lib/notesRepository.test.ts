@@ -200,3 +200,42 @@ describe('notesRepository', () => {
     })
   })
 })
+
+describe('getNoteVersions', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.stubEnv('DATABASE_PATH', ':memory:')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('returns the backed-up versions, most recent first, scoped to the story', async () => {
+    const { createNote, updateNote, getNoteVersions } = await import('./notesRepository')
+    const { VERSION_GROUPING_WINDOW_MS } = await import('./versionGroupingWindow')
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(0)
+      const entry = createNote({ title: 'Idée', content: 'Une idée' }, 'story-1')
+      vi.setSystemTime(VERSION_GROUPING_WINDOW_MS + 1)
+      updateNote(entry.id, 'story-1', { title: 'Idée 2', content: 'Deux' })
+      vi.setSystemTime(2 * (VERSION_GROUPING_WINDOW_MS + 1))
+      updateNote(entry.id, 'story-1', { title: 'Idée 3', content: 'Trois' })
+
+      const versions = getNoteVersions(entry.id, 'story-1')
+
+      expect(versions.map((version) => version.title)).toEqual(['Idée 2', 'Idée'])
+      expect(versions.map((version) => version.content)).toEqual(['Deux', 'Une idée'])
+      expect(versions[0].createdAt).toBe(2 * (VERSION_GROUPING_WINDOW_MS + 1))
+      expect(getNoteVersions(entry.id, 'other-story')).toEqual([])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('returns an empty array when the entry has no versions', async () => {
+    const { getNoteVersions } = await import('./notesRepository')
+    expect(getNoteVersions('missing', 'story-1')).toEqual([])
+  })
+})

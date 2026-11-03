@@ -285,3 +285,42 @@ describe('documentationRepository', () => {
     })
   })
 })
+
+describe('getDocumentationVersions', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.stubEnv('DATABASE_PATH', ':memory:')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('returns the backed-up versions, most recent first, scoped to the story', async () => {
+    const { createDocumentationEntry, updateDocumentationEntry, getDocumentationVersions } = await import('./documentationRepository')
+    const { VERSION_GROUPING_WINDOW_MS } = await import('./versionGroupingWindow')
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(0)
+      const entry = createDocumentationEntry({ title: 'Recherche', content: 'Une recherche' }, 'story-1')
+      vi.setSystemTime(VERSION_GROUPING_WINDOW_MS + 1)
+      updateDocumentationEntry(entry.id, 'story-1', { title: 'Recherche 2', content: 'Deux' })
+      vi.setSystemTime(2 * (VERSION_GROUPING_WINDOW_MS + 1))
+      updateDocumentationEntry(entry.id, 'story-1', { title: 'Recherche 3', content: 'Trois' })
+
+      const versions = getDocumentationVersions(entry.id, 'story-1')
+
+      expect(versions.map((version) => version.title)).toEqual(['Recherche 2', 'Recherche'])
+      expect(versions.map((version) => version.content)).toEqual(['Deux', 'Une recherche'])
+      expect(versions[0].createdAt).toBe(2 * (VERSION_GROUPING_WINDOW_MS + 1))
+      expect(getDocumentationVersions(entry.id, 'other-story')).toEqual([])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('returns an empty array when the entry has no versions', async () => {
+    const { getDocumentationVersions } = await import('./documentationRepository')
+    expect(getDocumentationVersions('missing', 'story-1')).toEqual([])
+  })
+})

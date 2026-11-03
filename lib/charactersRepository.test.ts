@@ -242,3 +242,42 @@ describe('charactersRepository', () => {
     })
   })
 })
+
+describe('getCharacterVersions', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.stubEnv('DATABASE_PATH', ':memory:')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('returns the backed-up versions, most recent first, scoped to the story', async () => {
+    const { createCharacter, updateCharacter, getCharacterVersions } = await import('./charactersRepository')
+    const { VERSION_GROUPING_WINDOW_MS } = await import('./versionGroupingWindow')
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(0)
+      const entry = createCharacter({ name: 'Gol', description: 'Un nain' }, 'story-1')
+      vi.setSystemTime(VERSION_GROUPING_WINDOW_MS + 1)
+      updateCharacter(entry.id, 'story-1', { name: 'Gol 2', description: 'Deux' })
+      vi.setSystemTime(2 * (VERSION_GROUPING_WINDOW_MS + 1))
+      updateCharacter(entry.id, 'story-1', { name: 'Gol 3', description: 'Trois' })
+
+      const versions = getCharacterVersions(entry.id, 'story-1')
+
+      expect(versions.map((version) => version.title)).toEqual(['Gol 2', 'Gol'])
+      expect(versions.map((version) => version.content)).toEqual(['Deux', 'Un nain'])
+      expect(versions[0].createdAt).toBe(2 * (VERSION_GROUPING_WINDOW_MS + 1))
+      expect(getCharacterVersions(entry.id, 'other-story')).toEqual([])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('returns an empty array when the entry has no versions', async () => {
+    const { getCharacterVersions } = await import('./charactersRepository')
+    expect(getCharacterVersions('missing', 'story-1')).toEqual([])
+  })
+})

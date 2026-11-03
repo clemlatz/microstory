@@ -8,6 +8,7 @@ import { StoryNavDrawer, type StorySection } from './StoryNavDrawer'
 import { useStoryNavOpen } from '@/lib/useStoryNavOpen'
 import { forgetRecentEntity, useRecordRecentEntity, type RecentEntityKind } from '@/lib/recentEntities'
 import { ConfirmDialog } from './ConfirmDialog'
+import { EntryHistoryDialog } from './EntryHistoryDialog'
 import type { Story } from '@/lib/types'
 
 /**
@@ -53,7 +54,9 @@ import type { Story } from '@/lib/types'
  *
  * `entry` (the entity's kind and id) is passed by the character/note/
  * documentation edit pages so that opening one records it — under its
- * current `entryTitle` — in the drawer's "recently viewed" list.
+ * current `entryTitle` — in the drawer's "recently viewed" list. It also adds
+ * a history button to the title bar, opening `EntryHistoryDialog` (the
+ * entry's read-only past versions).
  */
 export function StoryShell({
   story,
@@ -91,6 +94,7 @@ export function StoryShell({
   const router = useRouter()
   const { t } = useLocale()
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
+  const [isShowingHistory, setIsShowingHistory] = useState(false)
   const { isNavOpen, isDesktop, toggleNav, closeNav } = useStoryNavOpen()
   useRecordRecentEntity(story.id, entry && { ...entry, title: entryTitle ?? '' })
 
@@ -121,6 +125,7 @@ export function StoryShell({
         titlePlaceholder={entryTitlePlaceholder}
         saveStatus={saveStatus}
         onDelete={onDeleteEntry && entry ? () => setIsConfirmingDelete(true) : undefined}
+        onShowHistory={entry ? () => setIsShowingHistory(true) : undefined}
       />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <StoryNavDrawer
@@ -136,6 +141,14 @@ export function StoryShell({
         />
         <div className="min-w-0 flex-1">{children}</div>
       </div>
+      {isShowingHistory && entry && (
+        <EntryHistoryDialog
+          kind={entry.kind}
+          storyId={story.id}
+          entryId={entry.id}
+          onClose={() => setIsShowingHistory(false)}
+        />
+      )}
       <ConfirmDialog
         open={isConfirmingDelete}
         title={deleteConfirmTitle ?? ''}

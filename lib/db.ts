@@ -84,8 +84,9 @@ export function getDb(): Database.Database {
 
   // Snapshots of a character's/note's fields as they were right before an
   // edit overwrote them (lib/charactersRepository.ts's updateCharacter,
-  // lib/notesRepository.ts's updateNote) — a pure backup, not yet exposed
-  // through any UI or API.
+  // lib/notesRepository.ts's updateNote) — read back, read-only, by the
+  // entry history dialog (components/EntryHistoryDialog.tsx) through the
+  // `/versions` routes.
   db.exec(`
     CREATE TABLE IF NOT EXISTS character_versions (
       id TEXT PRIMARY KEY,

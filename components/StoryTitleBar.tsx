@@ -22,6 +22,9 @@ import { TrashIcon } from './TrashIcon'
  * `onDelete` adds a trash button on the right, for an entry page (it
  * replaces the spacer that otherwise keeps the title centered).
  *
+ * `onShowHistory` adds a history (clock) button just left of the delete one,
+ * opening the entry's read-only list of past versions.
+ *
  * `onTitleChange` (issue #18) makes the title itself editable in place —
  * an `<input>` rather than a plain `<h1>` — for a standalone entry page
  * (character, note, documentation, story presentation), which no longer
@@ -44,6 +47,7 @@ export function StoryTitleBar({
   titlePlaceholder,
   saveStatus,
   onDelete,
+  onShowHistory,
 }: {
   title: string
   onOpenNav: () => void
@@ -51,6 +55,7 @@ export function StoryTitleBar({
   titlePlaceholder?: string
   saveStatus?: 'unsaved' | 'saving' | 'saved'
   onDelete?: () => void
+  onShowHistory?: () => void
 }) {
   const { t } = useLocale()
 
@@ -103,6 +108,31 @@ export function StoryTitleBar({
         <span data-testid="story-save-status" role="status" aria-label={t(`common.${saveStatus}`)} className="sr-only">
           {t(`common.${saveStatus}`)}
         </span>
+      )}
+      {onShowHistory && (
+        <button
+          data-testid="story-history-button"
+          type="button"
+          aria-label={t('history.button')}
+          title={t('history.button')}
+          onClick={onShowHistory}
+          className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-[var(--reader-muted)] hover:bg-[var(--reader-input-bg)]"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4 shrink-0"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 2" />
+          </svg>
+        </button>
       )}
       {onDelete ? (
         <button

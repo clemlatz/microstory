@@ -55,3 +55,17 @@ export type SearchResult = {
   title: string
   snippet: string
 }
+
+/**
+ * A read-only snapshot of a character/note/documentation entry as it was
+ * right before an editing session overwrote it (see the `*_versions` tables
+ * in `lib/db.ts`). `title` is a character's name; `content` is its
+ * description. `createdAt` is when that editing session began, i.e. the
+ * moment up to which this content was the live one.
+ */
+export type EntryVersion = {
+  id: string
+  title: string
+  content: string
+  createdAt: number
+}

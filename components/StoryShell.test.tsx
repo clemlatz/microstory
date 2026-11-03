@@ -3,6 +3,11 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { StoryShell } from './StoryShell'
 import type { Story } from '@/lib/types'
+import { fetchEntryVersions } from '@/lib/entryVersionsApi'
+
+vi.mock('@/lib/entryVersionsApi', () => ({
+  fetchEntryVersions: vi.fn().mockResolvedValue([]),
+}))
 
 const mockRouterPush = vi.fn()
 vi.mock('next/navigation', () => ({
@@ -182,6 +187,39 @@ describe('StoryShell', () => {
         </StoryShell>,
       )
       expect(screen.queryByTestId('story-delete-button')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('history of the displayed entry', () => {
+    it('opens and closes the entry history from the title bar', async () => {
+      render(
+        <StoryShell
+          story={story}
+          activeSection="notes"
+          onNavigate={vi.fn()}
+          entry={{ kind: 'note', id: 'n1' }}
+          entryTitle="A note"
+        >
+          <p>content</p>
+        </StoryShell>,
+      )
+
+      await userEvent.click(screen.getByTestId('story-history-button'))
+      expect(await screen.findByTestId('entry-history')).toBeInTheDocument()
+      expect(fetchEntryVersions).toHaveBeenCalledWith('note', 'story-1', 'n1')
+
+      await userEvent.click(screen.getByTestId('entry-history-close'))
+      expect(screen.queryByTestId('entry-history')).not.toBeInTheDocument()
+    })
+
+    it('has no history button when there is no entry', () => {
+      render(
+        <StoryShell story={story} activeSection="notes" onNavigate={vi.fn()}>
+          <p>content</p>
+        </StoryShell>,
+      )
+
+      expect(screen.queryByTestId('story-history-button')).not.toBeInTheDocument()
     })
   })
 })

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-03
+
+- Added a History button (clock icon) in the title bar when editing a character, note or documentation entry: it opens a read-only list of the entry's earlier versions, most recent first, each labelled "Before <date>" (a version is the entry as it was before an editing session). Selecting one shows its title and content as selectable text, so a deleted passage can be found and copied back. There is no restore action.
+
 ## 2026-10-27
 
 - In the navigation drawer, selecting Characters, Notes or Documentation no longer opens a page listing them: the section unfolds in place (Notion-style) to show its entries, alphabetically. Selecting an entry opens it, the one currently open is highlighted, and a last "New character / note / documentation entry" row creates one with a placeholder title and opens it. Which sections are unfolded is remembered per story, and the section of the open entry is unfolded automatically.

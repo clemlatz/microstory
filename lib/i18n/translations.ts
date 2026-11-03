@@ -41,6 +41,13 @@ const en = {
   'confirmDialog.confirm': 'Confirm',
   'confirmDialog.cancel': 'Cancel',
 
+  'history.button': 'History',
+  'history.title': 'History',
+  'history.hint': 'Each version is the entry as it was before an editing session. Select one to read it.',
+  'history.empty': 'No earlier versions yet.',
+  'history.versionLabel': 'Before {date}',
+  'history.back': 'Back to versions',
+
 
 
   'characters.title': 'Characters',
@@ -146,6 +153,13 @@ const fr: Record<TranslationKey, string> = {
 
   'confirmDialog.confirm': 'Confirmer',
   'confirmDialog.cancel': 'Annuler',
+
+  'history.button': 'Historique',
+  'history.title': 'Historique',
+  'history.hint': "Chaque version est l'entrée telle qu'elle était avant une session de modifications. Choisissez-en une pour la lire.",
+  'history.empty': 'Aucune version antérieure pour le moment.',
+  'history.versionLabel': 'Avant le {date}',
+  'history.back': 'Retour aux versions',
 
 
 

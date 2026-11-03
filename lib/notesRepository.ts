@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { getDb } from './db'
 import { VERSION_GROUPING_WINDOW_MS } from './versionGroupingWindow'
-import type { Note } from './types'
+import type { EntryVersion, Note } from './types'
 
 type NoteRow = {
   id: string
@@ -117,6 +117,17 @@ export function searchNotes(query: string, storyId: string): Note[] {
   return getAllNotes(storyId).filter(
     (note) => note.title.toLocaleLowerCase().includes(trimmed) || note.content.toLocaleLowerCase().includes(trimmed),
   )
+}
+
+/** Backed-up past versions of a note, most recent first. */
+export function getNoteVersions(id: string, storyId: string): EntryVersion[] {
+  const rows = getDb()
+    .prepare(
+      `SELECT id, title, content, created_at FROM note_versions
+       WHERE note_id = ? AND story_id = ? ORDER BY created_at DESC`,
+    )
+    .all(id, storyId) as { id: string; title: string; content: string; created_at: number }[]
+  return rows.map((row) => ({ id: row.id, title: row.title, content: row.content, createdAt: row.created_at }))
 }
 
 export function deleteNote(id: string, storyId: string): void {

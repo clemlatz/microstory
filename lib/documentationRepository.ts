@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { getDb } from './db'
 import { VERSION_GROUPING_WINDOW_MS } from './versionGroupingWindow'
-import type { DocumentationEntry } from './types'
+import type { DocumentationEntry, EntryVersion } from './types'
 
 type DocumentationRow = {
   id: string
@@ -137,6 +137,17 @@ export function searchDocumentationEntries(query: string, storyId: string): Docu
       entry.content.toLocaleLowerCase().includes(trimmed) ||
       (entry.url ?? '').toLocaleLowerCase().includes(trimmed),
   )
+}
+
+/** Backed-up past versions of a documentation entry, most recent first. */
+export function getDocumentationVersions(id: string, storyId: string): EntryVersion[] {
+  const rows = getDb()
+    .prepare(
+      `SELECT id, title, content, created_at FROM documentation_versions
+       WHERE documentation_id = ? AND story_id = ? ORDER BY created_at DESC`,
+    )
+    .all(id, storyId) as { id: string; title: string; content: string; created_at: number }[]
+  return rows.map((row) => ({ id: row.id, title: row.title, content: row.content, createdAt: row.created_at }))
 }
 
 export function deleteDocumentationEntry(id: string, storyId: string): void {

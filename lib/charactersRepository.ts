@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { getDb } from './db'
 import { VERSION_GROUPING_WINDOW_MS } from './versionGroupingWindow'
-import type { Character } from './types'
+import type { Character, EntryVersion } from './types'
 
 type CharacterRow = {
   id: string
@@ -121,6 +121,22 @@ export function searchCharacters(query: string, storyId: string): Character[] {
       character.name.toLocaleLowerCase().includes(trimmed) ||
       character.description.toLocaleLowerCase().includes(trimmed),
   )
+}
+
+/** Backed-up past versions of a character (name as `title`, description as `content`), most recent first. */
+export function getCharacterVersions(id: string, storyId: string): EntryVersion[] {
+  const rows = getDb()
+    .prepare(
+      `SELECT id, name, description, created_at FROM character_versions
+       WHERE character_id = ? AND story_id = ? ORDER BY created_at DESC`,
+    )
+    .all(id, storyId) as { id: string; name: string; description: string; created_at: number }[]
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.name,
+    content: row.description,
+    createdAt: row.created_at,
+  }))
 }
 
 export function deleteCharacter(id: string, storyId: string): void {
