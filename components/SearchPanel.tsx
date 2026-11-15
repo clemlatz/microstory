@@ -269,7 +269,7 @@ export function SearchPanel({
                       </span>
                     </p>
                     {result.snippet && (
-                      <p className="font-reader-body line-clamp-1 text-sm break-words text-[var(--reader-muted)]">
+                      <p className="font-reader-body line-clamp-2 text-sm break-words text-[var(--reader-muted)]">
                         <Highlighted text={result.snippet} query={isQueryEmpty ? '' : resultsQuery} />
                       </p>
                     )}
