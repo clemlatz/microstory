@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { searchKnowledgeBase } from '@/lib/searchApi'
 import { useLocale } from '@/lib/i18n/LocaleContext'
+import { findFoldedMatches } from '@/lib/foldText'
 import { useRecentEntities, type RecentEntityKind } from '@/lib/recentEntities'
 import { fetchCharacters } from '@/lib/charactersApi'
 import { fetchNotes } from '@/lib/notesApi'
@@ -19,28 +20,24 @@ const EDIT_PATH_BY_TYPE: Record<SearchResult['type'], string> = {
   documentation: 'documentation',
 }
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
-/** `text` with every case-insensitive occurrence of `query` in bold. */
+/** `text` with every case- and accent-insensitive occurrence of `query` in bold. */
 function Highlighted({ text, query }: { text: string; query: string }) {
-  if (!query) return <>{text}</>
-  const parts = text.split(new RegExp(`(${escapeRegExp(query)})`, 'gi'))
-  return (
-    <>
-      {parts.map((part, index) =>
-        // `split` with a capture group puts the matches at the odd indexes.
-        index % 2 === 1 ? (
-          <strong key={index} className="font-bold text-[var(--reader-ink)]">
-            {part}
-          </strong>
-        ) : (
-          part
-        ),
-      )}
-    </>
-  )
+  const matches = query ? findFoldedMatches(text, query) : []
+  if (matches.length === 0) return <>{text}</>
+
+  const parts: React.ReactNode[] = []
+  let cursor = 0
+  matches.forEach(([start, end], index) => {
+    if (start > cursor) parts.push(text.slice(cursor, start))
+    parts.push(
+      <strong key={index} className="font-bold text-[var(--reader-ink)]">
+        {text.slice(start, end)}
+      </strong>,
+    )
+    cursor = end
+  })
+  if (cursor < text.length) parts.push(text.slice(cursor))
+  return <>{parts}</>
 }
 
 /**

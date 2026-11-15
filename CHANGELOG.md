@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+- Search now ignores accents as well as case (typing "helena" finds "Héléna"), and the bold highlight in the results follows the same rule.
 - In Search results, the search term that made a result appear is now shown in bold in its title and excerpt (whatever its case).
 - In Search, each result and each recently viewed entry now shows up to two lines of its content under the title; the recent entries, which only showed a title, now show them too.
 - When the search field is empty, the Search section now lists the recently viewed entries (the same list as the navigation drawer's "Recently viewed"), each with its type; they can be picked with the mouse or with Up/Down and Enter, and give way to the results as soon as you type.

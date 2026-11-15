@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { foldText } from './foldText'
 import { getDb } from './db'
 import { VERSION_GROUPING_WINDOW_MS } from './versionGroupingWindow'
 import type { EntryVersion, Note } from './types'
@@ -111,11 +112,11 @@ export function updateNote(id: string, storyId: string, input: NoteInput): Note 
  * casefolds ASCII, which would miss e.g. "RÈGLE" matching "Règle".
  */
 export function searchNotes(query: string, storyId: string): Note[] {
-  const trimmed = query.trim().toLocaleLowerCase()
+  const trimmed = foldText(query.trim())
   if (!trimmed) return []
 
   return getAllNotes(storyId).filter(
-    (note) => note.title.toLocaleLowerCase().includes(trimmed) || note.content.toLocaleLowerCase().includes(trimmed),
+    (note) => foldText(note.title).includes(trimmed) || foldText(note.content).includes(trimmed),
   )
 }
 

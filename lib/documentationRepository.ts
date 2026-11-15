@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { foldText } from './foldText'
 import { getDb } from './db'
 import { VERSION_GROUPING_WINDOW_MS } from './versionGroupingWindow'
 import type { DocumentationEntry, EntryVersion } from './types'
@@ -128,14 +129,14 @@ export function updateDocumentationEntry(
  * casefolds ASCII, which would miss e.g. "GRAVITÉ" matching "Gravité lunaire".
  */
 export function searchDocumentationEntries(query: string, storyId: string): DocumentationEntry[] {
-  const trimmed = query.trim().toLocaleLowerCase()
+  const trimmed = foldText(query.trim())
   if (!trimmed) return []
 
   return getAllDocumentationEntries(storyId).filter(
     (entry) =>
-      entry.title.toLocaleLowerCase().includes(trimmed) ||
-      entry.content.toLocaleLowerCase().includes(trimmed) ||
-      (entry.url ?? '').toLocaleLowerCase().includes(trimmed),
+      foldText(entry.title).includes(trimmed) ||
+      foldText(entry.content).includes(trimmed) ||
+      foldText(entry.url ?? '').includes(trimmed),
   )
 }
 

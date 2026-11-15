@@ -275,4 +275,15 @@ describe('SearchPanel', () => {
     const bold = screen.getAllByText((_, el) => el?.tagName === 'STRONG').map((el) => el.textContent)
     expect(bold).toEqual(['riven.'])
   })
+
+  it('bolds accented text matched by an unaccented search term', async () => {
+    const user = userEvent.setup({ delay: null })
+    mockedSearch.mockResolvedValue([{ type: 'character', id: 'c1', title: 'Héléna', snippet: 'Une héroïne' }])
+    render(<SearchPanel storyId="test-story" />)
+
+    await user.type(screen.getByTestId('search-input'), 'helena')
+    await waitFor(() => screen.getByText(title('Héléna')))
+
+    expect(screen.getAllByText((_, el) => el?.tagName === 'STRONG').map((el) => el.textContent)).toEqual(['Héléna'])
+  })
 })

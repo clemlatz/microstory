@@ -1,4 +1,5 @@
 import { searchCharacters } from './charactersRepository'
+import { foldText } from './foldText'
 import { searchNotes } from './notesRepository'
 import { searchDocumentationEntries } from './documentationRepository'
 import type { SearchResult } from './types'
@@ -17,7 +18,7 @@ function countOccurrences(haystack: string, needle: string): number {
  * with it (1), title containing it (2), found only in the text (3).
  */
 function titleTier(title: string, query: string): number {
-  const folded = title.toLocaleLowerCase()
+  const folded = foldText(title)
   if (folded === query) return 0
   if (folded.startsWith(query)) return 1
   if (folded.includes(query)) return 2
@@ -27,7 +28,7 @@ function titleTier(title: string, query: string): number {
 /** The start of `content`, or — when it is long — the stretch around the first match of `query`. */
 function buildSnippet(content: string, query: string): string {
   if (content.length <= SNIPPET_LENGTH) return content
-  const index = content.toLocaleLowerCase().indexOf(query)
+  const index = foldText(content).indexOf(query)
   if (index <= SNIPPET_LEAD) return content
   const start = index - SNIPPET_LEAD
   return `…${content.slice(start, start + SNIPPET_LENGTH)}`
@@ -45,11 +46,11 @@ type Ranked = { result: SearchResult; tier: number; occurrences: number }
  * around the first match in the text.
  */
 export function searchKnowledgeBase(query: string, storyId: string): SearchResult[] {
-  const folded = query.trim().toLocaleLowerCase()
+  const folded = foldText(query.trim())
   const rank = (type: SearchResult['type'], id: string, title: string, content: string): Ranked => ({
     result: { type, id, title, snippet: buildSnippet(content, folded) },
     tier: titleTier(title, folded),
-    occurrences: countOccurrences(content.toLocaleLowerCase(), folded),
+    occurrences: countOccurrences(foldText(content), folded),
   })
 
   const ranked: Ranked[] = [

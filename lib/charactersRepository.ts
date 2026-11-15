@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { foldText } from './foldText'
 import { getDb } from './db'
 import { VERSION_GROUPING_WINDOW_MS } from './versionGroupingWindow'
 import type { Character, EntryVersion } from './types'
@@ -113,13 +114,13 @@ export function updateCharacter(id: string, storyId: string, input: CharacterInp
  * casefolds ASCII, which would miss e.g. "ALICE" matching "Alice héroïne".
  */
 export function searchCharacters(query: string, storyId: string): Character[] {
-  const trimmed = query.trim().toLocaleLowerCase()
+  const trimmed = foldText(query.trim())
   if (!trimmed) return []
 
   return getAllCharacters(storyId).filter(
     (character) =>
-      character.name.toLocaleLowerCase().includes(trimmed) ||
-      character.description.toLocaleLowerCase().includes(trimmed),
+      foldText(character.name).includes(trimmed) ||
+      foldText(character.description).includes(trimmed),
   )
 }
 
