@@ -4,7 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { searchKnowledgeBase } from '@/lib/searchApi'
 import { useLocale } from '@/lib/i18n/LocaleContext'
-import { useRecentEntities } from '@/lib/recentEntities'
+import { useRecentEntities, type RecentEntityKind } from '@/lib/recentEntities'
+import { fetchCharacters } from '@/lib/charactersApi'
+import { fetchNotes } from '@/lib/notesApi'
+import { fetchDocumentation } from '@/lib/documentationApi'
 import type { SearchResult } from '@/lib/types'
 
 // Short enough to feel instantaneous while still skipping requests during fast typing.
@@ -38,6 +41,10 @@ export function SearchPanel({
   const [error, setError] = useState<string | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const recentEntities = useRecentEntities(storyId)
+  // The recent list only remembers titles, so the text shown under each entry
+  // is loaded here, once, for the kinds that appear in it.
+  const [recentSnippets, setRecentSnippets] = useState<Record<string, string>>({})
+  const recentKinds = [...new Set(recentEntities.map((e) => e.kind))].sort().join(',')
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -47,6 +54,31 @@ export function SearchPanel({
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
+
+  useEffect(() => {
+    if (!recentKinds) return
+    const kinds = recentKinds.split(',') as RecentEntityKind[]
+    const loaders: Record<RecentEntityKind, () => Promise<{ id: string; text: string }[]>> = {
+      character: async () => (await fetchCharacters(storyId)).map((c) => ({ id: c.id, text: c.description })),
+      note: async () => (await fetchNotes(storyId)).map((n) => ({ id: n.id, text: n.content })),
+      documentation: async () => (await fetchDocumentation(storyId)).map((d) => ({ id: d.id, text: d.content })),
+    }
+    let isStale = false
+    Promise.all(
+      kinds.map((kind) =>
+        loaders[kind]().then((entries) => entries.map((e) => [`${kind}:${e.id}`, e.text] as const)),
+      ),
+    )
+      .then((groups) => {
+        if (!isStale) setRecentSnippets(Object.fromEntries(groups.flat()))
+      })
+      .catch(() => {
+        // Non-fatal: the recent entries just show without an excerpt.
+      })
+    return () => {
+      isStale = true
+    }
+  }, [recentKinds, storyId])
 
   const errorMessage = useCallback(
     (err: unknown): string => (err instanceof Error && err.message ? err.message : t('search.error')),
@@ -93,7 +125,7 @@ export function SearchPanel({
     type: e.kind,
     id: e.id,
     title: e.title,
-    snippet: '',
+    snippet: recentSnippets[`${e.kind}:${e.id}`] ?? '',
   }))
   const showRecent = isQueryEmpty && recentItems.length > 0
   const items = isQueryEmpty ? recentItems : results
@@ -208,7 +240,7 @@ export function SearchPanel({
                       </span>
                     </p>
                     {result.snippet && (
-                      <p className="font-reader-body line-clamp-2 text-sm break-words text-[var(--reader-muted)]">
+                      <p className="font-reader-body line-clamp-1 text-sm break-words text-[var(--reader-muted)]">
                         {result.snippet}
                       </p>
                     )}

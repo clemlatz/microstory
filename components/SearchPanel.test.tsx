@@ -13,6 +13,16 @@ vi.mock('@/lib/searchApi', () => ({
   searchKnowledgeBase: vi.fn(),
 }))
 
+vi.mock('@/lib/charactersApi', () => ({
+  fetchCharacters: vi.fn().mockResolvedValue([{ id: 'c9', name: 'Bob', description: 'Un forgeron bourru' }]),
+}))
+vi.mock('@/lib/notesApi', () => ({
+  fetchNotes: vi.fn().mockResolvedValue([{ id: 'n9', title: 'Carte du royaume', content: 'Trois provinces' }]),
+}))
+vi.mock('@/lib/documentationApi', () => ({
+  fetchDocumentation: vi.fn().mockResolvedValue([]),
+}))
+
 import { searchKnowledgeBase } from '@/lib/searchApi'
 
 const mockedSearch = vi.mocked(searchKnowledgeBase)
@@ -237,6 +247,8 @@ describe('SearchPanel', () => {
     expect(items[0]).toHaveTextContent('Carte du royaume')
     expect(items[0]).toHaveTextContent('Note')
     expect(items[1]).toHaveTextContent('Bob')
+    await waitFor(() => expect(items[1]).toHaveTextContent('Un forgeron bourru'))
+    expect(items[0]).toHaveTextContent('Trois provinces')
 
     await user.keyboard('{ArrowDown}{Enter}')
     expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/character/c9')

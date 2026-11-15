@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+- In Search, each result and each recently viewed entry now shows one line of its content under the title instead of two; the recent entries, which only showed a title, now show that line too.
 - When the search field is empty, the Search section now lists the recently viewed entries (the same list as the navigation drawer's "Recently viewed"), each with its type; they can be picked with the mouse or with Up/Down and Enter, and give way to the results as soon as you type.
 - Fixed the previous search's results briefly reappearing when typing a new search after clearing the field.
 - Search results now appear almost instantly while typing (the delay before searching went from 250 ms to 60 ms), and a slow answer to an earlier search can no longer replace the results of a more recent one.
