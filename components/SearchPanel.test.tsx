@@ -27,6 +27,7 @@ describe('SearchPanel', () => {
   beforeEach(() => {
     mockRouterPush.mockReset()
     mockedSearch.mockReset()
+    window.localStorage.clear()
   })
 
   it('does not search on mount with an empty query', () => {
@@ -217,5 +218,31 @@ describe('SearchPanel', () => {
     await user.type(screen.getByTestId('search-input'), 'g')
 
     expect(screen.queryByText('Alice')).not.toBeInTheDocument()
+  })
+
+  it('shows the recently viewed entries when nothing is typed, openable with the keyboard', async () => {
+    window.localStorage.setItem(
+      'microstory_recent_entities_test-story',
+      JSON.stringify([
+        { kind: 'note', id: 'n9', title: 'Carte du royaume' },
+        { kind: 'character', id: 'c9', title: 'Bob' },
+      ]),
+    )
+    const user = userEvent.setup({ delay: null })
+    render(<SearchPanel storyId="test-story" />)
+
+    expect(screen.getByTestId('search-recent-heading')).toHaveTextContent('Recently viewed')
+    const items = screen.getAllByTestId('search-result-item')
+    expect(items).toHaveLength(2)
+    expect(items[0]).toHaveTextContent('Carte du royaume')
+    expect(items[0]).toHaveTextContent('Note')
+    expect(items[1]).toHaveTextContent('Bob')
+
+    await user.keyboard('{ArrowDown}{Enter}')
+    expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/character/c9')
+
+    mockedSearch.mockResolvedValue(results)
+    await user.type(screen.getByTestId('search-input'), 'a')
+    expect(screen.queryByTestId('search-recent-heading')).not.toBeInTheDocument()
   })
 })

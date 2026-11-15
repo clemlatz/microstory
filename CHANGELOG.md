@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+- When the search field is empty, the Search section now lists the recently viewed entries (the same list as the navigation drawer's "Recently viewed"), each with its type; they can be picked with the mouse or with Up/Down and Enter, and give way to the results as soon as you type.
 - Fixed the previous search's results briefly reappearing when typing a new search after clearing the field.
 - Search results now appear almost instantly while typing (the delay before searching went from 250 ms to 60 ms), and a slow answer to an earlier search can no longer replace the results of a more recent one.
 - Search results can be selected with the keyboard: the first result is highlighted by default, Up/Down move the highlight (the cursor stays in the field) and Enter opens the highlighted result. Hovering a result with the mouse moves the highlight too.

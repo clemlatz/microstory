@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { searchKnowledgeBase } from '@/lib/searchApi'
 import { useLocale } from '@/lib/i18n/LocaleContext'
+import { useRecentEntities } from '@/lib/recentEntities'
 import type { SearchResult } from '@/lib/types'
 
 // Short enough to feel instantaneous while still skipping requests during fast typing.
@@ -36,6 +37,7 @@ export function SearchPanel({
   const [hasSearched, setHasSearched] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
+  const recentEntities = useRecentEntities(storyId)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -86,7 +88,16 @@ export function SearchPanel({
   }, [query, storyId, errorMessage])
 
   const isQueryEmpty = query.trim() === ''
-  const isListShown = !isQueryEmpty && !error && hasSearched && results.length > 0
+  // With nothing typed, the field offers the recently viewed entries instead.
+  const recentItems: SearchResult[] = recentEntities.map((e) => ({
+    type: e.kind,
+    id: e.id,
+    title: e.title,
+    snippet: '',
+  }))
+  const showRecent = isQueryEmpty && recentItems.length > 0
+  const items = isQueryEmpty ? recentItems : results
+  const isListShown = showRecent || (!isQueryEmpty && !error && hasSearched && results.length > 0)
 
   // Clearing the field starts a brand-new search: drop the previous one's
   // results so they don't flash up again when typing resumes.
@@ -106,12 +117,12 @@ export function SearchPanel({
     if (!isListShown || event.nativeEvent.isComposing) return
     if (event.key === 'ArrowDown') {
       event.preventDefault()
-      setActiveIndex((index) => Math.min(index + 1, results.length - 1))
+      setActiveIndex((index) => Math.min(index + 1, items.length - 1))
     } else if (event.key === 'ArrowUp') {
       event.preventDefault()
       setActiveIndex((index) => Math.max(index - 1, 0))
     } else if (event.key === 'Enter') {
-      const result = results[activeIndex]
+      const result = items[activeIndex]
       if (!result) return
       event.preventDefault()
       router.push(`/story/${storyId}/${EDIT_PATH_BY_TYPE[result.type]}/${result.id}`)
@@ -120,7 +131,7 @@ export function SearchPanel({
 
   useEffect(() => {
     document.querySelector('[data-active="true"]')?.scrollIntoView?.({ block: 'nearest' })
-  }, [activeIndex, results])
+  }, [activeIndex, results, showRecent])
 
   useEffect(() => {
     onActiveChange?.(!isQueryEmpty)
@@ -150,13 +161,21 @@ export function SearchPanel({
         </p>
       )}
 
-      {!isQueryEmpty && !error && hasSearched && (
+      {(showRecent || (!isQueryEmpty && !error && hasSearched)) && (
         <div className="mt-2" data-testid="search-results">
-          {results.length === 0 ? (
+          {showRecent && (
+            <h2
+              data-testid="search-recent-heading"
+              className="px-2 pt-2 pb-1 text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase"
+            >
+              {t('storyNav.recent')}
+            </h2>
+          )}
+          {items.length === 0 ? (
             <p className="text-sm text-[var(--reader-muted)]">{t('search.noResults')}</p>
           ) : (
             <ul id="search-results-list" role="listbox" className="flex flex-col gap-1">
-              {results.map((result, index) => (
+              {items.map((result, index) => (
                 <li
                   key={`${result.type}-${result.id}`}
                   id={`search-result-${index}`}
@@ -188,9 +207,11 @@ export function SearchPanel({
                         {t(`search.type.${result.type}`)}
                       </span>
                     </p>
-                    <p className="font-reader-body line-clamp-2 text-sm break-words text-[var(--reader-muted)]">
-                      {result.snippet}
-                    </p>
+                    {result.snippet && (
+                      <p className="font-reader-body line-clamp-2 text-sm break-words text-[var(--reader-muted)]">
+                        {result.snippet}
+                      </p>
+                    )}
                   </a>
                 </li>
               ))}
