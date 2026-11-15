@@ -6,7 +6,8 @@ import { searchKnowledgeBase } from '@/lib/searchApi'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import type { SearchResult } from '@/lib/types'
 
-const SEARCH_DEBOUNCE_MS = 250
+// Short enough to feel instantaneous while still skipping requests during fast typing.
+const SEARCH_DEBOUNCE_MS = 60
 
 const EDIT_PATH_BY_TYPE: Record<SearchResult['type'], string> = {
   character: 'character',
@@ -56,16 +57,21 @@ export function SearchPanel({
     const trimmed = query.trim()
     if (!trimmed) return
 
+    // A slower response to an earlier query must never overwrite a newer one.
+    let isStale = false
+
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null
       setError(null)
       searchKnowledgeBase(storyId, trimmed)
         .then((found) => {
+          if (isStale) return
           setResults(found)
           setActiveIndex(0)
           setHasSearched(true)
         })
         .catch((err) => {
+          if (isStale) return
           console.error('Search failed', err)
           setError(errorMessage(err))
           setResults([])
@@ -74,6 +80,7 @@ export function SearchPanel({
     }, SEARCH_DEBOUNCE_MS)
 
     return () => {
+      isStale = true
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
   }, [query, storyId, errorMessage])

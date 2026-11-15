@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+- Search results now appear almost instantly while typing (the delay before searching went from 250 ms to 60 ms), and a slow answer to an earlier search can no longer replace the results of a more recent one.
 - Search results can be selected with the keyboard: the first result is highlighted by default, Up/Down move the highlight (the cursor stays in the field) and Enter opens the highlighted result. Hovering a result with the mouse moves the highlight too.
 - Fixed the scrollbars standing out in dark mode (white track): they now follow the theme, with a discreet thumb over a transparent track.
 - Dark mode: text, separators and input fields are now neutral gray too (no more brownish tint); the orange accent is unchanged.
