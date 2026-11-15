@@ -51,7 +51,7 @@ export function StoryHomeView({
   return (
     <div
       ref={scrollContainerRef}
-      className="h-full flex-1 overflow-y-auto bg-[var(--reader-bg)] font-reader-label"
+      className="h-full flex-1 overflow-y-auto [scrollbar-gutter:stable] bg-[var(--reader-bg)] font-reader-label"
     >
       <div className="mx-auto w-full max-w-2xl px-6 py-10 text-[var(--reader-ink)] sm:px-10">
         {section === "search" && <SearchPanel storyId={story.id} />}
