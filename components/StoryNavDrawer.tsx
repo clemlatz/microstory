@@ -18,7 +18,7 @@ type NavItem = {
   icon: ReactNode
 }
 
-function NavIcon({ children }: { children: ReactNode }) {
+function NavIcon({ children, className = 'h-4 w-4 shrink-0' }: { children: ReactNode; className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +28,7 @@ function NavIcon({ children }: { children: ReactNode }) {
       strokeWidth={1.8}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-4 w-4 shrink-0"
+      className={className}
       aria-hidden="true"
     >
       {children}
@@ -91,6 +91,10 @@ const UNTITLED_LABELS = {
   note: 'storyNav.untitledNote',
   documentation: 'storyNav.untitledDocumentation',
 } as const
+
+// Icon-only buttons of the drawer's footer row (labelled via `aria-label`/`title`).
+const FOOTER_ICON_BUTTON =
+  'flex min-h-11 min-w-11 items-center justify-center rounded-md text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]'
 
 const RECENT_ENTITY_ROUTES: Record<RecentEntityKind, { path: string; icon: ReactNode }> = {
   character: { path: 'character', icon: CharactersIcon },
@@ -337,37 +341,37 @@ export function StoryNavDrawer({
               </div>
             )}
           </nav>
-          <div className="shrink-0 border-t border-[var(--reader-rule)] p-2">
+          <div className="flex shrink-0 items-center gap-1 border-t border-[var(--reader-rule)] p-2">
             <button
               data-testid="story-nav-my-stories"
               type="button"
+              aria-label={t('storyNav.myStories')}
+              title={t('storyNav.myStories')}
               onClick={onBackToStories}
-              className="flex min-h-11 w-full items-center rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]"
+              className={FOOTER_ICON_BUTTON}
             >
-              {t('storyNav.myStories')}
+              <NavIcon className="h-5 w-5">
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
+              </NavIcon>
             </button>
             {storyId && (
               <a
                 data-testid="story-export-link"
                 href={`/api/stories/${storyId}/export`}
-                className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)]"
+                aria-label={t('storyNav.export')}
+                title={t('storyNav.export')}
+                className={FOOTER_ICON_BUTTON}
               >
-                <NavIcon>
+                <NavIcon className="h-5 w-5">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                   <path d="M7 10l5 5 5-5" />
                   <path d="M12 15V3" />
                 </NavIcon>
-                {t('storyNav.export')}
               </a>
             )}
-            <LogoutButton
-              showLabel
-              className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-lg md:text-sm text-[var(--reader-ink)] hover:bg-[var(--reader-input-bg)] disabled:opacity-50"
-            />
-            <div className="mt-1 flex items-center justify-between gap-2 px-3 py-2">
-              <span className="text-lg text-[var(--reader-ink)] md:text-sm">{t('language.label')}</span>
-              <LanguageSwitcher className="min-h-11 rounded-md border-none bg-[var(--reader-input-bg)] px-2 text-base text-[var(--reader-ink)]" />
-            </div>
+            <LogoutButton className={`${FOOTER_ICON_BUTTON} disabled:opacity-50`} />
+            <LanguageSwitcher className="ml-auto min-h-11 min-w-0 rounded-md border-none bg-[var(--reader-input-bg)] px-2 text-base text-[var(--reader-ink)] md:text-sm" />
           </div>
         </div>
       </aside>

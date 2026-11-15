@@ -304,7 +304,7 @@ describe('StoryNavDrawer', () => {
     expect(screen.queryByTestId('story-export-link')).not.toBeInTheDocument()
   })
 
-  it('shows a labelled logout button', () => {
+  it('shows an icon-only logout button that keeps its accessible label', () => {
     render(
       <StoryNavDrawer
         open={true}
@@ -314,7 +314,7 @@ describe('StoryNavDrawer', () => {
         onBackToStories={vi.fn()}
       />,
     )
-    expect(screen.getByTestId('logout-button')).toHaveTextContent('Log out')
+    expect(screen.getByTestId('logout-button')).toHaveAccessibleName('Log out')
   })
 
   describe('foldable entry sections', () => {

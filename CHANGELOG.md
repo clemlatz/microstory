@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+- In the navigation drawer's footer, "My stories", "Download a backup" and "Log out" are now icon buttons (with a tooltip and an accessible label) sitting on one line with the language selector, whose "Language" label is gone.
 - Search now ignores accents as well as case (typing "helena" finds "Héléna"), and the bold highlight in the results follows the same rule.
 - In Search results, the search term that made a result appear is now shown in bold in its title and excerpt (whatever its case).
 - In Search, each result and each recently viewed entry now shows up to two lines of its content under the title; the recent entries, which only showed a title, now show them too.
