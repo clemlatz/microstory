@@ -43,7 +43,6 @@ export function SearchPanel({
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [hasSearched, setHasSearched] = useState(false)
-  const [isSearching, setIsSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -68,7 +67,6 @@ export function SearchPanel({
 
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null
-      setIsSearching(true)
       setError(null)
       searchKnowledgeBase(storyId, trimmed)
         .then((found) => {
@@ -81,7 +79,6 @@ export function SearchPanel({
           setResults([])
           setHasSearched(true)
         })
-        .finally(() => setIsSearching(false))
     }, SEARCH_DEBOUNCE_MS)
 
     return () => {
@@ -116,7 +113,7 @@ export function SearchPanel({
         </p>
       )}
 
-      {!isQueryEmpty && !error && hasSearched && !isSearching && (
+      {!isQueryEmpty && !error && hasSearched && (
         <div className="mt-2 flex flex-col gap-3" data-testid="search-results">
           {results.length === 0 ? (
             <p className="text-sm text-[var(--reader-muted)]">{t('search.noResults')}</p>
