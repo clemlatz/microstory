@@ -203,4 +203,19 @@ describe('SearchPanel', () => {
     await user.keyboard('{Enter}')
     expect(mockRouterPush).not.toHaveBeenCalled()
   })
+
+  it('does not show the previous search\'s results when typing again after clearing the field', async () => {
+    const user = userEvent.setup({ delay: null })
+    mockedSearch.mockResolvedValueOnce(results)
+    render(<SearchPanel storyId="test-story" />)
+
+    await user.type(screen.getByTestId('search-input'), 'a')
+    await waitFor(() => screen.getByText('Alice'))
+
+    mockedSearch.mockReturnValue(new Promise(() => {}))
+    await user.clear(screen.getByTestId('search-input'))
+    await user.type(screen.getByTestId('search-input'), 'g')
+
+    expect(screen.queryByText('Alice')).not.toBeInTheDocument()
+  })
 })

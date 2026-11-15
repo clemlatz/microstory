@@ -88,6 +88,18 @@ export function SearchPanel({
   const isQueryEmpty = query.trim() === ''
   const isListShown = !isQueryEmpty && !error && hasSearched && results.length > 0
 
+  // Clearing the field starts a brand-new search: drop the previous one's
+  // results so they don't flash up again when typing resumes.
+  function handleQueryChange(value: string) {
+    setQuery(value)
+    if (value.trim() === '') {
+      setResults([])
+      setHasSearched(false)
+      setError(null)
+      setActiveIndex(0)
+    }
+  }
+
   // Keyboard selection: the cursor stays in the field; Up/Down move the
   // highlight (the first result is highlighted by default) and Enter opens it.
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -128,7 +140,7 @@ export function SearchPanel({
         aria-controls="search-results-list"
         aria-activedescendant={isListShown ? `search-result-${activeIndex}` : undefined}
         value={query}
-        onChange={(event) => setQuery(event.target.value)}
+        onChange={(event) => handleQueryChange(event.target.value)}
         onKeyDown={handleKeyDown}
       />
 
