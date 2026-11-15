@@ -19,6 +19,30 @@ const EDIT_PATH_BY_TYPE: Record<SearchResult['type'], string> = {
   documentation: 'documentation',
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/** `text` with every case-insensitive occurrence of `query` in bold. */
+function Highlighted({ text, query }: { text: string; query: string }) {
+  if (!query) return <>{text}</>
+  const parts = text.split(new RegExp(`(${escapeRegExp(query)})`, 'gi'))
+  return (
+    <>
+      {parts.map((part, index) =>
+        // `split` with a capture group puts the matches at the odd indexes.
+        index % 2 === 1 ? (
+          <strong key={index} className="font-bold text-[var(--reader-ink)]">
+            {part}
+          </strong>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  )
+}
+
 /**
  * A single search input above the story's Characters/Notes/Documentation
  * panels (issue #12): filters live, grouped by entity type, and clicking a
@@ -38,6 +62,8 @@ export function SearchPanel({
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [hasSearched, setHasSearched] = useState(false)
+  // The query the displayed results answer (may lag behind the field while typing).
+  const [resultsQuery, setResultsQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const recentEntities = useRecentEntities(storyId)
@@ -101,6 +127,7 @@ export function SearchPanel({
         .then((found) => {
           if (isStale) return
           setResults(found)
+          setResultsQuery(trimmed)
           setActiveIndex(0)
           setHasSearched(true)
         })
@@ -231,7 +258,9 @@ export function SearchPanel({
                     }}
                   >
                     <p className="flex items-baseline gap-2">
-                      <span className="text-base font-medium text-[var(--reader-ink)]">{result.title}</span>
+                      <span className="text-base font-medium text-[var(--reader-ink)]">
+                        <Highlighted text={result.title} query={isQueryEmpty ? '' : resultsQuery} />
+                      </span>
                       <span
                         data-testid="search-result-type"
                         className="shrink-0 text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase"
@@ -241,7 +270,7 @@ export function SearchPanel({
                     </p>
                     {result.snippet && (
                       <p className="font-reader-body line-clamp-1 text-sm break-words text-[var(--reader-muted)]">
-                        {result.snippet}
+                        <Highlighted text={result.snippet} query={isQueryEmpty ? '' : resultsQuery} />
                       </p>
                     )}
                   </a>

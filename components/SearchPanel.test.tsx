@@ -33,6 +33,10 @@ const results: SearchResult[] = [
   { type: 'documentation', id: 'd1', title: 'Gravité', snippet: 'Un sixième' },
 ]
 
+// Titles are split by <strong> around the highlighted term, so match on the whole title element's text.
+const title = (text: string) => (_: string, el: Element | null) =>
+  el?.tagName === 'SPAN' && el.textContent === text
+
 describe('SearchPanel', () => {
   beforeEach(() => {
     mockRouterPush.mockReset()
@@ -67,10 +71,10 @@ describe('SearchPanel', () => {
     await user.type(screen.getByTestId('search-input'), 'a')
 
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument()
+      expect(screen.getByText(title('Alice'))).toBeInTheDocument()
     })
-    expect(screen.getByText('Règle du monde')).toBeInTheDocument()
-    expect(screen.getByText('Gravité')).toBeInTheDocument()
+    expect(screen.getByText(title('Règle du monde'))).toBeInTheDocument()
+    expect(screen.getByText(title('Gravité'))).toBeInTheDocument()
     expect(screen.getAllByTestId('search-result-type').map((el) => el.textContent)).toEqual(
       results.map((r) => ({ character: 'Character', note: 'Note', documentation: 'Documentation' })[r.type]),
     )
@@ -85,13 +89,13 @@ describe('SearchPanel', () => {
     const input = screen.getByTestId('search-input')
     await user.type(input, 'a')
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument()
+      expect(screen.getByText(title('Alice'))).toBeInTheDocument()
     })
 
     await user.clear(input)
 
     await waitFor(() => {
-      expect(screen.queryByText('Alice')).not.toBeInTheDocument()
+      expect(screen.queryByText(title('Alice'))).not.toBeInTheDocument()
     })
   })
 
@@ -101,9 +105,9 @@ describe('SearchPanel', () => {
     render(<SearchPanel storyId="test-story" />)
 
     await user.type(screen.getByTestId('search-input'), 'a')
-    await waitFor(() => screen.getByText('Alice'))
+    await waitFor(() => screen.getByText(title('Alice')))
 
-    await user.click(screen.getByText('Alice'))
+    await user.click(screen.getByText(title('Alice')))
 
     expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/character/c1')
   })
@@ -114,9 +118,9 @@ describe('SearchPanel', () => {
     render(<SearchPanel storyId="test-story" />)
 
     await user.type(screen.getByTestId('search-input'), 'a')
-    await waitFor(() => screen.getByText('Règle du monde'))
+    await waitFor(() => screen.getByText(title('Règle du monde')))
 
-    await user.click(screen.getByText('Règle du monde'))
+    await user.click(screen.getByText(title('Règle du monde')))
 
     expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/note/n1')
   })
@@ -127,9 +131,9 @@ describe('SearchPanel', () => {
     render(<SearchPanel storyId="test-story" />)
 
     await user.type(screen.getByTestId('search-input'), 'a')
-    await waitFor(() => screen.getByText('Gravité'))
+    await waitFor(() => screen.getByText(title('Gravité')))
 
-    await user.click(screen.getByText('Gravité'))
+    await user.click(screen.getByText(title('Gravité')))
 
     expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/documentation/d1')
   })
@@ -180,7 +184,7 @@ describe('SearchPanel', () => {
     render(<SearchPanel storyId="test-story" />)
 
     await user.type(screen.getByTestId('search-input'), 'a')
-    await waitFor(() => screen.getByText('Alice'))
+    await waitFor(() => screen.getByText(title('Alice')))
 
     await user.keyboard('{Enter}')
     expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/character/c1')
@@ -192,7 +196,7 @@ describe('SearchPanel', () => {
     render(<SearchPanel storyId="test-story" />)
 
     await user.type(screen.getByTestId('search-input'), 'a')
-    await waitFor(() => screen.getByText('Alice'))
+    await waitFor(() => screen.getByText(title('Alice')))
 
     await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}{ArrowUp}')
     const items = screen.getAllByRole('option')
@@ -221,13 +225,13 @@ describe('SearchPanel', () => {
     render(<SearchPanel storyId="test-story" />)
 
     await user.type(screen.getByTestId('search-input'), 'a')
-    await waitFor(() => screen.getByText('Alice'))
+    await waitFor(() => screen.getByText(title('Alice')))
 
     mockedSearch.mockReturnValue(new Promise(() => {}))
     await user.clear(screen.getByTestId('search-input'))
     await user.type(screen.getByTestId('search-input'), 'g')
 
-    expect(screen.queryByText('Alice')).not.toBeInTheDocument()
+    expect(screen.queryByText(title('Alice'))).not.toBeInTheDocument()
   })
 
   it('shows the recently viewed entries when nothing is typed, openable with the keyboard', async () => {
@@ -256,5 +260,19 @@ describe('SearchPanel', () => {
     mockedSearch.mockResolvedValue(results)
     await user.type(screen.getByTestId('search-input'), 'a')
     expect(screen.queryByTestId('search-recent-heading')).not.toBeInTheDocument()
+  })
+
+  it('puts the matching search term in bold in titles and excerpts, whatever its case', async () => {
+    const user = userEvent.setup({ delay: null })
+    mockedSearch.mockResolvedValue([
+      { type: 'character', id: 'c1', title: 'Corwin Vale', snippet: 'Il arrive à Rivenhollow (riven.)' },
+    ])
+    render(<SearchPanel storyId="test-story" />)
+
+    await user.type(screen.getByTestId('search-input'), 'RIVEN.')
+    await waitFor(() => screen.getByText('Corwin Vale'))
+
+    const bold = screen.getAllByText((_, el) => el?.tagName === 'STRONG').map((el) => el.textContent)
+    expect(bold).toEqual(['riven.'])
   })
 })

@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+- In Search results, the search term that made a result appear is now shown in bold in its title and excerpt (whatever its case).
 - In Search, each result and each recently viewed entry now shows one line of its content under the title instead of two; the recent entries, which only showed a title, now show that line too.
 - When the search field is empty, the Search section now lists the recently viewed entries (the same list as the navigation drawer's "Recently viewed"), each with its type; they can be picked with the mouse or with Up/Down and Enter, and give way to the results as soon as you type.
 - Fixed the previous search's results briefly reappearing when typing a new search after clearing the field.
