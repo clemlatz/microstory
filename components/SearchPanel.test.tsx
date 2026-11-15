@@ -162,4 +162,45 @@ describe('SearchPanel', () => {
     await user.clear(input)
     expect(onActiveChange).toHaveBeenLastCalledWith(false)
   })
+
+  it('opens the highlighted result with Enter, the first one by default', async () => {
+    const user = userEvent.setup({ delay: null })
+    mockedSearch.mockResolvedValue(results)
+    render(<SearchPanel storyId="test-story" />)
+
+    await user.type(screen.getByTestId('search-input'), 'a')
+    await waitFor(() => screen.getByText('Alice'))
+
+    await user.keyboard('{Enter}')
+    expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/character/c1')
+  })
+
+  it('moves the highlight with the arrow keys, without leaving the field', async () => {
+    const user = userEvent.setup({ delay: null })
+    mockedSearch.mockResolvedValue(results)
+    render(<SearchPanel storyId="test-story" />)
+
+    await user.type(screen.getByTestId('search-input'), 'a')
+    await waitFor(() => screen.getByText('Alice'))
+
+    await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}{ArrowUp}')
+    const items = screen.getAllByRole('option')
+    expect(items[1]).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByTestId('search-input')).toHaveFocus()
+
+    await user.keyboard('{Enter}')
+    expect(mockRouterPush).toHaveBeenCalledWith('/story/test-story/note/n1')
+  })
+
+  it('does nothing on Enter when there are no results', async () => {
+    const user = userEvent.setup({ delay: null })
+    mockedSearch.mockResolvedValue([])
+    render(<SearchPanel storyId="test-story" />)
+
+    await user.type(screen.getByTestId('search-input'), 'zzz')
+    await waitFor(() => screen.getByText('No results.'))
+
+    await user.keyboard('{Enter}')
+    expect(mockRouterPush).not.toHaveBeenCalled()
+  })
 })
