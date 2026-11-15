@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+- Fixed the scrollbars standing out in dark mode (white track): they now follow the theme, with a discreet thumb over a transparent track.
 - Dark mode: text, separators and input fields are now neutral gray too (no more brownish tint); the orange accent is unchanged.
 - Dark mode: the page background is now neutral gray (25, 25, 25) instead of the slightly warm (27, 25, 23); the browser's theme color follows.
 - Search results are now ranked by relevance in one mixed list: a title equal to the search first, then titles starting with it, then titles containing it, then matches found only in the text (the more often it appears, the higher), alphabetical otherwise. The excerpt under each result now shows the passage around the match instead of the start of the text.
