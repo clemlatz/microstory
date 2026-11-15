@@ -14,16 +14,6 @@ const EDIT_PATH_BY_TYPE: Record<SearchResult['type'], string> = {
   documentation: 'documentation',
 }
 
-const GROUP_ORDER: SearchResult['type'][] = ['character', 'note', 'documentation']
-
-function groupByType(results: SearchResult[]): Partial<Record<SearchResult['type'], SearchResult[]>> {
-  const groups: Partial<Record<SearchResult['type'], SearchResult[]>> = {}
-  for (const result of results) {
-    ;(groups[result.type] ??= []).push(result)
-  }
-  return groups
-}
-
 /**
  * A single search input above the story's Characters/Notes/Documentation
  * panels (issue #12): filters live, grouped by entity type, and clicking a
@@ -92,8 +82,6 @@ export function SearchPanel({
     onActiveChange?.(!isQueryEmpty)
   }, [isQueryEmpty, onActiveChange])
 
-  const grouped = groupByType(results)
-
   return (
     <div className="mb-8">
       <input
@@ -114,39 +102,40 @@ export function SearchPanel({
       )}
 
       {!isQueryEmpty && !error && hasSearched && (
-        <div className="mt-2 flex flex-col gap-3" data-testid="search-results">
+        <div className="mt-2" data-testid="search-results">
           {results.length === 0 ? (
             <p className="text-sm text-[var(--reader-muted)]">{t('search.noResults')}</p>
           ) : (
-            GROUP_ORDER.filter((type) => grouped[type]?.length).map((type) => (
-              <div key={type}>
-                <h2 className="mb-1 text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase">
-                  {t(`search.${type === 'character' ? 'characters' : type === 'note' ? 'notes' : 'documentation'}`)}
-                </h2>
-                <ul className="flex flex-col gap-1">
-                  {grouped[type]!.map((result) => (
-                    <li key={result.id}>
-                      <a
-                        href={`/story/${storyId}/${EDIT_PATH_BY_TYPE[result.type]}/${result.id}`}
-                        data-testid="search-result-item"
-                        className="block min-h-11 w-full rounded-md px-2 py-2.5 hover:bg-[var(--reader-input-bg)]"
-                        onClick={(event) => {
-                          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)
-                            return
-                          event.preventDefault()
-                          router.push(`/story/${storyId}/${EDIT_PATH_BY_TYPE[result.type]}/${result.id}`)
-                        }}
+            <ul className="flex flex-col gap-1">
+              {results.map((result) => (
+                <li key={`${result.type}-${result.id}`}>
+                  <a
+                    href={`/story/${storyId}/${EDIT_PATH_BY_TYPE[result.type]}/${result.id}`}
+                    data-testid="search-result-item"
+                    className="block min-h-11 w-full rounded-md px-2 py-2.5 hover:bg-[var(--reader-input-bg)]"
+                    onClick={(event) => {
+                      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)
+                        return
+                      event.preventDefault()
+                      router.push(`/story/${storyId}/${EDIT_PATH_BY_TYPE[result.type]}/${result.id}`)
+                    }}
+                  >
+                    <p className="flex items-baseline gap-2">
+                      <span className="text-base font-medium text-[var(--reader-ink)]">{result.title}</span>
+                      <span
+                        data-testid="search-result-type"
+                        className="shrink-0 text-xs font-semibold tracking-[0.09em] text-[var(--reader-muted)] uppercase"
                       >
-                        <p className="text-base font-medium text-[var(--reader-ink)]">{result.title}</p>
-                        <p className="font-reader-body line-clamp-2 text-sm break-words text-[var(--reader-muted)]">
-                          {result.snippet}
-                        </p>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))
+                        {t(`search.type.${result.type}`)}
+                      </span>
+                    </p>
+                    <p className="font-reader-body line-clamp-2 text-sm break-words text-[var(--reader-muted)]">
+                      {result.snippet}
+                    </p>
+                  </a>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       )}

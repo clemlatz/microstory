@@ -71,9 +71,9 @@ const en = {
   'documentation.deleteTitle': 'Delete this documentation entry?',
 
   'search.placeholder': 'Search characters, notes, documentation…',
-  'search.characters': 'Characters',
-  'search.notes': 'Notes',
-  'search.documentation': 'Documentation',
+  'search.type.character': 'Character',
+  'search.type.note': 'Note',
+  'search.type.documentation': 'Documentation',
   'search.noResults': 'No results.',
   'search.error': 'Search failed.',
 
@@ -185,9 +185,9 @@ const fr: Record<TranslationKey, string> = {
   'documentation.deleteTitle': 'Supprimer cette entrée de documentation ?',
 
   'search.placeholder': 'Rechercher personnages, notes, documentation…',
-  'search.characters': 'Personnages',
-  'search.notes': 'Notes',
-  'search.documentation': 'Documentation',
+  'search.type.character': 'Personnage',
+  'search.type.note': 'Note',
+  'search.type.documentation': 'Documentation',
   'search.noResults': 'Aucun résultat.',
   'search.error': 'La recherche a échoué.',
 

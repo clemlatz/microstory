@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+- Search results are no longer grouped under Characters/Notes/Documentation headings: they form a single list, and each result shows its type (Character, Note or Documentation) next to its title. The order is unchanged.
 - Fixed the search field (and the rest of the section content) shifting slightly to the left when the results got long enough to show a scrollbar: the space for the scrollbar is now always reserved.
 - Fixed the search results flashing away and back while typing: the previous results now stay on screen until the new ones arrive.
 - Added a Cmd+K (Ctrl+K on Windows/Linux) shortcut on every story page, including entry pages and while typing in a field: it opens the Search section with the cursor in the search field (or refocuses and selects the field if Search is already open). The Search section now also focuses its field whenever it opens, and the navigation drawer shows the shortcut next to "Search".

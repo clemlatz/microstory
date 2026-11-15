@@ -48,7 +48,7 @@ describe('SearchPanel', () => {
     expect(mockedSearch).toHaveBeenCalledTimes(1)
   })
 
-  it('renders results grouped by type', async () => {
+  it('renders a flat list showing each result\'s type', async () => {
     const user = userEvent.setup({ delay: null })
     mockedSearch.mockResolvedValue(results)
     render(<SearchPanel storyId="test-story" />)
@@ -60,6 +60,10 @@ describe('SearchPanel', () => {
     })
     expect(screen.getByText('Règle du monde')).toBeInTheDocument()
     expect(screen.getByText('Gravité')).toBeInTheDocument()
+    expect(screen.getAllByTestId('search-result-type').map((el) => el.textContent)).toEqual(
+      results.map((r) => ({ character: 'Character', note: 'Note', documentation: 'Documentation' })[r.type]),
+    )
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
   })
 
   it('clears results when the query is cleared', async () => {
