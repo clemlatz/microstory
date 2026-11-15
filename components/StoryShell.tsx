@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from '@/lib/i18n/LocaleContext'
 import { StoryTitleBar } from './StoryTitleBar'
@@ -111,6 +111,32 @@ export function StoryShell({
       router.push(`/story/${story.id}?section=${activeSection}`)
     }
   }
+
+  // Cmd/Ctrl+K opens the Search section with the cursor in its input (or, if
+  // the search input is already on screen, just refocuses and selects it). The
+  // listener always calls the latest handler through a ref.
+  const openSearchRef = useRef<() => void>(() => {})
+  useEffect(() => {
+    openSearchRef.current = () => {
+      const input = document.querySelector<HTMLInputElement>('[data-testid="search-input"]')
+      if (input) {
+        input.focus()
+        input.select()
+      } else {
+        handleNavigate('search')
+      }
+    }
+  })
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (!(event.metaKey || event.ctrlKey) || event.shiftKey || event.altKey) return
+      if (event.key.toLowerCase() !== 'k') return
+      event.preventDefault()
+      openSearchRef.current()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   function handleNavigateToEntry() {
     if (!isDesktop) closeNav()

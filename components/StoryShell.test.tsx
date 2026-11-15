@@ -222,4 +222,32 @@ describe('StoryShell', () => {
       expect(screen.queryByTestId('story-history-button')).not.toBeInTheDocument()
     })
   })
+
+  it('opens the Search section on Cmd+K and Ctrl+K, even from a text field', async () => {
+    const onNavigate = vi.fn()
+    render(
+      <StoryShell story={story} activeSection="notes" onNavigate={onNavigate}>
+        <input data-testid="field" />
+      </StoryShell>,
+    )
+    const user = userEvent.setup()
+    await user.click(screen.getByTestId('field'))
+    await user.keyboard('{Meta>}k{/Meta}')
+    expect(onNavigate).toHaveBeenCalledWith('search')
+    await user.keyboard('{Control>}k{/Control}')
+    expect(onNavigate).toHaveBeenCalledTimes(2)
+  })
+
+  it('refocuses and selects the search input on Cmd+K when it is already shown', async () => {
+    const onNavigate = vi.fn()
+    render(
+      <StoryShell story={story} activeSection="search" onNavigate={onNavigate}>
+        <input data-testid="search-input" defaultValue="abc" />
+      </StoryShell>,
+    )
+    const user = userEvent.setup()
+    await user.keyboard('{Meta>}k{/Meta}')
+    expect(onNavigate).not.toHaveBeenCalled()
+    expect(screen.getByTestId('search-input')).toHaveFocus()
+  })
 })

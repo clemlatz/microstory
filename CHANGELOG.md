@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-15
+
+- Added a Cmd+K (Ctrl+K on Windows/Linux) shortcut on every story page, including entry pages and while typing in a field: it opens the Search section with the cursor in the search field (or refocuses and selects the field if Search is already open). The Search section now also focuses its field whenever it opens, and the navigation drawer shows the shortcut next to "Search".
+
 ## 2026-11-03
 
 - Added a History button (clock icon) in the title bar when editing a character, note or documentation entry: it opens a read-only list of the entry's earlier versions, most recent first, each labelled "Before <date>" (a version is the entry as it was before an editing session). Selecting one shows its title and content as selectable text, so a deleted passage can be found and copied back. There is no restore action.

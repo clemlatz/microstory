@@ -47,6 +47,13 @@ export function SearchPanel({
   const [error, setError] = useState<string | null>(null)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Opening the Search section (from the drawer or Cmd/Ctrl+K) puts the cursor
+  // straight in the field.
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
 
   const errorMessage = useCallback(
     (err: unknown): string => (err instanceof Error && err.message ? err.message : t('search.error')),
@@ -93,6 +100,7 @@ export function SearchPanel({
   return (
     <div className="mb-8">
       <input
+        ref={inputRef}
         data-testid="search-input"
         type="search"
         className="min-h-11 w-full rounded-md border-none bg-[var(--reader-input-bg)] px-3 py-2 text-base text-[var(--reader-ink)] placeholder:text-[var(--reader-faint)]"

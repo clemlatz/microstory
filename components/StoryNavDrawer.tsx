@@ -300,6 +300,9 @@ export function StoryNavDrawer({
                 >
                   {item.icon}
                   {item.label}
+                  {item.section === 'search' && (
+                    <kbd className="ml-auto hidden text-xs font-normal text-[var(--reader-muted)] md:inline">⌘K</kbd>
+                  )}
                 </a>
               )
             })}
