@@ -36,16 +36,16 @@
     --foreground: #ededed;
 
     --reader-bg: #191919;
-    --reader-ink: #f3f0ea;
-    --reader-body: #cbc5bb;
-    --reader-muted: #c4beb4;
-    --reader-faint: #b0aaa0;
+    --reader-ink: #f2f2f2;
+    --reader-body: #c8c8c8;
+    --reader-muted: #c2c2c2;
+    --reader-faint: #aeaeae;
     --reader-danger: oklch(0.72 0.14 30);
-    --reader-rule: #2e2a26;
+    --reader-rule: #2a2a2a;
     --reader-accent: oklch(0.72 0.12 40);
-    --reader-accent-ink: #1b1917;
+    --reader-accent-ink: #191919;
     --reader-pending: oklch(0.78 0.14 60);
-    --reader-input-bg: #262220;
+    --reader-input-bg: #232323;
   }
 }
 
@@ -64,8 +64,8 @@
 @media (prefers-color-scheme: dark) {
   .surface-bar {
     --reader-bg: #121212;
-    --reader-input-bg: #262220;
-    --reader-rule: #2e2a26;
+    --reader-input-bg: #232323;
+    --reader-rule: #2a2a2a;
   }
 }
 
