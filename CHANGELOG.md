@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+- Search results are now ranked by relevance in one mixed list: a title equal to the search first, then titles starting with it, then titles containing it, then matches found only in the text (the more often it appears, the higher), alphabetical otherwise. The excerpt under each result now shows the passage around the match instead of the start of the text.
 - Search results are no longer grouped under Characters/Notes/Documentation headings: they form a single list, and each result shows its type (Character, Note or Documentation) next to its title. The order is unchanged.
 - Fixed the search field (and the rest of the section content) shifting slightly to the left when the results got long enough to show a scrollbar: the space for the scrollbar is now always reserved.
 - Fixed the search results flashing away and back while typing: the previous results now stay on screen until the new ones arrive.

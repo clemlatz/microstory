@@ -31,8 +31,8 @@ describe('searchKnowledgeBase', () => {
 
     expect(results).toEqual([
       { type: 'character', id: 'c1', title: 'Alice', snippet: 'Une héroïne curieuse' },
-      { type: 'note', id: 'n1', title: 'Règle du monde', snippet: 'La magie coûte cher' },
       { type: 'documentation', id: 'd1', title: 'Gravité', snippet: 'Un sixième' },
+      { type: 'note', id: 'n1', title: 'Règle du monde', snippet: 'La magie coûte cher' },
     ])
     expect(mockedSearchCharacters).toHaveBeenCalledWith('query', storyId)
     expect(mockedSearchNotes).toHaveBeenCalledWith('query', storyId)
@@ -45,5 +45,33 @@ describe('searchKnowledgeBase', () => {
     mockedSearchDocumentationEntries.mockReturnValue([])
 
     expect(searchKnowledgeBase('dragon', storyId)).toEqual([])
+  })
+
+  it('ranks by title match, then by occurrences in the text, then alphabetically, across types', () => {
+    const base = { createdAt: 1, updatedAt: 1 }
+    mockedSearchCharacters.mockReturnValue([
+      { id: 'c1', name: 'Zed', description: 'riven riven riven', ...base },
+      { id: 'c2', name: 'Riven', description: 'x', ...base },
+      { id: 'c3', name: 'Mont Riven', description: 'x', ...base },
+    ])
+    mockedSearchNotes.mockReturnValue([
+      { id: 'n1', title: 'Rivendell', content: 'x', ...base },
+      { id: 'n2', title: 'Amy', content: 'riven', ...base },
+    ])
+    mockedSearchDocumentationEntries.mockReturnValue([])
+
+    expect(searchKnowledgeBase('riven', storyId).map((r) => r.id)).toEqual(['c2', 'n1', 'c3', 'c1', 'n2'])
+  })
+
+  it('shows the passage around the first match in a long text', () => {
+    const content = `${'a '.repeat(150)}needle ${'b '.repeat(150)}`
+    mockedSearchCharacters.mockReturnValue([{ id: 'c1', name: 'X', description: content, createdAt: 1, updatedAt: 1 }])
+    mockedSearchNotes.mockReturnValue([])
+    mockedSearchDocumentationEntries.mockReturnValue([])
+
+    const [result] = searchKnowledgeBase('needle', storyId)
+    expect(result.snippet.startsWith('…')).toBe(true)
+    expect(result.snippet).toContain('needle')
+    expect(result.snippet.length).toBeLessThanOrEqual(201)
   })
 })
