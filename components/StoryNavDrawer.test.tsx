@@ -194,6 +194,26 @@ describe('StoryNavDrawer', () => {
     expect(screen.getByTestId('story-nav-characters')).toHaveAttribute('aria-expanded', 'true')
   })
 
+  it('keeps an entry opened from "Recently viewed" there, without unfolding its section', async () => {
+    window.localStorage.clear()
+    recordRecentEntity('s1', { kind: 'character', id: 'c1', title: 'Alice' })
+    const props = {
+      open: true,
+      storyId: 's1',
+      onClose: vi.fn(),
+      activeSection: 'characters' as const,
+      onNavigate: vi.fn(),
+      onBackToStories: vi.fn(),
+    }
+    const { unmount } = render(<StoryNavDrawer {...props} activeSection="overview" />)
+    await userEvent.click(screen.getByTestId('story-nav-recent-item'))
+    // The drawer remounts on the entry's page.
+    unmount()
+    render(<StoryNavDrawer {...props} activeEntry={{ kind: 'character', id: 'c1' }} />)
+    expect(screen.getByTestId('story-nav-recent-item')).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByTestId('story-nav-characters')).toHaveAttribute('aria-expanded', 'false')
+  })
+
   it('calls onNavigateToEntry when a recent entry is selected', async () => {
     window.localStorage.clear()
     recordRecentEntity('s1', { kind: 'note', id: 'n1', title: 'A note' })

@@ -7,6 +7,7 @@ import { useRecentEntities, type RecentEntityKind } from '@/lib/recentEntities'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { LogoutButton } from './LogoutButton'
 import { StoryNavSection } from './StoryNavSection'
+import { clearOpenedFromRecent, isOpenedFromRecent, markOpenedFromRecent } from '@/lib/recentOrigin'
 import { setNavSectionExpanded, useExpandedNavSections } from '@/lib/navExpandedSections'
 
 export type StorySection = 'search' | 'overview' | 'characters' | 'notes' | 'documentation'
@@ -159,7 +160,11 @@ export function StoryNavDrawer({
 
   // Reveal the section of the page being shown (an open entry, or a section
   // reached through its `?section=` URL) so the current item is visible.
-  const revealedKind = activeEntry?.kind ?? SECTION_KIND[activeSection]
+  // An entry opened from "Recently viewed" stays there: its section is neither
+  // unfolded nor highlighted.
+  const fromRecent = isOpenedFromRecent(activeEntry)
+  const sectionActiveEntry = fromRecent ? undefined : activeEntry
+  const revealedKind = fromRecent ? undefined : (activeEntry?.kind ?? SECTION_KIND[activeSection])
   useEffect(() => {
     if (storyId && revealedKind) setNavSectionExpanded(storyId, revealedKind, true)
   }, [storyId, revealedKind])
@@ -279,9 +284,12 @@ export function StoryNavDrawer({
                     untitledLabel={t(UNTITLED_LABELS[kind])}
                     expanded={expandedKinds.includes(kind)}
                     onToggle={() => storyId && setNavSectionExpanded(storyId, kind, !expandedKinds.includes(kind))}
-                    activeEntry={activeEntry}
+                    activeEntry={sectionActiveEntry}
                     activeEntryTitle={activeEntryTitle}
-                    onNavigateToEntry={onNavigateToEntry}
+                    onNavigateToEntry={() => {
+                      clearOpenedFromRecent()
+                      onNavigateToEntry?.()
+                    }}
                   />
                 )
               }
@@ -292,6 +300,7 @@ export function StoryNavDrawer({
                   href={`/story/${storyId}?section=${item.section}`}
                   aria-current={!activeEntry && item.section === activeSection ? 'page' : undefined}
                   onClick={(event) => {
+                    clearOpenedFromRecent()
                     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
                     event.preventDefault()
                     onNavigate(item.section)
@@ -324,7 +333,10 @@ export function StoryNavDrawer({
                           data-testid="story-nav-recent-item"
                           href={`/story/${storyId}/${RECENT_ENTITY_ROUTES[entity.kind].path}/${entity.id}`}
                           aria-current={isActive ? 'page' : undefined}
-                          onClick={onNavigateToEntry}
+                          onClick={() => {
+                            markOpenedFromRecent(entity.kind, entity.id)
+                            onNavigateToEntry?.()
+                          }}
                           className={
                             isActive
                               ? 'flex min-h-11 w-full items-center gap-2.5 rounded-md bg-[var(--reader-input-bg)] px-3 text-left text-lg font-medium text-[var(--reader-ink)] md:text-sm'
